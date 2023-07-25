@@ -95,6 +95,14 @@ const config = {
               label: 'PDF工具',
               to: 'https://tools.pdf24.org/zh/',
             },
+            {
+              label: 'stackblitz',
+              to: 'https://stackblitz.com/',
+            },
+            {
+              label: 'vscode自定义代码片段',
+              to: 'https://snippet-generator.app/',
+            },
           ],
         },
         {
@@ -183,7 +191,7 @@ const config = {
           ],
         },
       ],
-      copyright: `<p>Copyright © 2023 - 鲸落</p>`,
+      copyright:  `Copyright © ${new Date().getFullYear()} 鲸落<p><a href="https://beian.miit.gov.cn" class="footer_lin">皖ICP备2023012012号</a></p>`,
     },
     prism: {
       theme: require('prism-react-renderer/themes/vsLight'),
@@ -207,9 +215,9 @@ const config = {
       maxHeadingLevel: 4,
     },
     algolia: {
-      appId: 'GV6YN1ODMO',
-      apiKey: '50303937b0e4630bec4a20a14e3b7872',
-      indexName: 'kuizuo',
+      appId: 'RIMEHIIIP6',
+      apiKey: ' 0bb55046a96eb973a220fe57b2d2d3b5',
+      indexName: 'xiaojunnan',
     },
     zoom: {
       selector: '.markdown :not(em) > img',
@@ -305,7 +313,7 @@ const config = {
         feedOptions: {
           type: 'all',
           title: '鲸落',
-          copyright: `Copyright © ${new Date().getFullYear()} 鲸落`,
+          copyright: `Copyright © ${new Date().getFullYear()} 鲸落<p><a href="https://beian.miit.gov.cn" class="footer_lin">皖ICP备2023012012号</a></p>`,
         },
       },
     ],

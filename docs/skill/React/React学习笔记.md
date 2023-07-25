@@ -645,7 +645,10 @@ class App extends React.Component{
 - 安装脚手架：`npm install create-react-app -g`【全局安装】
 - 安装之后就可以创建react项目了【注意：项目名称**不能包含大写字母**】
 
-- 创建：`create-react-app 项目名称`
+- 创建
+  - js：`create-react-app 项目名称`
+
+  - ts：`create -react-app 项目名称 --template typescript`
 
 - 打开：`npm start`
 
@@ -3455,7 +3458,12 @@ export default store
         // reducer 放的是各个模块，将store更加细致的划分
         reducer: {
             listSlice:persistedListSlice,
-        }
+        },
+        //添加下述配置项,如果不添加，会报检测到不可序列化的值的错误，相关链接我放在下面
+        middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+          serializableCheck: false,
+        }),
     })
     
     const persistor = persistStore(store)
@@ -3484,7 +3492,10 @@ export default store
     );
     ```
 
-  - 
+- 不可序列化的值的错误相关链接
+
+  - https://redux-toolkit.js.org/api/getDefaultMiddleware#customizing-the-included-middleware
+- https://redux-toolkit.js.org/api/serializabilityMiddleware
 
 
 
@@ -4317,6 +4328,22 @@ export default Fun
 
 
 
+##### 补充
+
+`setKeepMsgCon((prevKeepMsgCon) => [...prevKeepMsgCon, msg]);`
+
+这行代码中使用了函数形式的 `setKeepMsgCon`，它接收一个函数作为参数，该函数用于计算新的状态值。**这种方式是为了确保在更新状态时，基于先前的状态进行更新，而不依赖于外部的状态。这样可以避免由于异步操作导致的不一致性或错误。**
+
+解释代码的步骤如下：
+
+1. `(prevKeepMsgCon) => [...]`: 这是一个箭头函数，它接收一个参数 `prevKeepMsgCon`，代表先前的状态值 `keepMsgCon`。箭头函数的返回值是一个新的数组，表示更新后的 `keepMsgCon` 状态。
+2. `...prevKeepMsgCon`: 这里使用了展开运算符 `...`，它将先前的状态数组 `prevKeepMsgCon` 展开，将数组中的所有元素作为新数组的一部分。
+3. `, msg`: `msg` 是一个新的消息对象，它是要添加到更新后的状态数组中的新元素。
+
+所以，整体来说，`setKeepMsgCon((prevKeepMsgCon) => [...prevKeepMsgCon, msg])` 的作用是将先前的状态数组 `keepMsgCon` 复制到一个新的数组中，并在新数组的末尾添加 `msg` 这个新的消息对象，然后用这个新的数组来更新 `keepMsgCon` 状态。这样就保证了状态的更新是基于先前的状态值，并且在异步操作中也能正确地更新状态，避免了由于异步操作导致的状态错误。
+
+
+
 ### 其他的hook
 
 #### 路由的
@@ -4338,7 +4365,16 @@ function clickHome(){
 
 ##### useParams
 
+params参数
+
 ##### useLocation
+
+拿到动态路由
+
+```jsx
+const loaction = useLocation()
+console.log(loaction)
+```
 
 
 
@@ -4533,6 +4569,7 @@ export default Fun
 ```jsx
 // 导入
 import { useSelector, useDispatch } from "react-redux"
+import { addNumberAction } from './store/modules/count'
 
 //使用 diapatch直接派发action
 const App = memo(()=>{
@@ -4706,6 +4743,29 @@ const App = memo(()=>{
 
 - css的class在jsx中为className
 - label标签中的for在jsx中为htmlFor
+
+
+
+### react项目基础配置
+
+- 文件夹目录
+  - assets
+  - base-ui
+  - components
+  - hooks
+  - router
+  - service
+  - store
+  - utils
+  - views
+
+- 安装croca配置路径：npm install @craco/craco 
+- CSS样式的重置：
+  - 使用安装并导入`npm install normalize.css`
+  - 配置自己的css重置`/assets/css/reset.css`
+  - 公共样式，比如主题色、布局宽度等`assets/css/common.css`
+- 路由配置
+- axios封装
 
 
 
@@ -4892,6 +4952,93 @@ background-image: url(${coverImg});
 
 
 
+### react配置路径
+
+- 安装依赖：`npm install @craco/craco `
+
+- 根路径下创建 craco.config.js
+
+  - ```js
+    const path = require("path")
+    module.exports = {
+      webpack:{
+        alias:{
+          "@":path.resolve(__dirname,"src")
+        }
+      }
+    }
+    ```
+
+- 修改package.json文件的script字段
+
+  - ```js
+        "scripts": {
+            "start": "craco start",
+            "build": "craco build",
+            "test": "craco test",
+            "eject": "react-scripts eject"
+         },
+    ```
+
+- 最后重启项目即可应用
+
+
+
+### 进入新页面在顶部不是底部
+
+```jsx
+//在App.jsx中配置，当页面发生跳转的时候，跳转到页面顶部
+import { useLocation } from 'react-router-dom'
+
+const App = memo(() => {
+
+  //配置当页面发生跳转的时候，跳转到页面顶部
+  const location = useLocation()
+  useEffect(()=>{
+    window.scrollTo(0,0)
+  },[location.pathname])
+
+  return (...)
+})
+
+export default App
+```
+
+
+
+### 开发环境和生产环境
+
+- 开发环境（development）： 是指程序猿专门用于开发的服务器，配置比较简单随意，主要是为了开发过程中调试方便，一般打开全部错误报告和测试工具。
+
+- 生产环境（production）：是指正式提供对外服务的，一般会关掉错误报告，打开错误日志。（就是线上环境，发布对外环境上，正式提供客户使用的环境）
+
+
+
+**那我们应该如何区分呢**
+
+方式一：
+
+基于webpack的项目，我们是可以区分现在是什么环境的：`process.env.NODE_ENV`
+
+```js
+export let BASE_URL = ''
+if(process.env.NODE_ENV === 'development'){
+    BASE_URL = 'http://codercba.com:9002'
+}else{
+    BASE_URL = 'http://codercba.pro:9002'
+}
+```
+
+
+
+方式二：配置文件：`.env`
+
+- 针对开发环境：`.env.development`
+- 针对生产环境：`.env.production`
+- 小细节：我们在文件里填入BASE_URL的时候，必须要比REACT_APP开头才会加载：`REACT_APP_BASE_URL`
+
+
+
 ### 函数式组件代码
 
 #### 点击事件
@@ -4972,7 +5119,15 @@ export default ParentComponent;
 
 
 
+### 图片引入
 
+```jsx
+// 文件中
+// 先引入
+import logo from '@/assets/svg/logo.svg‘
+//使用
+<img src={logo} onClick={clickHome} alt='logo'></img>
 
-
-
+// style-components中
+background-image: url(${require('@/assets/img/wrap-bg.png')})
+```

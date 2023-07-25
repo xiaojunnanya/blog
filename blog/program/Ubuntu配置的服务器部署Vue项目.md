@@ -1,7 +1,7 @@
 ---
 slug: /ubuntu
 title: Ubuntu配置的服务器部署Vue项目
-date: 2022-05-05
+date: 2021-11-12
 authors: jl
 tags: [Ubuntu, Vue, 服务器]
 keywords: [Ubuntu, Vue, 服务器]

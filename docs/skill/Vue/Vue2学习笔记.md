@@ -8,12 +8,7 @@ tags: [Vue2]
 keywords: [Vue2]
 ---
 
-## 补充
-
-[尚硅谷-张天禹](https://www.bilibili.com/video/BV1Zy4y1K7SH/?p=1&vd_source=dc1b135f25d3915f7546c15d552b1a56)
-
-
-## 初始Vue
+## 初识Vue
 
 ### hello world
 

@@ -21,7 +21,7 @@ const sidebars = {
         'skill/HTML与CSS/html',
         'skill/HTML与CSS/css',
         'skill/HTML与CSS/screen',
-        'skill/HTML与CSS/supplement',
+        'skill/HTML与CSS/skill',
       ],
     },
     {
@@ -54,7 +54,9 @@ const sidebars = {
         type: 'generated-index',
       },
       items: [
-        'skill/React/react'
+        'skill/React/react',
+        'skill/React/tsreact',
+        'skill/React/reactuse',
       ],
     },
     {
@@ -64,7 +66,19 @@ const sidebars = {
         type: 'generated-index',
       },
       items: [
-        'skill/Node/node'
+        'skill/Node/node',
+        'skill/Node/nodesql',
+        'skill/Node/nodeuse',
+      ],
+    },
+    {
+      label: 'TypeScript',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/TypeScript/typescript'
       ],
     },
     {
@@ -88,6 +102,16 @@ const sidebars = {
       items: [
         'skill/数据结构与算法/build',
         'skill/数据结构与算法/count',
+      ],
+    },
+    {
+      label: '每天一个小知识',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/每天一个小知识/info',
       ],
     },
   ],

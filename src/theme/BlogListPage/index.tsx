@@ -44,6 +44,9 @@ function BlogListPageMetadata(props: Props): JSX.Element {
 }
 
 function ViewTypeSwitch({ viewType, toggleViewType }: any): JSX.Element {
+  console.log('viewType', viewType);
+  console.log('toggleViewType', toggleViewType);
+  
   return (
     <div className="bloghome__swith-view">
       <Icon

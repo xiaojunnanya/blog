@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useTrail, animated } from '@react-spring/web'
 import Translate from '@docusaurus/Translate'
@@ -24,6 +24,50 @@ function Hero() {
       friction: 45,
     },
   })
+
+  const [ isShow, setIsShow ] = useState<boolean>(false)
+
+  useEffect(() => {
+    const handleScroll = (event) => {
+      if (isShow) {
+        event.preventDefault(); // 阻止默认的滚轮行为
+      }
+    };
+
+    window.addEventListener('wheel', handleScroll, {passive: false});
+
+    return () => {
+      window.removeEventListener('wheel', handleScroll);
+    };
+  }, [isShow]);
+
+  const showVideo = () =>{
+    setIsShow(true)
+    window.scrollTo(0,0)
+  }
+
+  const noShow = () =>{
+    setIsShow(false)
+  }
+
+  
+  
+  // useEffect(() => {
+  //   const handleScroll = (event) => {
+  //     // 在这里处理滚轮事件
+  //     console.log('滚轮事件触发');
+  //   };
+
+  //   // 在组件挂载时订阅滚轮事件
+  //   window.addEventListener('wheel', handleScroll);
+
+  //   // 在组件卸载时取消订阅滚轮事件
+  //   return () => {
+  //     window.removeEventListener('wheel', handleScroll);
+  //   };
+  // }, []);
+
+  
 
   return (
     <animated.div className={styles.hero}>
@@ -65,7 +109,7 @@ function Hero() {
               ),
             }}
           >
-            {`你可以随处逛逛，查看{note}、{project}、{link}、以及我的{idea}。`}
+            {`你可以随处逛逛，查看{note}、{project}、{link}。`}
           </Translate>
         </animated.p>
         <SocialLinks style={trails[2]} />
@@ -73,11 +117,30 @@ function Hero() {
           <a className={styles.intro} href={'./about'}>
             <Translate id="hompage.hero.introduce">自我介绍</Translate>
           </a>
+          <a className={styles.intro} style={{marginLeft:'30px',cursor:'pointer'}}>
+            <div onClick={showVideo}>介绍视频</div>
+          </a>
         </animated.div>
       </div>
       <div className={styles.bloghome__image}>
         <HeroMain />
       </div>
+      {
+        isShow && (
+          <div className={styles.videoShow}>
+
+            <div className={styles.showTitle}>
+              <div>介绍视频</div>
+              <div onClick={noShow} className={styles.cursor}>×</div>
+            </div>
+            <div className={styles.line}></div>
+            <div>
+              <video src="http://62.234.178.157/video/1.mp4" controls></video>
+            </div>
+
+          </div>
+        )
+      }
     </animated.div>
   )
 }

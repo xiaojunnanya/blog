@@ -1,7 +1,7 @@
 ---
 slug: /hexo
 title: Hexo+github搭建个人博客
-date: 2022-04-02
+date: 2021-09-09
 authors: jl
 tags: [Hexo, Github]
 keywords: [Hexo, Github]

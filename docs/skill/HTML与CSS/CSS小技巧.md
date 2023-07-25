@@ -1,64 +1,16 @@
 ---
-id: supplement
-slug: /htmlAndCss/supplement
-title: 补充
+id: skill
+slug: /htmlAndCss/skill
+title: CSS小技巧
 date: 2023-02-14
 authors: 鲸落
 tags: [HTML, CSS]
 keywords: [HTML, CSS]
 ---
 
-## 认识URL
-
-### URL的格式
-
-**URL代表着是统一资源定位符**
-
-URL的标准格式：[协议类型]://[服务器地址]:[端口号]/[文件路径]:[文件名]/[][]?[查询]#[片段ID]
-
-![image-20230203153036322](HTML+CSS.assets/image-20230203153036322.png)
 
 
-
-### 和URI的区别
-
-- 区别
-  - URl = Uniform Resource ldentifier  统一资源**标志符**，用于标识Web技术使用的逻辑或物理资源
-  - URL = Uniform Resource Locator    统一资源**定位符**，俗称网络地址，相当于网络中的门牌号
-- URI在某一个规则下能把一个资源独一无二的识别出来。
-  - URL作为一个网络Web资源的地址，可以唯一将一个资源识别出来，所以URL是一个URI
-  - 所以URL是URI的一个子集
-  - 但是URI并不一定就是URL
-
-
-
-## 元素语义化
-
-元素的语义化：用正确的元素做正确的事情
-
-好处：
-
-- 方便代码维护
-- 减少让开发者之间的沟通成本
-- 能让语音合成工具正确识别网页元素的用途，以便作出正确的反应
-- 有利于SEO
-- ...
-
-
-
-
-
-## SEO
-
-搜索擎优化(英语: search engine optimization，缩写为SEO)是通过了解搜索引擎的运作规则来调整网站，以及提高网站在有关搜索引擎内排名的方式。
-
-
-
-
-
-## CSS补充
-
-### 单行显示省略号
+## 单行显示省略号
 
 ```css
 white-space: nowrap;	/* 文本一行显示 */
@@ -68,7 +20,7 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 
 
-### 去除表格中间隙和两层边框
+## 去除表格中间隙和两层边框
 
 当我们给td设置 border的时候，两个单元格之间会出现间隙和两层边框
 
@@ -76,7 +28,7 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 
 
-### 用CSS画一个三角形
+## 用CSS画一个三角形
 
 使用**border**
 
@@ -99,9 +51,9 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 
 
-### 随着浏览器窗口变化，图片中间部分一直在浏览器中间显示
+## 随着浏览器窗口变化，图片中间部分一直在浏览器中间显示
 
-#### 方法一：使用background-position
+### 方法一：使用background-position
 
 ```html
 <style>
@@ -117,7 +69,7 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 
 
-#### 方法二：使用relative
+### 方法二：使用relative
 
 ```html
 <style>
@@ -143,7 +95,7 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
  
 
-### 去除多个行内级元素中间的空格
+## 去除多个行内级元素中间的空格
 
 造成这样的原因是因为我们在写代码的时候，换行符被浏览器解析了
 
@@ -163,7 +115,7 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 
 
-### 中间居中布局
+## 中间居中布局
 
 1、**效果图**
 
@@ -262,9 +214,9 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 
 
-### 解决如下布局问题
+## 解决如下布局问题
 
-#### 问题
+### 问题
 
 ![image-20230214224620895](HTML+CSS.assets/image-20230214224620895.png)
 
@@ -302,7 +254,7 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 
 
-#### 解决办法
+### 解决办法
 
 加入span元素（或者i也行）去填充空缺的位置
 
@@ -348,7 +300,7 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 
 
-### 蒙版
+## 蒙版
 
 ```html
  <div className="coverAll"></div>
@@ -364,3 +316,91 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
     background-color:rgba(255,255,255,.8)
 }
 ```
+
+
+
+## 毛玻璃
+
+![image-20230214230002773](HTML+CSS.assets/image-20230221080822227.png)
+
+```html
+<div class="box">
+  <div class="frosted__glass">毛玻璃</div>
+</div>
+```
+
+```css
+.box {
+  width: 700px;
+  height: 700px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('http://k21vin.gitee.io/front-end-data-visualization/assets/bg01.13dfb262.jpg');
+  background-size: 100%;
+  background-position: center;
+}
+
+.frosted__glass {
+  width: 80%;
+  height: 40%;
+  border-radius: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 60px;
+  letter-spacing: 0.5em;
+  backdrop-filter: blur(20px);
+  color: #fff;
+  box-shadow: 0 0 30px 10px rgba(0, 0, 0, .3);
+}
+```
+
+
+
+在 `CSS` 中，想要实现模糊效果，可以使用 **滤镜** 。背景通常设置成黑色、灰色或者白色，然后再设置一下背景的不透明度就能实现一个简单的毛玻璃效果。
+
+上面的代码中，`backdrop-filter: blur(20px);` 是重点。有了它就实现了毛玻璃的基本效果。
+
+最后加上 `box-shadow: 0 0 30px 10px rgba(0, 0, 0, .3);` 让毛玻璃与背景之间产生一点阴影，看起来会更自然
+
+
+
+## 使用视频作为背景
+
+[CSS技巧系列--使用视频作为背景_css 视频背景](https://blog.csdn.net/chengqige/article/details/122643867)
+
+```html
+<div class="video-box">
+   <video class="video-background" preload="auto" loop playsinline autoplay src="链接" tabindex="-1" muted="muted"></video>
+</div>
+```
+
+```css
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.video-box {
+    position: relative;
+    height: 100vh;
+    background-color: #C1CFF7;
+    /*进行视频裁剪*/
+    overflow: hidden;
+}
+
+.video-box .video-background {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    /*保证视频内容始终居中*/
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    /*保证视频充满屏幕*/
+    object-fit: cover;
+    min-height: 800px;
+}
+```
+
