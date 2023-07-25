@@ -215,9 +215,11 @@ const config = {
       maxHeadingLevel: 4,
     },
     algolia: {
-      appId: 'RIMEHIIIP6',
-      apiKey: ' 0bb55046a96eb973a220fe57b2d2d3b5',
-      indexName: 'xiaojunnan',
+      appId: 'PQL662R8EV',
+      apiKey: 'e01d991491c4782443970201760c2966',
+      indexName: 'My First Application',
+      placeholder: "请输入关键词",
+      buttonText: "搜索"
     },
     zoom: {
       selector: '.markdown :not(em) > img',
@@ -301,7 +303,7 @@ const config = {
         path: 'blog',
         routeBasePath: '/',
         editUrl: ({ locale, blogDirPath, blogPath, permalink }) =>
-          `https://github.com/kuizuo/blog/edit/main/${blogDirPath}/${blogPath}`,
+          `https://github.com/xiaojunnanya/blog`,
         editLocalizedFiles: false,
         blogDescription: '鲸落的个人博客',
         blogSidebarCount: 10,
