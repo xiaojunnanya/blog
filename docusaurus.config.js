@@ -215,11 +215,9 @@ const config = {
       maxHeadingLevel: 4,
     },
     algolia: {
-      appId: 'PQL662R8EV',
-      apiKey: 'e01d991491c4782443970201760c2966',
-      indexName: 'My First Application',
-      placeholder: "请输入关键词",
-      buttonText: "搜索"
+      appId: 'RIMEHIIIP6',
+      apiKey: '0bb55046a96eb973a220fe57b2d2d3b5',
+      indexName: 'xiaojunnan'
     },
     zoom: {
       selector: '.markdown :not(em) > img',
