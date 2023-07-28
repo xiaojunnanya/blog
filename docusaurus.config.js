@@ -96,8 +96,8 @@ const config = {
               to: 'https://tools.pdf24.org/zh/',
             },
             {
-              label: 'stackblitz',
-              to: 'https://stackblitz.com/',
+              label: 'codesandbox',
+              to: 'https://codesandbox.io/',
             },
             {
               label: 'vscode自定义代码片段',

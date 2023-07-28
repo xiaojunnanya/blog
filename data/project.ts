@@ -14,17 +14,44 @@ export const projects: Project[] = [
     preview: '/img/project/blog.png',
     website: 'http://www.xiaojunnan.cn/',
     source: 'https://github.com/xiaojunnanya/blog',
-    tags: ['opensource', 'design', 'favorite'],
+    tags: ['personal', 'opensource', 'design'],
     type: '博客',
   },
   {
     title: '鲸落',
-    description: 'Hexo+github搭建个人静态博客',
+    description: 'Hexo + Github搭建个人静态博客',
     preview: '/img/project/hexoGithub.png',
     website: 'https://xiaojunnanya.github.io/',
     source: 'https://github.com/xiaojunnanya/xiaojunnanya.github.io',
-    tags: ['opensource', 'design', 'favorite'],
+    tags: ['opensource', 'design', 'personal'],
     type: '博客',
+  },
+  {
+    title: '实时聊天前端',
+    description: '基于react的实时聊天前端部分',
+    preview: '/img/project/chatFrontEnd.png',
+    website: 'http://www.xiaojunnan.cn:84/login',
+    source: 'https://github.com/xiaojunnanya/chat-frontEnd',
+    tags: ['opensource', 'personal'],
+    type: '个人项目',
+  },
+  {
+    title: '实时聊天后端',
+    description: '基于node/express的实时聊天后端部分',
+    preview: '/img/project/null.png',
+    website: '',
+    source: 'https://github.com/xiaojunnanya/chat-backEnd',
+    tags: ['opensource', 'personal'],
+    type: '个人项目',
+  },
+  {
+    title: '仿爱彼迎页面',
+    description: '初学React仿爱彼迎页面',
+    preview: '/img/project/airbnbReact.png',
+    website: 'http://www.xiaojunnan.cn:81/home',
+    source: 'https://github.com/xiaojunnanya/airbnbReact',
+    tags: ['opensource', 'personal'],
+    type: '个人项目',
   }
 ]
 
@@ -34,6 +61,7 @@ export type Tag = {
   color: string
 }
 
+// tags的类型
 export type TagType =
   | 'favorite'
   | 'opensource'
@@ -42,7 +70,8 @@ export type TagType =
   | 'large'
   | 'personal'
 
-export type ProjectType = 'personal' | 'web' | 'app' | 'toy' | 'other' | '博客'
+  // 添加个人项目的类型
+export type ProjectType = '博客' | '个人项目'
 
 export type Project = {
   title: string
@@ -62,7 +91,7 @@ export const Tags: Record<TagType, Tag> = {
   },
   opensource: {
     label: '开源',
-    description: '开源项目可以提供灵感!',
+    description: '开源项目',
     color: '#39ca30',
   },
   product: {
