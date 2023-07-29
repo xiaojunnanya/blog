@@ -52,8 +52,7 @@ function BlogPostPageContent({
       {(nextItem || prevItem) && (
         <BlogPostPaginator nextItem={nextItem} prevItem={prevItem} />
       )}
-      {/* github登录评论：现在有问题 */}
-      {/* {!hideComment && <Comment />} */}
+      {!hideComment && <Comment />}
       <BackToTopButton />
     </BlogLayout>
   )

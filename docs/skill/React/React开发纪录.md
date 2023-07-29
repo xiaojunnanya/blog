@@ -147,6 +147,34 @@ root.render(
 
 1. `(prevKeepMsgCon) => [...]`: 这是一个箭头函数，它接收一个参数 `prevKeepMsgCon`，代表先前的状态值 `keepMsgCon`。箭头函数的返回值是一个新的数组，表示更新后的 `keepMsgCon` 状态。
 2. `...prevKeepMsgCon`: 这里使用了展开运算符 `...`，它将先前的状态数组 `prevKeepMsgCon` 展开，将数组中的所有元素作为新数组的一部分。
-3. `, msg`: `msg` 是一个新的消息对象，它是要添加到更新后的状态数组中的新元素。
+3. `msg`: `msg` 是一个新的消息对象，它是要添加到更新后的状态数组中的新元素。
 
 所以，整体来说，`setKeepMsgCon((prevKeepMsgCon) => [...prevKeepMsgCon, msg])` 的作用是将先前的状态数组 `keepMsgCon` 复制到一个新的数组中，并在新数组的末尾添加 `msg` 这个新的消息对象，然后用这个新的数组来更新 `keepMsgCon` 状态。这样就保证了状态的更新是基于先前的状态值，并且在异步操作中也能正确地更新状态，避免了由于异步操作导致的状态错误。
+
+```tsx
+// eg
+
+// 接收画布的信息
+socket.on('canvasData',(msg: canavsType)=>{
+    const { isDown, x, y, canvasColor, lineSize } = msg
+    // 保存绘画信息
+    const a: canavsType[] = [...drawed]
+    a.push(msg)
+    setDrawed((drawed) => [...drawed, msg]);
+
+    if(isDown){// 是不是第一次点下
+        ctx.beginPath()
+        ctx.moveTo(x, y)
+    }else{
+        ctx.lineTo(x, y)
+        // 填充颜色
+        ctx.strokeStyle = canvasColor
+        // 设置线条宽度
+        ctx.lineWidth = lineSize
+        ctx.stroke()
+    }
+
+})
+```
+
+- `setDrawed((drawed) => drawed.slice(0, -1))`

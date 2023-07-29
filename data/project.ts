@@ -52,6 +52,15 @@ export const projects: Project[] = [
     source: 'https://github.com/xiaojunnanya/airbnbReact',
     tags: ['opensource', 'personal'],
     type: '个人项目',
+  },
+  {
+    title: '网易云音乐',
+    description: '基于ts+react实现网易云音乐部分内容',
+    preview: '/img/project/wyyyy.png',
+    website: 'http://www.xiaojunnan.cn:83/discover/recommend',
+    source: 'https://github.com/xiaojunnanya/cloud_music',
+    tags: ['opensource', 'personal'],
+    type: '个人项目',
   }
 ]
 
