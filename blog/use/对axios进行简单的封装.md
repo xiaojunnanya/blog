@@ -3,8 +3,8 @@ slug: /tsaxios
 title: 用ts对axios进行一个最简单的封装
 date: 2023-07-09
 authors: jl
-tags: [ts, axios]
-keywords: [ts, axios]
+tags: [使用, axios, ts ]
+keywords: [使用, axios, ts ]
 ---
 
 ## 目录结构

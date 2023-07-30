@@ -106,13 +106,13 @@ const sidebars = {
       ],
     },
     {
-      label: '每天一个小知识',
+      label: '零碎知识点',
       type: 'category',
       link: {
         type: 'generated-index',
       },
       items: [
-        'skill/每天一个小知识/info',
+        'skill/零碎知识点/info',
       ],
     },
   ],

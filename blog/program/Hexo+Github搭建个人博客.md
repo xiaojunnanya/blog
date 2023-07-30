@@ -3,8 +3,8 @@ slug: /hexo
 title: Hexo+github搭建个人博客
 date: 2021-09-09
 authors: jl
-tags: [Hexo, Github]
-keywords: [Hexo, Github]
+tags: [爱捣鼓, Hexo, Github]
+keywords: [爱捣鼓, Hexo, Github]
 ---
 
 欢迎来到我的博客。对于一名大学生来说，拥有自己的博客不论是在考研复试中还是找工作面试中，都是一个加分项，接下来我将详细步骤写下来，大家安装我的步骤操作即可

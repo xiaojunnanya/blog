@@ -178,3 +178,31 @@ socket.on('canvasData',(msg: canavsType)=>{
 ```
 
 - `setDrawed((drawed) => drawed.slice(0, -1))`
+
+
+
+## 警告与错误
+
+### React报警告，warning: React does not recognize the `subTitle` prop on a DOM element.
+
+在使用 React 和 styled-components时，可能会遇到这样的写法
+
+```ts
+// tsx
+<CanvasStyled isErasing={isErasing}></CanvasStyled>
+
+// CanvasStyled:style-componets
+ cursor: {props => (props.isErasing ? 'move' : 'crosshair')};
+```
+
+原因： 不要将组件的属性, 传给DOM节点。
+
+解决办法：防止样式化组件使用的 prop 被传递到底层 React 节点或渲染到 DOM 元素
+
+```ts
+<CanvasStyled $isErasing={isErasing}></CanvasStyled>
+
+cursor: ${props => (props.$isErasing ? 'move' : 'crosshair')};
+```
+
+官网地址：[styled-components: API Reference](https://styled-components.com/docs/api#transient-props)
