@@ -54,20 +54,20 @@ const config = {
           position: 'right',
           items: [
             {
-              label: '标签',
-              to: 'tags',
-            },
-            {
-              label: '归档',
-              to: 'archive',
-            },
-            {
               label: '学习笔记',
               to: 'docs/skill/',
             },
             {
               label: '工具推荐',
               to: 'docs/tools/',
+            },
+            {
+              label: '标签',
+              to: 'tags',
+            },
+            {
+              label: '归档',
+              to: 'archive',
             },
             // {
             //   label: '前端示例',
@@ -102,6 +102,10 @@ const config = {
             {
               label: 'vscode自定义代码片段',
               to: 'https://snippet-generator.app/',
+            },
+            {
+              label: 'algolia',
+              to: 'https://www.algolia.com/',
             },
           ],
         },

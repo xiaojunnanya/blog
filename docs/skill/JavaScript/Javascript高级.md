@@ -754,7 +754,7 @@ person1.obj.foo2().call(person2)// 上层作用域：obj(隐式绑定)
 
 ### 执行上下文
 
-- js引擎内部有一个**执行上下文**（Execution Context Stack，简称ECS），它用于执行**代码的调用栈**
+- js引擎内部有一个**执行上下文栈**（Execution Context Stack，简称ECS），它用于执行**代码的调用栈**
 - 那么现在它要执行谁呢？执行的是**全局的代码块**：
   - 全局的代码块为了执行会构建一个 **Global Execution Context (GEC，全局上下文)** 
   - GEC会被放入到ECS中执行
