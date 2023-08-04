@@ -1128,15 +1128,13 @@ myPromise.allSettled([p1, p2, p3]).then(res=>{
 
 呜呜呜为啥不行
 
-
-
-
-
 [剩余的](E:\coderwhy\03-JavaScript-高级\深入javascript高级语法\20.手写Promise的整个逻辑和API.mp4)：02:08:00
 
 
 
 ## 防抖函数
+
+**基本功能**
 
 ```js
 <input type="text" name="" id="">
@@ -1151,7 +1149,7 @@ function myDebounce(fn, delay){
         // 3.如果再次触发，取消上一次的触发
         if(timer) clearTimeout(timer)
         timer = setTimeout(()=>{
-            fn.apply(this)
+            fn()
             // 执行函数之后，将timer重置为null
             timer = null
         }, delay)
@@ -1170,37 +1168,70 @@ ipt.oninput = myDebounce(function(){
 </script>
 ```
 
+**this绑定和传参**
+
+```js
+<input type="text">
+
+<script>
+
+function myDebounce(fn, delay){
+    let time = null
+
+    // 携带多个参数
+    const _debounce = function(...arg){
+        if(time) clearTimeout(time)
+        time = setTimeout(()=>{
+            // 绑定inp的this
+            fn.apply(this, arg)
+        }, delay)
+    }
+
+    return _debounce
+}
+
+
+const inp = document.querySelector('input')
+
+let index = 0
+inp.oninput = myDebounce(function(e){
+    console.log(`${index++}次执行`, this.value, e);
+}, 1000)
+
+</script>
+```
+
+
+
 
 
 ## 节流函数
 
 ```js
-<input type="text" name="" id="">
-   
+<input type="text">
+
 <script>
-    
-function myThrottle(fn, interval){
+
+function myThrottle(fn, time){
     let startTime = 0
-    const _myThrottle = function(){
-        const nowTime = new Date().getTime()
-        const waitTime =interval - (nowTime - startTime)
-        if(waitTime <= 0){
-            fn.apply(this)
-            startTime = nowTime
+    const _throttle = function(...arg){
+        const newTime = new Date().getTime()
+        const waitTime = time - ( newTime - startTime )
+
+        if(waitTime <=0 ){
+            fn.apply(this, arg)
+            startTime = newTime
         }
     }
 
-    return _myThrottle
-
+    return _throttle
 }
 
+const ipt = document.querySelector('input')
 
-const ipt = document.querySelector("input")
-
-let index = 0
-ipt.oninput = myThrottle(function(event){
-    console.log(`执行次数${++index}`);
-},1000)
+ipt.oninput = myThrottle(function(e){
+    console.log(this.value, e);
+}, 1000)
 
 </script>
 ```
@@ -1240,19 +1271,21 @@ const info = {
     age:18,
     friend:{
         name:"b",
+        other: undefined,
         address:{
             name:"c",
-            detail:"d"
+            detail:"d",
+            foo: function(){
+                console.log('一层一层的');
+            }
         }
     }
 }       
 
 const newObj = deepCopy(info)
-console.log(newObj);
-
 newObj.friend.address.name = "dwasdas"
-
-console.log(info.friend.address.name);//c
+console.log('info', info);
+console.log('newObj', newObj);
 ```
 
 
