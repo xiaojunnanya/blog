@@ -3,8 +3,8 @@ slug: /sessionTokenCookie
 title: session、token、cookie的区别
 date: 2023-07-23
 authors: jl
-tags: [知识点, 前后端身份验证 ]
-keywords: [知识点, 前后端身份验证 ]
+tags: [知识点, js ]
+keywords: [知识点, js ]
 ---
 
 ## 写在前面

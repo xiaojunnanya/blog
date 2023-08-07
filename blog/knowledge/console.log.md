@@ -3,8 +3,8 @@ slug: /console
 title: console.log是异步还是同步？为什么console.log有时候不准？
 date: 2023-07-06
 authors: jl
-tags: [知识点, console.log]
-keywords: [知识点, console.log]
+tags: [知识点, js]
+keywords: [知识点, js]
 ---
 
 
