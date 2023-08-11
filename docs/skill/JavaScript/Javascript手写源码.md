@@ -1184,6 +1184,7 @@ function myDebounce(fn, delay){
         time = setTimeout(()=>{
             // 绑定inp的this
             fn.apply(this, arg)
+            timer = null
         }, delay)
     }
 
@@ -1284,6 +1285,11 @@ const info = {
 
 const newObj = deepCopy(info)
 newObj.friend.address.name = "dwasdas"
+newObj.friend.address.foo = function() {
+    console.log('dasdasda');
+}
+info.friend.address.foo()
+newObj.friend.address.foo()
 console.log('info', info);
 console.log('newObj', newObj);
 ```
