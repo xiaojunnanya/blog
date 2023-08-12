@@ -106,21 +106,26 @@ const sidebars = {
       ],
     },
     {
-      label: '零碎知识点',
+      label: '抓住小细节',
       type: 'category',
       link: {
         type: 'generated-index',
       },
       items: [
-        'skill/零碎知识点/info',
+        'skill/抓住小细节/detail',
+        'skill/抓住小细节/detailhtmlcss',
+        'skill/抓住小细节/detailjs',
+        'skill/抓住小细节/detailvue',
+        'skill/抓住小细节/detailreact',
+        'skill/抓住小细节/detailnode',
+        'skill/抓住小细节/detailts',
+        'skill/抓住小细节/detailllqyl',
+        'skill/抓住小细节/detailwl',
       ],
     },
   ],
   tools: [
-    'tools/introduction',
-    'tools/everything-quick-search-local-files',
-    'tools/windows-custom-right-click-menu',
-    'tools/vscode-config',
+    'tools/introduction'
   ]
 }
 
