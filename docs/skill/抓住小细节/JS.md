@@ -57,6 +57,8 @@ JavaScript共有八种数据类型，分别是 Undefined、Null、Boolean、Numb
 
 - 当使用双等号对两种类型的值进行比较时会返回 true，使用三个等号时会返回 false。
 
+- undefined是原生属性window.undefined。当在控制台输入两个的时候颜色也是不一样的
+
 
 
 ## typeof null 结果是什么，为什么
@@ -133,6 +135,7 @@ JavaScript中Number.MAX_SAFE_INTEGER表示最大安全数字，计算结果是90
 
 - 使用JSON自带的.stringify方法来判断，`JSON.stringify(obj) === '{}'`
 - 使用ES6新增的方法object.keys()来判断【判断length = 0】
+- 使用ES6新增的方法object.values()来判断【判断length = 0】
 
 
 

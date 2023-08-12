@@ -1,7 +1,7 @@
 ---
 id: detailts
 slug: /detailts
-title: Ts   
+title: TS
 date: 2023-07-14
 authors: 鲸落
 tags: [抓住小细节]
