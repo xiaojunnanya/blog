@@ -1377,21 +1377,259 @@ export default xjnAxios
 
 
 
+## 数组扁平化
+
+### Array.prototype.flat()
+
+```js
+const animals = [1, [2, 3], [4, [5, [6]], 7]];
+
+// 不传参数时，默认“拉平”一层
+animals.flat();
+// [1, 2, 3, 4, [5, [6]], 7]
+
+// 传入一个整数参数，整数即“拉平”的层数
+animals.flat(2);
+// [1, 2, 3, 4, 5, [6], 7]
+
+// Infinity 关键字作为参数时，无论多少层嵌套，都会转为一维数组
+animals.flat(Infinity);
+// [1, 2, 3, 4, 5, 6, 7]
+
+// 传入 <=0 的整数将返回原数组，不“拉平”
+animals.flat(0);
+animals.flat(-10);
+// [1, [2, 3], [4, [5, [6]], 7]];
+
+// 如果原数组有空位，flat()方法会跳过空位。
+[1, 2, 3, 4,,].flat();
+// [1, 2, 3, 4]
+```
+
+
+
+### 用`forEach`实现`flat`
+
+```js
+const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "鲸落" }];
+function flat(arr) {
+  let arrResult = [];
+  arr.forEach(item => {
+    if (Array.isArray(item)) {
+      arrResult.push(...flat(item))
+    } else {
+      arrResult.push(item);
+    }
+  });
+  return arrResult;
+}
+flat(arr)
+// [1, 2, 3, 4, 1, 2, 3, 1, 2, 3, 1, 2, 3, 5, "string", { name: "鲸落" }];
+```
+
+
+
+### 用 `reduce` 实现 `flat` 函数
+
+```js
+const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "鲸落" }];
+console.log(arr.flat(Infinity));
+
+// 首先使用 reduce 展开一层
+let a = arr.reduce((pre, cur) => pre.concat(cur), []);
+console.log(a);
+// [1, 2, 3, 4, 1, 2, 3, [1, 2, 3, [1, 2, 3]], 5, "string", { name: "鲸落" }];
+
+// 用 reduce 展开一层 + 递归
+const flat = arr => {
+  return arr.reduce((pre, cur) => {
+    return pre.concat(Array.isArray(cur) ? flat(cur) : cur);
+  }, []);
+};
+console.log(flat(arr));
+// [1, 2, 3, 4, 1, 2, 3, 1, 2, 3, 1, 2, 3, 5, "string", { name: "鲸落" }];
+```
+
+
+
+## 实现call/apply/bind
+
+### call/apply
+
+```js
+function foo(name,age){
+    console.log('执行');
+    console.log(this,name,age);
+}
+
+//apply多种情况：
+// apply({name:'jl'})
+// apply("abc")
+// apply(123)
+// apply(null)
+// apply(undefined)
+
+
+//apply
+Function.prototype.jlApply = function(thisArg,otherArgs){
+    //this ——> 调用的函数对象
+    //thisArg ——> 传入的第一个参数，要绑定的this
+    console.log(this);//foo
+
+    // 1.先确定传来的thisArg的类型
+    // 1.1 null和undefined将this指向window,如果不是转为Object类型
+    thisArg = (thisArg === null || thisArg === undefined) ? window : Object(thisArg)
+
+    // 在thisArg上添加fn属性，并设置为可删除不可枚举，值为调用的对象函数
+    Object.defineProperty(thisArg,"fn",{
+        configurable:true,
+        enumerable:false,
+        value:this
+    })
+    
+    //原理：
+    // thisArg.fn = this
+    // thisArg.fn()
+
+    thisArg.fn(...otherArgs)
+    
+    //最后删除这个 fn
+    delete thisArg.fn
+}
+
+foo.jlApply({name:"aaa"},["jl",18])
+foo.jlApply(123,["jl",18])
+foo.jlApply(null,["jl",18])
+
+
+//call
+Function.prototype.jlCall = function(thisArg,...otherArgs){
+    //this ——> 调用的函数对象
+    //thisArg ——> 传入的第一个参数，要绑定的this
+    console.log(this);
+
+    // 1.先确定传来的thisArg的类型
+    // 1.1 null和undefined将this指向window,如果不是转为Object类型
+    thisArg = (thisArg === null || thisArg === undefined) ? window : Object(thisArg)
+
+    // 在thisArg上添加fn属性，并设置为可删除不可枚举，值为调用的对象函数
+    Object.defineProperty(thisArg,"fn",{
+        configurable:true,
+        enumerable:false,
+        value:this
+    })
+
+    thisArg.fn(...otherArgs)
+
+    //最后删除这个 fn
+    delete thisArg.fn
+}
+
+foo.jlCall({name:"jl"},"jl",18)
+foo.jlCall(123,"jl",18)
+foo.jlCall(undefined,"jl",18)
+```
+
+
+
+### bind
+
+```js
+function foo(name,age){
+    // console.log('执行');
+    console.log(this,name,age);
+}
+
+// var bar = foo.bind({name:"jl"})
+// bar("jl",18)
+
+Function.prototype.jlBind = function(thisArg, ...otherArgs){
+    thisArg = (thisArg === null || thisArg === undefined) ? window : Object(thisArg)
+    Object.defineProperty(thisArg,"fn",{
+        configurable:true,
+        enumerable:false,
+        value:this
+    })
+    //使用箭头函数可以拿到调用者的this，默认函数有的this指向window
+    return (...newArgs)=>{//这个...newArgs是在   newFoo("jl",18)中的参数
+        //将newArgs和otherArgs结合
+        //方式一：var allArgs = otherArgs.concat(newArgs)
+        //方式二：
+        var allArgs = [...otherArgs,...newArgs]
+        // thisArg.fn(...otherArgs)//...otherArgs 是在jlBind中的参数
+        thisArg.fn(...allArgs) 
+    }
+}
+
+var newFoo = foo.jlBind({name:"jl"})
+newFoo("jl",18)
+```
+
+
+
+## 实现函数柯里化
+
+`柯里化`:其实是函数式编程的一个过程，在这个过程中我们能把一个带有多个参数的函数转换成一系列的嵌套函数。它返回一个新函数，这个新函数期望传入下一个参数。
+
+前置知识：`Funcxxx.length：参数长度`
+
+```js
+// 实现的功能
+function sum(x, y, z) {
+    console.log(x + y + z);
+}
+
+let foo = curry(sum)  // 将sum函数柯里化
+
+foo(10)(20)(30) // 60
+foo(10,20)(30) // 60
+foo(10,20,30) // 60
+```
+
+```js
+function curry(fn) {
+    function curryFn(...args) {
+      	// fn.length 代表的是获取函数行参的长度
+        // 当收集到的参数和fn中要传入的参数数量相同时，就可以执行fn函数了
+        if (args.length >= fn.length) {
+            fn.call(this, ...args)
+        } else {
+          // 利用每次currFn的递归去收集参数args.concat(newArgs)
+            return function (...newArgs) {
+                return curryFn(...args.concat(newArgs))
+            }
+        }
+    }
+    return curryFn
+}
+
+var foo = curry(sum)
+
+foo(10)(20)(30) // 60
+foo(10, 20)(30) // 60
+foo(10, 20, 30) // 60
+```
 
 
 
 
 
+## 下划线转驼峰
 
+实现：` let s = 'hello_world' => helloWorld`
 
+```js
+function underlineToCamel(str) {
+    let arr = str.split('_');
+    for (let i = 1; i < arr.length; i++) {
+        arr[i] = arr[i][0].toUpperCase() + arr[i].slice(1);
+    }
+    return arr.join('');
+}
 
-
-
-
-
-
-
-
+let s = 'hello_world'
+console.log(underlineToCamel(s))  // helloWorld
+```
 
 
 

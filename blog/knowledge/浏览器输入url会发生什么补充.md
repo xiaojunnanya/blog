@@ -141,6 +141,16 @@ If-None-Match：
 
 ![image-20230803165957473](浏览器输入url会发生什么补充.assets/image-20230803165957473.png)
 
+**last-modified/Etag区别**
+
+- 时间粒度：
+  - last-modified时间粒度为1秒。某些文件修改非常频繁,比如 1s 内修改了 N 次，这种修改无法判断
+- 资源消耗
+  - etag需要生成hash值，消耗更大
+- etag优先级更高
+
+
+
 #### 启发式缓存
 
 启发式缓存会引起什么问题吗？？
@@ -204,6 +214,9 @@ If-None-Match：
 - **数据安全性**
   - GET比POST更不安全，因为参数直接暴露在URL上。
   - POST参数在请求主体中，对数据的传输相对安全，适合传输敏感信息。
+- **幂等性**：HTTP 方法的幂等性是指**一次和多次请求某一个资源应该具有同样的副作用**。说白了就是，同一个请求，发送一次和发送 N 次效果是一样的！
+  - get读请求：get操作一次和十次是一样的，具有幂等性
+  - post写请求：post操作一次和操作十次是不一样的，不具具有幂等性
 
 
 
@@ -338,7 +351,6 @@ HTTP/2 在 HTTP/1.1 有几处基本的不同
     - `Accept: text/html`：浏览器可以接受服务器回发的类型为 `text/html`
     - `Accept: */*`：代表浏览器可以处理所有类型(一般浏览器发给服务器都是发这个)
   
-
 - **Accept-Encoding**
   - HTTP 请求头 **Accept-Encoding** 会将客户端能够理解的内容编码方式——通常是某种压缩算法——进行通知（给服务端）。通过内容协商的方式，服务端会选择一个客户端提议的方式，使用并在响应头 [`Content-Encoding`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Encoding) 中通知客户端该选择
   - 常见值
@@ -371,7 +383,7 @@ HTTP/2 在 HTTP/1.1 有几处基本的不同
   - 服务器要发送多个 cookie，则应该在同一响应中发送多个 `Set-Cookie` 标头
 
 - 请求跨域相关
-  - Access-Control-Allow-Origin 
+  - **Access-Control-Allow-Origin** 
     - `Access-Control-Allow-Origin: * ` :   `*`号代表所有网站可以跨域资源共享，如果当前字段为*那么Access-Control-Allow-Credentials就不能为true
     - `Access-Control-Allow-Origin: www.baidu.com` 指定哪些网站可以跨域资源共享
   - Access-Control-Allow-Methods
@@ -397,25 +409,35 @@ HTTP/2 在 HTTP/1.1 有几处基本的不同
 HTTP 响应状态码用来表明特定 HTTP请求是否成功完成。 响应被归为以下五大类：（同时列出一些常见的状态码）
 
 - [信息响应](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status#信息响应) (`100`–`199`)
+
 - [成功响应](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status#成功响应) (`200`–`299`)
+
   - `200 OK`：请求成功
   - `201 Created`：该请求已成功，并因此创建了一个新的资源。这通常是在 POST 请求，或是某些 PUT 请求之后返回的响应。
+
 - [重定向消息](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status#重定向消息) (`300`–`399`)
-  - `301 Moved Permanently`：请求资源的 URL 已永久更改。在响应中给出了新的 URL
-  - `302`：表示重定向
+
+  - `301 Moved Permanently`：永久重定向。请求资源的 URL 已永久更改。在响应中给出了新的 URL
+  - `302`：表示临时重定向
   - `304 Not Modified`：这是用于缓存。它告诉客户端响应还没有被修改，因此客户端可以继续使用相同的缓存版本的响应
+  - `307`：临时重定向。307 的定义实际上和 302 是一致的，唯一的区别在于，307 状态码不允许浏览器将原本为 POST 的请求重定向到 GET 请求上
+  - `308`：永久重定向。308 的定义实际上和 301 是一致的，唯一的区别在于，308 状态码不允许浏览器将原本为 POST 的请求重定向到 GET 请求上。
+
 - [客户端错误响应](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status#客户端错误响应) (`400`–`499`)
+
   - `400 Bad Request`：由于被认为是客户端错误（例如，错误的请求语法、无效的请求消息帧或欺骗性的请求路由），服务器无法或不会处理请求。
   - `401 Unauthorized`：虽然 HTTP 标准指定了"unauthorized"，但从语义上来说，这个响应意味着"unauthenticated"。也就是说，客户端必须对自身进行身份验证才能获得请求的响应。
-  - `403 Forbidden`：客户端没有访问内容的权限；也就是说，它是未经授权的，因此服务器拒绝提供请求的资源
+  - `403 Forbidden`：客户端错误，指的是服务器端有能力处理该请求，但是拒绝授权访问
   - `404 Not Found`：服务器找不到请求的资源
   - `405 Method Not Allowed`：服务器知道请求方法，但目标资源不支持该方法
+
 - [服务端错误响应](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status#服务端错误响应) (`500`–`599`)
+
   - `500 Internal Server Error`：服务器遇到了不知道如何处理的情况
   - `501 Not Implemented`：服务器不支持请求方法，因此无法处理
   - `502 Bad Gateway`：此错误响应表明服务器作为网关需要得到一个处理这个请求的响应，但是得到一个错误的响应
 
-
+  - `504 Gateway Timeout`：是一种 HTTP 协议的服务器端错误状态代码，表示扮演网关或者代理的服务器无法在规定的时间内获得想要的响应。
 
 
 
