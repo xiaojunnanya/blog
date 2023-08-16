@@ -165,7 +165,7 @@ constructor(fn){
     this.status = MYPROMISE_PENDING
     this.result = null
     this.reason = null
-    fn(this.resolve.bind(this), this.reject.bind(this))//
+    fn(this.resolve.bind(this), this.reject.bind(this))//绑定当前构造函数的实例对象
 }
 ```
 
@@ -477,7 +477,7 @@ console.log("第3步");
 ```js
 resolve(result){
     //添加异步操作
-    queueMicrotask(()=>{
+    setTimeout(()=>{
         if(this.status === MYPROMISE_PENDING){
             this.status = MYPROMISE_FULFILLED
             this.result = result
@@ -489,7 +489,7 @@ resolve(result){
 }
 
 reject(reason){
-    queueMicrotask(()=>{
+    setTimeout(()=>{
         if(this.status === MYPROMISE_PENDING){
             this.status = MYPROMISE_REJECTED
             this.reason = reason

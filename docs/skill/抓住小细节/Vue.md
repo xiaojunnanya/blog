@@ -12,9 +12,17 @@ keywords: [抓住小细节]
 
 ## Vue基础
 
-### vue的基本原理
+### vue的响应式原理
 
-当一个Vue实例创建时，Vue会遍历data中的属性，用Object.defineProperty (vue3.0使用proxy）将它们转为getter/setter，并且在内部追踪相关依赖，在属性被访问和修改时通知变化。每个组件实例都有相应的watcher程序实例，它会在组件渲染的过程中把属性记录为依赖，之后当依赖项的setter被调用时，会通知watcher重新计算，从而致使它关联的组件得以更新。
+**Vue 2 的响应式原理：**
+
+在Vue 2中，响应式系统通过使用`Object.defineProperty`来实现。它的核心思想是，当一个对象被添加到Vue实例中作为一个数据属性时，Vue会将这个对象的属性转化为getter和setter。这样，当属性被访问或者修改时，Vue能够捕捉到这些操作并触发视图的更新。
+
+**Vue 3 的响应式原理：**
+
+Vue 3对响应式系统进行了重大改进，引入了Proxy API来实现响应式。Proxy是一种代理机制，它可以拦截对象的各种操作，包括属性的访问、修改和删除。
+
+在Vue 3中，当您创建一个响应式对象时，Vue会使用Proxy来监听该对象的操作。这意味着，不需要像Vue 2那样显式地转化为getter和setter，而是直接使用原生JavaScript对象，并通过Proxy进行监听。
 
 
 
@@ -39,6 +47,26 @@ Vue.js是采用数据劫持结合发布者-订阅者模式的方式，通过Obje
 - 不能监听对象的新增属性和删除属性
 - 当监听的下标对应的数据发生改变时，无法正确的监听数组的方法
 - 在Vue3.0中使用Proxy对对象进行代理，从而实现数据劫持。使用Proxy的好处是它可以完美的监听到任何方式的数据改变，唯一的缺点是兼容性的问题，因为Proxy是ES6的语法。
+
+
+
+### 使用proxy的优势
+
+- `proxy性能整体上优于Object.defineProperty`
+- `vue3支持更多数据类型的劫持`（vue2只支持Object、Array；vue3支持Object、Array、Map、WeakMap、Set、WeakSet）
+- vue3支持更多时机来进行依赖收集和触发通知`（vue2只在get时进行依赖收集，vue3在get/has/iterate时进行依赖收集；vue2只在set时触发通知，vue3在set/add/delete/clear时触发通知），`所以vue2中的响应式缺陷vue3可以实现
+
+- `vue3做到了“精准数据”的数据劫持`（vue2会把整个data进行递归数据劫持，而vue3只有在用到某个对象时，才进行数据劫持，所以响应式更快并且占内存更小）
+- `vue3的依赖收集器更容易维护`（vue3监听和操作的是原生数组；vue2是通过重写的方法实现对数组的监控）
+
+
+
+### 能谈一下defineProperty和Proxy的区别嘛？
+
+- Object.defineProperty监听对象属性。而Proxy监听的是整个对象
+  - Object.defineProperty的三个参数是（监听对象，监听对象的某一个值，函数）
+    - 所以这就导致了一个vue2的问题，那就是我想给对象**obj**加个**newName**属性，可是我监听**obj**对象在前，而监听**obj**对象的时候，**obj**是没有**newName**属性的。所以`Object.defineProperty`内的参数就只有两个一个是**obj**，一个是**function**。所以vue2监听不到你新增的obj的新属性。所以vue2会有 **$set**
+  - Proxy的两个参数是（监听对象，函数）
 
 
 
@@ -389,6 +417,50 @@ devServer:{
 
 
 
+### 缓存路由
+
+使用keep-alive
+
+keep-alive缓存的路由中我有的想缓存有的不想缓存怎么设置
+
+- 在路由配置中设置 meta
+
+  - ```vue
+    const router = new VueRouter({
+      routes: [
+        {
+          path: '/',
+          name: 'Home',
+          component: Home,
+          meta: { keepAlive: true } // 需要缓存的页面
+        },
+        {
+          path: '/about',
+          name: 'About',
+          component: About,
+          meta: { keepAlive: false } // 不需要缓存的页面
+        }
+      ]
+    });
+    ```
+
+- 在页面组件中使用
+
+  - ```vue
+    <template>
+      <div>
+        <!-- 使用 <keep-alive> 标签根据 meta.keepAlive 决定是否缓存 -->
+        <keep-alive v-if="$route.meta.keepAlive">
+          <router-view />
+        </keep-alive>
+        <!-- 不使用缓存的内容 -->
+        <router-view v-else />
+      </div>
+    </template>
+    ```
+
+    
+
 
 
 ## Vuex
@@ -437,65 +509,80 @@ mutaitons都是同步的而actions可以包含异步操作，
 ### vue2和vue3的区别
 
 - vue2和vue3双向数据绑定原理发生了改变【vue2是definepropoty。。vue3是proxy】
+- 组合式API
+  - **Vue2**是选项API（Options API），一个逻辑会散乱在文件不同位置（`data、props、computed、watch、生命周期钩子等`），导致代码的可读性变差。当需要修改某个逻辑时，需要上下来回跳转文件位置。
+  - **Vue3**组合式API（Composition API）则很好地解决了这个问题，可将同一逻辑的内容写到一起，增强了代码的可读性、内聚性，其还提供了较为完美的逻辑复用性方案。所有逻辑在`setup`函数中，使用 `ref、watch` 等函数组织代码
 
-  - VUE2：利用ES5的一个APIObject.defineProperty()对数据进行劫持，结合发布者订阅者模式的方式来实现的。
-  - VUE3：使用了ES6的Proxy API对数据代理。
+- ref 和 reactive
 
-- ```js
-  vue2     --------------- vue3
-  beforeCreate                         ->   setup()
-  Created                                 ->   setup()
-  beforeMount                          ->   onBeforeMount
-  mounted                                ->    onMounted
-  beforeUpdate                        ->    onBeforeUpdate
-  updated                                 ->    onUpdated
-  beforeDestroyed                    ->    onBeforeUnmount
-  destroyed                              ->     onUnmounted
-  
-  activated                                ->     onActivated
-  deactivated                            ->     onDeactivated
-  ```
+  - 我们都知道在选项式api中，data函数中的数据都具有响应式，页面会随着data中的数据变化而变化，而组合式api中不存在data函数该如何呢？所以为了解决这个问题Vue3引入了ref和reactive函数来将使得变量成为响应式的数据
 
-- 定义数据变量和方法：在`vue2`中定义数据变量是`data(){}`，创建的方法要在`methods:{}`中， 而在`vue3`中直接在`setup(){}`中。【在这里面定义的变量和方法因为最终要在模板中使用，所以最后都得  `return`。】
+  - ```js
+    <script setup>
+    import { ref,reactive } from "vue";
+    let msg = ref('hello world')
+    let obj = reactive({
+        name:'juejin',
+        age:3
+    })
+    const changeData = () => {
+      msg.value = 'hello juejin'
+      obj.name = 'hello world'
+    }
+    </script>
+    ```
+
+- 生命周期
+
+  - ```js
+    vue2     ------------------------------   vue3
+    beforeCreate                         ->   setup()
+    Created                              ->   setup()
+    beforeMount                          ->   onBeforeMount
+    mounted                              ->   onMounted
+    beforeUpdate                         ->   onBeforeUpdate
+    updated                              ->   onUpdated
+    beforeDestroyed                      ->    onBeforeUnmount
+    destroyed                            ->    onUnmounted
+    activated                            ->    onActivated
+    deactivated                          ->    onDeactivated
+    ```
+
+- 多根节点
+
+  - vue2只能有一个根节点，vue3可多个
+
+- diff算法的优化
+
+- hooks
+
+  - 以函数形式抽离一些**可复用的方法**像钩子一样挂着，随时可以引入和调用
 
 - 父子组件传参：
 
   - vue2：父传子：子组件通过prop接收。子传父：子组件中通过$emit向父组件触发一个监听方法，传递一个参数
   - vue3：使用setup()中的第二个参数content对象中有emit，只需要在setup()接收第二个参数中使用分解对象法取出emit就可以使用了。
 
--  Vue3支持碎片(Fragments)，就是说在组件可以拥有多个根节点。
-
 - v-if和v-show优先级改变
 
   - vue2：不建议将v-for和v-if写在一起使用，当在同一个元素上使用`v-if`时，将优先`v-for`
   - Vue3：v-if优先，再v-for
-
-- 还有！！！记得弄
-
-
-
-### vue3.0有哪些更新
-
-- 监听机制的改变：vue3使用proxy来监听
-- 可以监测属性的添加和删除，监测数组索引和长度的变更
-- ...
+- `Teleport` 是一种能够将我们的模板移动到 `DOM` 中 `Vue app` 之外的其他位置的技术
 
 
 
-### definePrototype和proxy的区别
-
-vue2中，Vue在实例初始化时遍历data中的所有属性，并使用Object.defineProperty把这些属性全部转getter/setter。这样当追踪数据发生变化时，setter 会被自动调用。但是这样做有以下问题:
-
-- 1.添加或删除对象的属性时，Vue检测不到。因为添加或删除的对象没有在初始化进行响应式处理，只能通
-  过`$set`来调用`object.defineProperty()`处理。
-- 2.无法监控到数组下标和长度的变化。
-
-vue3使用proxy来监测数据的变化。特点：
-
-- Proxy直接代理整个对象而非对象属性，这样只需做一层代理就可以监听同级结构下的所有属性变化，包括新增属性和删除属性。
-- Proxy 可以监听数组的变化
 
 
+### 能谈一下defineProperty和Proxy的区别嘛？
+
+- Object.defineProperty监听对象属性。而Proxy监听的是整个对象
+  - Object.defineProperty的三个参数是（监听对象，监听对象的某一个值，函数）
+    - 所以这就导致了一个vue2的问题，那就是我想给对象**obj**加个**newName**属性，可是我监听**obj**对象在前，而监听**obj**对象的时候，**obj**是没有**newName**属性的。所以`Object.defineProperty`内的参数就只有两个一个是**obj**，一个是**function**。所以vue2监听不到你新增的obj的新属性。所以vue2会有 **$set**
+  - Proxy的两个参数是（监听对象，函数）
+
+
+
+### ref和reactive的区别
 
 
 
@@ -566,11 +653,3 @@ vue3使用proxy来监测数据的变化。特点：
    2. 如果不存在对数据的逆序添加、逆序删除等破坏顺序操作，仅用于渲染列表用于展示，使用index作为key是没有问题的。
 
 
-
-
-
-### vue2/3响应式原理
-
-### vue数据双向绑定的原理
-
-### Vue响应式的原理

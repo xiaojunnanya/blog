@@ -290,14 +290,21 @@ arguments是一个对象，它的属性是从О开始依次递增的数字，还
 
 ###  ES6模块与CommonJS模块有什么异同？
 
-- ES6 Module和CommonJS模块的区别： 
-
-  - CommonJS是对模块的浅拷⻉，ES6 Module是对模块的引⽤，即ES6 Module只存只读，不能改变其值，也就是指针指向不能变，类似const
-
-  - import的接⼝是read-only（只读状态），不能修改其变量值。 即不能修改其变量的指针指向，但可以改变变量内部指针指向，可以对commonJS对重新赋值（改变指针指向），但是对ES6 Module赋值会编译报错。
-
-
-- ES6 Module和CommonJS模块的共同点： CommonJS和ES6 Module都可以对引⼊的对象进⾏赋值，即对对象内部属性的值进⾏改变
+- **语法差异**：
+  - ES6 模块使用 `import` 和 `export` 关键字来导入和导出模块
+  - CommonJS 模块使用 `require()` 函数来导入模块，使用 `module.exports` 或 `exports` 来导出模块。
+- **编译时 vs 运行时**：
+  - ES6 模块在代码编译时确定导入和导出关系，使得静态分析和优化更容易。这也使得浏览器可以在加载脚本之前进行更好的优化。
+  - CommonJS 模块在运行时加载，模块加载的顺序可能会影响模块的行为。
+- **加载方式**：
+  - ES6 模块的加载是异步的，浏览器和 Node.js 都支持 ES6 模块加载。
+  - CommonJS 模块的加载是同步的，适用于服务器端 Node.js 环境。
+- **导入/导出的本质**：
+  - ES6 模块在导入和导出时，实际上是创建了一个不可变的绑定关系。这意味着导入的值是只读的，不能直接修改导出的值。
+  - CommonJS 模块在导入和导出时，实际上是拷贝了值的引用，这允许在导入后修改导出的值。
+- **动态 vs 静态**：
+  - ES6 模块在编译时就已经确定了导入和导出的模块关系，因此不支持动态导入。
+  - CommonJS 模块支持动态导入，可以在运行时根据需要进行模块的加载和引用。
 
 
 
@@ -731,8 +738,21 @@ async 函数返回一个Promise对象，当函数执行的时候，一旦遇到 
 
 
 
+
+
+## 场景
+
 ### 如何阻止冒泡
 
 普通浏览器使用: event.stopPropagation()
 
 IE浏览器使用: event.cancelBubble = true
+
+
+
+### 如何禁止复制粘贴
+
+- css：`user-select:none`
+- js
+  - onselectstart
+  - oncopy
