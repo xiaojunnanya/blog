@@ -472,12 +472,12 @@ console.log("第3步");
 
 
 
-这里有个小细节，resolve和reject是要在事件循环末尾执行的，因此我们可以给resolve和reject里面加上setTimeout
+这里有个小细节，resolve和reject是要在事件循环末尾执行的，因此我们可以给resolve和reject里面加上queueMicrotask
 
 ```js
 resolve(result){
     //添加异步操作
-    setTimeout(()=>{
+    queueMicrotask(()=>{
         if(this.status === MYPROMISE_PENDING){
             this.status = MYPROMISE_FULFILLED
             this.result = result
@@ -489,7 +489,7 @@ resolve(result){
 }
 
 reject(reason){
-    setTimeout(()=>{
+    queueMicrotask(()=>{
         if(this.status === MYPROMISE_PENDING){
             this.status = MYPROMISE_REJECTED
             this.reason = reason
@@ -866,7 +866,7 @@ class myPromise{
 
     resolve(result){
         queueMicrotask(()=>{
-            if(this.status = MYPROMISE_PENDING){
+            if(this.status === MYPROMISE_PENDING){
                 this.status = MYPROMISE_FULFILLED
                 this.result = result
                 this.onFulfilledArr.forEach(fnArr =>{
@@ -878,7 +878,7 @@ class myPromise{
 
     reject(reason){
         queueMicrotask(()=>{
-            if(this.status = MYPROMISE_PENDING){
+            if(this.status === MYPROMISE_PENDING){
                 this.status = MYPROMISE_REJECTED
                 this.reason = reason
                 this.onRejectedArr.forEach(fnArr =>{
@@ -1007,8 +1007,6 @@ myPromise.reject("err111").catch(err=>{
 
 
 
-
-
 ### all方法
 
 ```js
@@ -1126,9 +1124,304 @@ myPromise.allSettled([p1, p2, p3]).then(res=>{
 
 ### race方法
 
-呜呜呜为啥不行
+竞争，返回第一个
 
-[剩余的](E:\coderwhy\03-JavaScript-高级\深入javascript高级语法\20.手写Promise的整个逻辑和API.mp4)：02:08:00
+```js
+static race(promises){
+    return new myPromise((resolve, reject)=>{
+        if(Array.isArray(promises)){
+            promises.forEach(promise =>{
+                if(promise instanceof myPromise){
+                    promise.then(res =>{
+                        resolve(res)
+                    }, err =>{
+                        reject(err)
+                    })
+                }
+            })
+        }else{
+            reject(new TypeError('Argument is not iterable'))
+        }
+    })
+}
+
+const p1 = new myPromise((resolve, reject)=>{
+    setTimeout(()=>{
+        resolve('111')
+    }, 3000)
+})
+const p2 = new myPromise((resolve, reject)=>{
+    setTimeout(()=>{
+        reject('222')
+    }, 2000)
+})
+const p3 = new myPromise((resolve, reject)=>{
+    setTimeout(()=>{
+        resolve('333')
+    }, 3000)
+})
+
+myPromise.race([p1, p2, p3]).then(res =>{
+    console.log('res', res);
+}).catch(err =>{
+    console.log('err', err);
+})
+```
+
+
+
+### any方法
+
+返回第一个成功的，如果都失败再一起返回
+
+```js
+static any(promises){
+    return new myPromise((resolve, reject)=>{
+        let values = []
+        if(Array.isArray(promises)){
+            promises.forEach(promise =>{
+                if(promise instanceof myPromise){
+                    promise.then(res =>{
+                        resolve(res)
+                    }, err =>{
+                        values.push(err)
+                        if( values.length === promises.length ){
+                            reject(values)
+                        }
+                    })
+                }
+            })
+        }else{
+            reject(new TypeError('Argument is not iterable'))
+        }
+    })
+}
+
+const p1 = new myPromise((resolve, reject)=>{
+    setTimeout(()=>{
+        reject('111')
+    }, 3000)
+})
+const p2 = new myPromise((resolve, reject)=>{
+    setTimeout(()=>{
+        reject('222')
+    }, 2000)
+})
+const p3 = new myPromise((resolve, reject)=>{
+    setTimeout(()=>{
+        reject('333')
+    }, 3000)
+})
+
+myPromise.any([p1, p2, p3]).then(res =>{
+    console.log('res', res);
+}).catch(err =>{
+    console.log('err', err);
+})
+```
+
+
+
+### 完整代码
+
+```js
+const MYPROMISE_PENDING = "pending"
+const MYPROMISE_FULFILLED = "fulfilled"
+const MYPROMISE_REJECTED = "rejected"
+
+function tryCatch(value, fn, resolve, reject){
+    try {
+        resolve(fn(value))
+    } catch (error) {
+        reject(error)
+    }
+}
+
+class myPromise{
+    constructor(fn){
+        this.status = MYPROMISE_PENDING
+        this.result = null
+        this.reason = null
+        this.onFulfilledArr = []
+        this.onRejectedArr = []
+        try {
+            fn(this.resolve.bind(this), this.reject.bind(this))
+        } catch (error) {
+            this.reject(error)
+        }
+    }
+
+    resolve(result){
+        queueMicrotask(()=>{
+            if(this.status === MYPROMISE_PENDING){
+                this.status = MYPROMISE_FULFILLED
+                this.result = result
+                this.onFulfilledArr.forEach(fnArr =>{
+                    fnArr(result)
+                })
+            }
+        })
+    }
+
+    reject(reason){
+        queueMicrotask(()=>{
+            if(this.status === MYPROMISE_PENDING){
+                this.status = MYPROMISE_REJECTED
+                this.reason = reason
+                this.onRejectedArr.forEach(fnArr =>{
+                    fnArr(reason)
+                })
+            }
+        })
+    }
+
+    then(onFulfilled, onRejected){
+        onRejected = onRejected || (error => {throw error})
+
+        return new myPromise((resolve, reject)=>{
+            onFulfilled = (typeof onFulfilled === "function") ? onFulfilled : ()=>{}
+            onRejected = (typeof onRejected === "function") ? onRejected : ()=>{}
+
+            if(this.status === MYPROMISE_PENDING){
+                this.onFulfilledArr.push(()=>{
+                    tryCatch(this.result, onFulfilled, resolve, reject)
+                })
+                this.onRejectedArr.push(()=>{
+                    tryCatch(this.reason, onRejected, resolve, reject)
+                })
+            }
+
+            if(this.status === MYPROMISE_FULFILLED){
+                queueMicrotask(()=>{
+                    tryCatch(this.result, onFulfilled, resolve, reject)
+                })
+            }
+
+            if(this.status === MYPROMISE_REJECTED){
+                queueMicrotask(()=>{
+                    tryCatch(this.reason, onRejected, resolve, reject)
+                })
+            }
+        })
+    }
+    catch(onRejected){
+        return this.then(undefined, onRejected)
+    }
+    
+    finally(onFinally){
+        this.then(()=>{
+            onFinally()
+        },()=>{
+            onFinally()
+        })
+    }
+
+    static resolve(result){
+        return new myPromise((resolve)=>resolve(result))
+    }
+    
+    static reject(reason){
+        return new myPromise((resolve, reject)=>reject(reason))
+    }
+
+    static all(promises){
+        return new myPromise((resolve, reject)=>{
+            if(Array.isArray(promises)){
+                let values = []
+                promises.forEach(promise =>{
+                    if(promise instanceof myPromise){
+                        promise.then(res =>{
+                            values.push(res)
+                            if(values.length === promises.length){
+                                resolve(values)
+                            }
+                        }, err =>{
+                            reject(err)
+                        })
+                    }
+                })
+            }else{
+                reject(new TypeError('Argument is not iterable'))
+            }
+        })
+    }
+
+    static allSettled(promises){
+        return new myPromise((resolve)=>{
+            const values = []
+            if(Array.isArray(promises)){
+                promises.forEach(promise =>{
+                    if(promise instanceof myPromise){
+                        promise.then(res =>{
+                            values.push({
+                                status:MYPROMISE_FULFILLED,
+                                value:res
+                            })
+                            if(values.length === promises.length){
+                                resolve(values)
+                            }
+                        },err =>{
+                            values.push({
+                                status:MYPROMISE_REJECTED,
+                                value:err
+                            })
+                            if(values.length === promises.length){
+                                resolve(values)
+                            }
+                        })
+                    }
+                })
+            }else{
+                reject(new TypeError('Argument is not iterable'))
+            } 
+        })
+    }
+
+
+    static race(promises){
+        return new myPromise((resolve, reject)=>{
+            if(Array.isArray(promises)){
+                promises.forEach(promise =>{
+                    if(promise instanceof myPromise){
+                        promise.then(res =>{
+                            resolve(res)
+                        }, err =>{
+                            reject(err)
+                        })
+                    }
+                })
+            }else{
+                reject(new TypeError('Argument is not iterable'))
+            }
+        })
+    }
+
+    static any(promises){
+        return new myPromise((resolve, reject)=>{
+            let values = []
+            if(Array.isArray(promises)){
+                promises.forEach(promise =>{
+                    if(promise instanceof myPromise){
+                        promise.then(res =>{
+                            resolve(res)
+                        }, err =>{
+                            values.push(err)
+                            if( values.length === promises.length ){
+                                reject(values)
+                            }
+                        })
+                    }
+                })
+            }else{
+                reject(new TypeError('Argument is not iterable'))
+            }
+        })
+    }
+
+}
+```
+
+
 
 
 
@@ -1413,6 +1706,7 @@ animals.flat(-10);
 ```js
 const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "鲸落" }];
 function flat(arr) {
+  if( !Array.isArray(arr) ) return arr
   let arrResult = [];
   arr.forEach(item => {
     if (Array.isArray(item)) {
@@ -1442,6 +1736,7 @@ console.log(a);
 
 // 用 reduce 展开一层 + 递归
 const flat = arr => {
+   if( !Array.isArray(arr) ) return arr
   return arr.reduce((pre, cur) => {
     return pre.concat(Array.isArray(cur) ? flat(cur) : cur);
   }, []);

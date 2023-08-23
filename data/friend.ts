@@ -16,7 +16,7 @@ export const Friends: Friend[] = [
   },
   {
     title: '愧怍的小站',
-    description: '致在这里我会分享各类技术栈所遇到问题与解决方案，带你了解最新的技术栈以及实际开发中如何应用，并希望我的开发经历对你有所启发。',
+    description: '道阻且长，行则将至',
     website: 'https://kuizuo.cn/',
     avatar: '/img/friend/kzdxz.png',
   },
