@@ -1,7 +1,7 @@
 ---
 slug: /httpsencryption
 title: 了解HTTPS加密原理
-date: 2023-08-23
+date: 2023-08-18
 authors: jl
 tags: [知识点, 网络 ]
 keywords: [知识点, 网络 ]
