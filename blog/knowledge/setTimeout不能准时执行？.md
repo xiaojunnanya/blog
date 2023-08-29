@@ -32,7 +32,7 @@ for (let i = 0; i < 90000000; i++) { }
 
 ![image-20230824224148784](setTimeout不能准时执行？.assets/image-20230824224148784.png)
 
-`console.log()` 打印的结果是 `852，这跟我给 `setTimeout` 定下的 `20ms` 后执行的时间相差得也太多了吧，难怪都说定时器 `setTimeout` 不能够准时执行。
+`console.log()` 打印的结果是 `52`，这跟我给 `setTimeout` 定下的 `20ms` 后执行的时间相差得也太多了吧，难怪都说定时器 `setTimeout` 不能够准时执行。
 
 那为什么 `setTimeout` 不能够准时执行呢？这激起了我的探索欲望，于是开始查找资料
 

@@ -243,12 +243,12 @@ html[data-theme='dark'] .theme-code-block {
 /* navbar */
 .navbar {
   box-shadow: none;
-  // background-color: transparent;
+  background-color: transparent;
   .navbar__title {
     margin-left: 12px;
     color: var(--ifm-color-primary);
     font-family: var(--ifm-font-family-name);
-    // display: none;
+    display: none;
   }
 }
 

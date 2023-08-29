@@ -1928,6 +1928,58 @@ console.log(underlineToCamel(s))  // helloWorld
 
 
 
+## 发布订阅者模式
+
+```js
+class EventEmitter{
+    constructor(){
+        this.events = {}
+    }
+
+    on(event, listener){
+        if(!this.events[event]){
+            this.events[event] = [listener]
+        }else{
+            this.events[event].push(listener)
+        }
+    }
+
+    emit(event, ...args){
+        const listeners = this.events[event] || [];
+        listeners.forEach((listener) => listener(...args));
+    }
+
+    off(event, listener){
+        const listeners = this.events[event] || [];
+        const index = listeners.indexOf(listener);
+        if (index >= 0) {
+            listeners.splice(index, 1);
+        }
+    }
+
+    once(event, listener){
+        let fn = () =>{
+            listener()
+            this.off(event, fn)
+        }
+
+        this.on(event, fn)
+    }
+
+}
+
+// 运行示例
+let ev = new EventEmitter();
+const fun1 = (str) => {
+  console.log(str);
+}
+
+ev.on('say', fun1);
+ev.once('say', fun1)
+ev.emit('say', 'visa');
+ev.off('say', fun1);
+```
+
 
 
 

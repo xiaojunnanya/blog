@@ -330,9 +330,11 @@ CSS属性哪些可以继承：
 
   - overflow的值非visible
 
-  - display的值为：inline-block、table-cell
+  - display的值为：inline-block、flex
 
   - position的值为:absoute、fixed
+  
+  - 根元素(`<html>`)
 
 
 

@@ -8,11 +8,10 @@ module.exports = function (context, options) {
             tagName: 'script',
             innerHTML: `
             var _hmt = _hmt || [];
-            (function() {
+            (function() {         
               var hm = document.createElement("script");
-              hm.src = "https://hm.baidu.com/hm.js?c9a3849aa75f9c4a4e65f846cd1a5155";
-              hm.defer = true;
-              var s = document.getElementsByTagName("script")[0];
+              hm.src = "https://hm.baidu.com/hm.js?adf36bde4de1dec2c310912eb9008c97";
+              var s = document.getElementsByTagName("script")[0]; 
               s.parentNode.insertBefore(hm, s);
             })();
           `,
@@ -29,3 +28,10 @@ module.exports = function (context, options) {
     },
   }
 }
+
+
+// var hm = document.createElement("script");
+// hm.src = "https://hm.baidu.com/hm.js?c9a3849aa75f9c4a4e65f846cd1a5155";
+// hm.defer = true;
+// var s = document.getElementsByTagName("script")[0];
+// s.parentNode.insertBefore(hm, s);
