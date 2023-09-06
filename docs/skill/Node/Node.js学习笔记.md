@@ -203,6 +203,106 @@ fs.rename("./test.txt","./why.txt", err=>{.})
 
 
 
+## path路径模块
+
+### 什么是path路径模块
+
+path模块是Node.js官方提供的、用来处理路径的模块。它提供了一系列的方法和属性，用来满足用户对路径的处理需求。
+
+如果要在JavaScript代码中，使用path模块来操作文件，则需要使用如下的方式先导入它：`const path = require('path')`
+
+
+
+### 路径拼接—join
+
+使用 path.join() 方法，可以把多个路径片段拼接为完整的路径字符串
+
+语法格式：`path.join([...paths])`
+
+...paths：路径片段的序列
+
+返回值为String
+
+注意：
+
+1. ​     ../ 会抵消一层路径
+2. 今后凡是涉及到路径拼接的操作，都要使用path.join方法进行处理。不要直接使用＋进行字符串的拼接。
+
+```javascript
+const path = require("path")
+const fs = require("fs")
+
+const pathStr = path.join('/a','/b/c','../','./d','e')
+
+console.log(pathStr)  //  \a\b\d\e
+//这里用 ./testOne.txt  或直接  testOne.txt  都可以
+fs.readFile(path.join(__dirname,"testOne.txt"),"utf-8",function(err,data){
+    console.log(err,data);
+})
+```
+
+
+
+### 获取路径的文件名—basename
+
+使用path.basename()方法，可以获取路径中的最后一部分，经常通过这个方法获取路径中的文件名
+
+语法格式：`path.basename(path[,ext])`【path为必选参数，ext是可选参数】
+
+path：路径
+
+ext：表示文件拓展名
+
+返回值：路径中的最后一部分
+
+```
+const path = require("path")
+
+//文件路径
+const basePath = "./a/b/c/testOne.txt"  
+
+const aName = path.basename(basePath)
+console.log(aName);  //  testOne.txt
+
+//当我们传入扩展名的时候，返回值会删除扩展名，保留名字
+const bName =  path.basename(basePath,".txt")
+console.log(bName);  //  testOne
+```
+
+
+
+### 获取路径的文件扩展名—extname
+
+使用path.EXTname()方法，可以获取路径中的扩展名部分
+
+语法格式：`path.extname(path)`
+
+path：路径
+
+返回值：路径中的扩展名部分
+
+```javascript
+const path = require("path")
+
+//文件路径
+const basePath = "./a/b/c/testOne.txt"  
+
+const aName = path.extname(basePath)
+console.log(aName);  //  .txt
+```
+
+
+
+### path.resolve
+
+- path.resolve()方法会把一个路径或路径片段的序列解析为一个绝对路径
+- 给定的路径的序列是从右往左被处理的，后面每个path 被依次解析，直到构造完成一个绝对路径
+- 如果在处理完所有给定path的段之后，还没有生成绝对路径则使用当前工作目录
+- 生成的路径被规范化并删除尾部斜杠，零长度path段被忽略
+- 如果没有path传递段,path.resolve()将返回当前工作目录的绝对路径
+
+
+
 ## events模块
 
 发出事件和监听事件都是通过EventEmitter类来完成的，它们都属于events对象。
