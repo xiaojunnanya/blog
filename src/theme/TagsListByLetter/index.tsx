@@ -39,7 +39,7 @@ export default function TagsListByLetter({ tags }: Props): JSX.Element {
 }
 
 export function TagsListByFlat({ tags }: Props): JSX.Element {
-  console.log(tags)
+  // console.log(tags)
   return (
     <section className="margin-vert--lg">
       <ul className="padding--none">
