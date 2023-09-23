@@ -106,6 +106,16 @@ const sidebars = {
       ],
     },
     {
+      label: '前端工程化',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/前端工程化/frontendEngineering',
+      ],
+    },
+    {
       label: '抓住小细节',
       type: 'category',
       link: {
