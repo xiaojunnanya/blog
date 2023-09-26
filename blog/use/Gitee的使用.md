@@ -3,8 +3,8 @@ slug: /gitee
 title: gitee的使用
 date: 2021-12-21
 authors: jl
-tags: [爱捣鼓, gitee]
-keywords: [爱捣鼓, gitee]
+tags: [使用, gitee]
+keywords: [使用, gitee]
 ---
 
 在工作中，对于远程仓库的使用是特别重要的，国外的github在访问的时候速度是比较慢的，接下来我为大家带来国内的gitee的使用的保姆式教程

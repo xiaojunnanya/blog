@@ -3,8 +3,8 @@ slug: /qiankun
 title: qiankun的使用
 date: 2023-07-01
 authors: jl
-tags: [爱捣鼓, qiankun, 微前端]
-keywords: [爱捣鼓, qiankun, 微前端]
+tags: [使用, qiankun, 微前端]
+keywords: [使用, qiankun, 微前端]
 ---
 
 ## qiankun官网

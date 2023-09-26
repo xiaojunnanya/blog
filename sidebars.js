@@ -2,7 +2,7 @@
  * @Author: XJN
  * @Date: 2023-07-02 09:37:16
  * @LastEditors: xiaojunnanya
- * @LastEditTime: 2023-07-03 10:49:37
+ * @LastEditTime: 2023-09-26 21:03:46
  * @FilePath: \blog\sidebars.js
  * @Description: 
  * @前端实习生：鲸落: 
@@ -55,6 +55,7 @@ const sidebars = {
       },
       items: [
         'skill/React/react',
+        'skill/React/reacthooks',
         'skill/React/tsreact',
         'skill/React/reactuse',
       ],
@@ -113,6 +114,7 @@ const sidebars = {
       },
       items: [
         'skill/前端工程化/frontendEngineering',
+        'skill/前端工程化/gitgithub',
       ],
     },
     {

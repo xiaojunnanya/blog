@@ -3,8 +3,8 @@ slug: /ubuntu
 title: Ubuntu配置的服务器部署Vue项目
 date: 2021-11-12
 authors: jl
-tags: [爱捣鼓, Ubuntu, Vue, 服务器]
-keywords: [爱捣鼓, Ubuntu, Vue, 服务器]
+tags: [使用, Ubuntu, Vue, 服务器]
+keywords: [使用, Ubuntu, Vue, 服务器]
 ---
 
 欢迎来到我的博客。对于一名大学生来说，拥有自己的服务器不论是在考研复试中还是找工作面试中，都是一个加分项，当你购买一个服务器的时候，还需要做一些配置才可以使用他，下面我将带来Ubuntu配置的服务器部署Vue项目的操作步骤。

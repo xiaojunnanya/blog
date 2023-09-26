@@ -3,8 +3,8 @@ slug: /mvn
 title: mvn的使用
 date: 2023-07-02
 authors: jl
-tags: [爱捣鼓, mvn]
-keywords: [爱捣鼓, mvn]
+tags: [使用, mvn]
+keywords: [使用, mvn]
 ---
 
 ## 前言
