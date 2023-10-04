@@ -339,7 +339,7 @@ HTML5新增了语义化的元素：
 - `<aside>`：侧边栏元素
 - `<footer>` ：尾部元素
 
-![image-20230221080822226](HTML+CSS.assets/image-20230221080822226.png)
+![image-20230221080822226](HTML.assets/image-20230221080822226.png)
 
 
 

@@ -119,7 +119,7 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 1、**效果图**
 
-![image-20230214154327535](HTML+CSS.assets/image-20230214154327535.png)
+![image-20230214154327535](CSS小技巧.assets/image-20230214154327535.png)
 
 2、当我们设置为这样的时候：
 
@@ -157,7 +157,9 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 </body>
 ```
 
-3、变成这样：![image-20230214154526327](HTML+CSS.assets/image-20230214154526327.png)4、第五个区域会因为不够宽而跑出去，因为我们设置了box宽度为1190px；盒子宽度230px；margin-right:10px；总宽度 230×5+10×5 = 1200 > 1190
+3、变成这样：![image-20230214154526327](CSS小技巧.assets/image-20230214154526327.png)
+
+4、第五个区域会因为不够宽而跑出去，因为我们设置了box宽度为1190px；盒子宽度230px；margin-right:10px；总宽度 230×5+10×5 = 1200 > 1190
 
 5、**解决办法**【不能直接将 .box的宽度设置为1200px，如果直接设置，其实我们的区域向左偏了这个 margin-left:10px;】
 
@@ -218,9 +220,9 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 ### 问题
 
-![image-20230214224620895](HTML+CSS.assets/image-20230214224620895.png)
+![image-20230214224620895](CSS小技巧.assets/image-20230214224620895.png)
 
-![image-20230214225415517](HTML+CSS.assets/image-20230214225415517.png)
+![image-20230214225415517](CSS小技巧.assets/image-20230214225415517.png)
 
 ```html
 <style>
@@ -258,7 +260,7 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 加入span元素（或者i也行）去填充空缺的位置
 
-![image-20230214230002773](HTML+CSS.assets/image-20230214230002773.png)
+![image-20230214230002773](CSS小技巧.assets/image-20230214230002773.png)
 
 ```
 <style>
@@ -321,7 +323,7 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 ## 毛玻璃
 
-![image-20230214230002773](HTML+CSS.assets/image-20230221080822227.png)
+![image-20230221080822227](CSS小技巧.assets/image-20230221080822227.png)
 
 ```html
 <div class="box">

@@ -10,13 +10,13 @@ keywords: [React]
 
 ## 了解Hooks
 
-- Hook是React 16.8的新增特性，它可以让我们在$\textcolor{Red}{不编写class的情况下使用state以及其他的React特性(比如生命周期)}$【在不编写类组件的情况下】
+- Hook是React 16.8的新增特性，它可以让我们在不编写class的情况下使用state以及其他的React特性(比如生命周期)【在不编写类组件的情况下】
 
 - Hook的使用场景:
 
-  - Hook的出现$\textcolor{Red}{基本可以代替我们之前所有使用class组件的地方}$
+  - Hook的出现基本可以代替我们之前所有使用class组件的地方
   - 但是如果是一个旧的项目，你并不需要直接将所有的代码重构为Hooks，因为它宪全向下兼容，你可以渐进式的来使用它
-  - Hook$\textcolor{Red}{只能在函数组件中使用，不能在类组件，或者函数组件之外的地方使用}$
+  - Hook只能在函数组件中使用，不能在类组件，或者函数组件之外的地方使用
 
 - **计数器案例**：
 
@@ -49,8 +49,8 @@ keywords: [React]
 
 - **使用Hook会有两个额外的规则:**
 
-  - $\textcolor{Red}{只能在函数最外层调用Hook。不要在循环、条件判断或者子函数中调用。}$
-  - $\textcolor{Red}{只能在 React的函数组件中调用Hook。不要在其他JavaScript函数中调用。}$
+  - 只能在函数最外层调用Hook。不要在循环、条件判断或者子函数中调用。
+  - 只能在 React的函数组件中调用Hook。不要在其他JavaScript函数中调用。
 
 
 
@@ -138,9 +138,9 @@ keywords: [React]
 #### Effect Hook
 
 - 目前我们已经通过hook在函数式组件中定义state，那么类似于生命周期这些呢?
-  - Effect Hook可以让你来完成一些$\textcolor{Red}{类似于class中生命周期的功能}$
-  - 事实上，类似于$\textcolor{Red}{网络请求、手动更新DOM、一些事件的监听}$，都是$\textcolor{Red}{React更新DOM的一些副作用}$(Side Effects)
-  - 所以$\textcolor{Red}{对于完成这些功能的Hook被称之为Effect Hook}$
+  - Effect Hook可以让你来完成一些类似于class中生命周期的功能
+  - 事实上，类似于网络请求、手动更新DOM、一些事件的监听，都是React更新DOM的一些副作用(Side Effects)
+  - 所以对于完成这些功能的Hook被称之为Effect Hook
 
 
 
@@ -232,9 +232,9 @@ export default Fun
 
 #### useEffect解析
 
-- 通过useEffect的Hook，可以告诉$\textcolor{Red}{React需要在渲染后执行某些操作}$
-- useEffect$\textcolor{Red}{要求我们传入一个回调函数}$，在React$\textcolor{Red}{执行完更新DOM操作之后，就会回调这个函数}$
-- 默认情况下，$\textcolor{Red}{无论是第一次渲染之后，还是每次更新之后，都会执行这个回调函数}$
+- 通过useEffect的Hook，可以告诉React需要在渲染后执行某些操作
+- useEffect要求我们传入一个回调函数，在React执行完更新DOM操作之后，就会回调这个函数
+- 默认情况下，无论是第一次渲染之后，还是每次更新之后，都会执行这个回调函数
 
 
 
@@ -242,8 +242,8 @@ export default Fun
 
 - **在class组件的编写过程中，某些副作用的代码，我们需要在componentWillUnmount中进行清除**：
 
-  - 比如我们之前的$\textcolor{Red}{事件总线或Redux中手动调用subscribe}$
-  - 都需要$\textcolor{Red}{在componentWillUnmount有对应的取消订阅}$
+  - 比如我们之前的事件总线或Redux中手动调用subscribe
+  - 都需要在componentWillUnmount有对应的取消订阅
   - Effect Hook通过什么方式来模拟componentWillUnmount呢？【useEffect有一个返回值】
 
 - ```jsx
@@ -266,12 +266,12 @@ export default Fun
 #### useEffect性能优化
 
 - 默认情况下，useEffect的回调函数会在每次渲染时都重新执行，但是这会导致两个问题
-  - 某些代码我们只是$\textcolor{Red}{希望执行一次即可}$，类似于componentDidMount和componentWillUnmount中完成的事情;(比如网络请求、订阅和取消订阅);
-  - 另外，$\textcolor{Red}{多次执行也会导致一定的性能问题}$
+  - 某些代码我们只是希望执行一次即可，类似于componentDidMount和componentWillUnmount中完成的事情;(比如网络请求、订阅和取消订阅);
+  - 另外，多次执行也会导致一定的性能问题
 - 我们如何决定useEffect在什么时候应该执行和什么时候不应该执行呢?
   - useEffect实际上有两个参数： `useEffect(函数,[])`
-    - 参数一：$\textcolor{Red}{执行的回调函数}$
-    - 参数二：$\textcolor{Red}{该useEffect在哪些state发生变化时，才重新执行}$(受哪个state的影响)
+    - 参数一：执行的回调函数
+    - 参数二：该useEffect在哪些state发生变化时，才重新执行(受哪个state的影响)
   - 当我们想仅在组件第一次渲染的时候执行，在之后更新组件的时候不执行，我们就放一个空数组就行，表示不受任何state的影响（`useEffect(()=>{},[])`）
   - 当然同样的，如果我们加了空数组，useEffect的返回值也只在组件卸载的时候才执行
   - 不写第二个参数的意思就是第一次执行和每一次更新都会执行
@@ -291,6 +291,15 @@ export default Fun
 3. `, msg`: `msg` 是一个新的消息对象，它是要添加到更新后的状态数组中的新元素。
 
 所以，整体来说，`setKeepMsgCon((prevKeepMsgCon) => [...prevKeepMsgCon, msg])` 的作用是将先前的状态数组 `keepMsgCon` 复制到一个新的数组中，并在新数组的末尾添加 `msg` 这个新的消息对象，然后用这个新的数组来更新 `keepMsgCon` 状态。这样就保证了状态的更新是基于先前的状态值，并且在异步操作中也能正确地更新状态，避免了由于异步操作导致的状态错误。
+
+
+
+### useLayoutEffect
+
+useLayoutEffect看起来和useEffect非常的相似，事实上他们也只有一点区别而已：
+
+- **useEffect会在渲染的内容更新到DOM上后执行，不会阻塞DOM的更新**
+- **useLayoutEffect会在渲染的内容更新到DOM上之前执行，会阻塞DOM的更新**
 
 
 
@@ -583,8 +592,8 @@ export { userContext, ThemeContext }
 
 
 
-```js
-//在大index中包裹使用
+```jsx
+//先包裹：在大index中包裹使用
 //记得先将上述的js导入
 
 root.render (
@@ -599,8 +608,9 @@ root.render (
 
 
 ```jsx
-//在函数式组件中使用
+// 在函数式组件中使用
 // 先导入我们的定义的js文件和useContext，在使用
+import { userContext, ThemeContext } from '..'
 
 const App = memo(()=>{
 	const user = useContext(userContext)
@@ -789,5 +799,4 @@ const Fun = memo(() => {
 
 export default Fun
 ```
-
 

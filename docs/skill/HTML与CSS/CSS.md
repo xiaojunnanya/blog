@@ -109,7 +109,7 @@ keywords: [HTML, CSS]
 
   - 行高的严格定义：两行文字基线之间的间距
   - 基线（baseline：与小写字母x最底部对齐的线）
-  - ![image-20230211153055064](HTML+CSS.assets/image-20230211153055064.png)
+  - ![image-20230211153055064](CSS.assets/image-20230211153055064.png)
   - **应用实例**：假设div只有一行文字，如何让这行文字在div内部垂直居中 [ 让line-height等于height ]
 
 - font缩写属性：多个属性的缩写
@@ -632,7 +632,7 @@ HTML中的每一个元素都可以看做是一个盒子，具有四个属性
 - 外边框（margin）
   - 用于设置盒子的外边距,通常用于元素和元素之间的间距
 
-- ![image-20230211223128838](HTML+CSS.assets/image-20230211223128838.png)
+- ![image-20230211223128838](CSS.assets/image-20230211223128838.png)
 
 因为盒子有四边，所以margin/padding/border都包括top/right/bottom/left四个边
 
@@ -664,9 +664,9 @@ HTML中的每一个元素都可以看做是一个盒子，具有四个属性
 </div>
 ```
 
-margin-left情况正常：![image-20230212131510835](HTML+CSS.assets/image-20230212131510835.png)
+margin-left情况正常：![image-20230212131510835](CSS.assets/image-20230212131510835.png)
 
-设置margin-top时：![image-20230212131629174](HTML+CSS.assets/image-20230212131629174.png)
+设置margin-top时：![image-20230212131629174](CSS.assets/image-20230212131629174.png)
 
 如果块级元素的顶部线和父元素的顶部线重叠，那么这个块级元素的margin-top值会传递给父元素
 
@@ -686,7 +686,7 @@ margin-bottom也会出现，不够触发条件比较难，少见，了解就好
 
 两个兄弟块级元素之间、父子块级元素之间 上下margin的折叠
 
-![image-20230212132926018](HTML+CSS.assets/image-20230212132926018.png)
+![image-20230212132926018](CSS.assets/image-20230212132926018.png)
 
  
 
@@ -807,7 +807,7 @@ outline表示元素的外轮廓
   - 元素依然按照标准流在布局，**占位置**
   - 可以通过left、right、top、bottom进行定位【当我们设置了left、right、top、bottom的时候，它就脱离了标准流了】
   - 它并不影响其他元素的位置
-  - ![image-20230213203921149](HTML+CSS.assets/image-20230213203921149.png)
+  - ![image-20230213203921149](CSS.assets/image-20230213203921149.png)
 
 - absolute：绝对定位
 
@@ -898,13 +898,13 @@ float属性可以指定一个元素应沿其容器的左侧或右侧放置，允
 - 规则一 
   - **元素一旦浮动后，脱离标准流**。朝着向左或向右方向移动，直到自己的边界紧贴着包含块（一般是父元素）或者其他浮动元素的边界为止
   - 定位元素会层叠在浮动元素上面【前提没有设置z-index】
-  - ![image-20230214145624377](HTML+CSS.assets/image-20230214145624377.png)
+  - ![image-20230214145624377](CSS.assets/image-20230214145624377.png)
 - 规则二：如果元素是向左（右）浮动，浮动元素的左（右）边界不能超出包含块的左（右）边界
 - 规则三：**浮动元素之间是不能层叠的**
   - 如果一个元素浮动，另一个浮动元素已经在那个位置了，后浮动的元素将紧贴着前一个浮动元素（左浮找左浮，右浮找右浮)
   - 如果水平方向剩余的空间不够显示浮动元素，浮动元素将向下移动，直到有充足的空间为止
 - 规则四：**浮动元素不能与行内级内容层叠，行内级内容将会被浮动元素推出**【比如行内级元素、inline-block元素、块级元素的文字内容】
-  - ![image-20230214150456269](HTML+CSS.assets/image-20230214150456269.png)
+  - ![image-20230214150456269](CSS.assets/image-20230214150456269.png)
 
 
 
@@ -988,7 +988,7 @@ float属性可以指定一个元素应沿其容器的左侧或右侧放置，允
 
 开启了flex布局的元素叫flex container。flex container里面的**直接子元素**叫做flex item
 
-![image-20230214202700826](HTML+CSS.assets/image-20230214202700826.png)
+![image-20230214202700826](CSS.assets/image-20230214202700826.png)
 
 当flex container中的子元素变成了flex item时，具备以下特点：
 
@@ -1002,16 +1002,16 @@ float属性可以指定一个元素应沿其容器的左侧或右侧放置，允
 
 - flex
   - 将盒子变成弹性盒子，不过是块级弹性盒子
-  - ![image-20230214203514358](HTML+CSS.assets/image-20230214203514358.png)
+  - ![image-20230214203514358](CSS.assets/image-20230214203514358.png)
 - inline-flex【了解，用的少】
   - 将盒子变成弹性盒子，不过是行内级弹性盒子
-  - ![image-20230214203543589](HTML+CSS.assets/image-20230214203543589.png)
+  - ![image-20230214203543589](CSS.assets/image-20230214203543589.png)
 
 
 
 ### flex布局的模型
 
-![image-20230214204200775](HTML+CSS.assets/image-20230214204200775.png)
+![image-20230214204200775](CSS.assets/image-20230214204200775.png)
 
 ### flex相关属性
 
@@ -1022,12 +1022,12 @@ float属性可以指定一个元素应沿其容器的左侧或右侧放置，允
   - row-reverse：row的反转
   - column：交叉轴变成主轴
   - column-reverse：column的反转
-  - ![image-20230214205420807](HTML+CSS.assets/image-20230214205420807.png)
+  - ![image-20230214205420807](CSS.assets/image-20230214205420807.png)
 - flex-wrap：决定了flex container是单行还是多行【就是我们设置了宽度，当他一行放不下的时候，他会对宽度进行压缩，这就是弹性的意思】
   - nowrap：默认，单行
   - wrap：多行
   - wrap-reverse：wrap的反转【并没有改变主轴】【了解就好，用的少】
-  - ![image-20230214205946136](HTML+CSS.assets/image-20230214205946136.png)
+  - ![image-20230214205946136](CSS.assets/image-20230214205946136.png)
 - flex-flow：flex-flow属性是flex-direction和 flex-wrap 的简写。顺序任何，并且都可以省略
 - justify-content：决定了flex items 在主轴上的对齐方式
   - flex-start：默认值，main start对齐
@@ -1036,7 +1036,7 @@ float属性可以指定一个元素应沿其容器的左侧或右侧放置，允
   - space-between：flex items之间的距离相等，与main start、main end两端对齐
   - space-around：flex items 之间的距离相等，flex items 与main start、main end之间的距离是flex items之间距离的一半
   - space-evenly：flex items 之间的距离相等，flex items 与 main start、main end 之间的距离等于flex items之间的距离 
-  - ![image-20230214211745081](HTML+CSS.assets/image-20230214211745081.png)
+  - ![image-20230214211745081](CSS.assets/image-20230214211745081.png)
 - align-items：决定了flex items 在交叉轴上的对齐方式
   - flex-start：cross start 对齐
   - flex-end：与cross end 对齐
@@ -1044,7 +1044,7 @@ float属性可以指定一个元素应沿其容器的左侧或右侧放置，允
   - baseline：与基准线对齐
   - normal：默认值，在弹性布局中，效果和stretch—样
   - stretch：当flex items在交叉轴方向的 height 为 auto 时【也就是不设置高度】，会自动拉伸至填充flex container
-  - ![image-20230214213415926](HTML+CSS.assets/image-20230214213415926.png)
+  - ![image-20230214213415926](CSS.assets/image-20230214213415926.png)
 - align-content：决定了多行flex items在交叉轴上的对齐方式，用法与 justify-content类似，等分或者居上居下的
   - stretch：默认值，与align-items的 stretch类似
   - flex-start: 与cross start对齐
@@ -1053,7 +1053,7 @@ float属性可以指定一个元素应沿其容器的左侧或右侧放置，允
   - space-between：flex items之间的距离相等，与cross start、cross end两端对齐
   - space-around：flex items之间的距离相等，flex items 与cross start、cross end 之间的距离是flex items之间距离的一半
   - space-evenly：flex items之间的距离相等，flex items 与cross start、cross end之间的距离等于flex items之间的距离
-  - ![image-20230214215223464](HTML+CSS.assets/image-20230214215223464.png)
+  - ![image-20230214215223464](CSS.assets/image-20230214215223464.png)
 
 
 
@@ -1080,6 +1080,199 @@ float属性可以指定一个元素应沿其容器的左侧或右侧放置，允
 - 【flex:1  ——>  flex-grow:1】
 
 
+
+## grid布局
+
+### grid布局重要概念
+
+`display: grid`
+
+当然还有`display:inline-grid`，这个了解就行
+
+![image-20231004163528073](CSS.assets/image-20231004163528073.png)
+
+
+
+### 初始布局
+
+```html
+<div class="container">
+    <div class="item">1</div>
+    <div class="item">2</div>
+    <div class="item">3</div>
+    <div class="item">4</div>
+    <div class="item">5</div>
+    <div class="item">6</div>
+    <div class="item">7</div>
+    <div class="item">8</div>
+    <div class="item">9</div>
+    <div class="item">10</div>
+    <div class="item">11</div>
+    <div class="item">12</div>
+</div>
+```
+
+```css
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container{
+    width: 100vw;
+    height: 100vh;
+    background-color: aqua;
+}
+
+.item{
+    border: 1px solid red;
+}
+```
+
+![image-20231004163032020](CSS.assets/image-20231004163032020.png)
+
+
+
+### 设置列
+
+```css
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container{
+    width: 100vw;
+    height: 100vh;
+    background-color: aqua;
+
+    display: grid;
+    /* 设置列数和列高度 */
+    grid-template-rows: 100px 100px 100px 100px;
+
+    /* 可以设置均分 */
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    /* 简写 */
+    grid-template-rows: repeat(4, 1fr);
+    /* 两边固定中间均分 */
+    grid-template-rows: 100px repeat(2, 1fr) 100px;
+}
+
+.item{
+    border: 1px solid red;
+}
+```
+
+
+
+### 设置行
+
+与列同理：`grid-template-columns: repeat(3, 1fr);`
+
+
+
+### 网格轨道间距
+
+当前三行四列均分
+
+```css
+.container{
+    width: 100vw;
+    height: 100vh;
+    background-color: aqua;
+
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+
+    grid-template-columns: repeat(3, 1fr);
+}
+```
+
+![image-20231004164307763](CSS.assets/image-20231004164307763.png)
+
+
+
+**设置间距**
+
+- grid-column-gap：列间距
+- grid-row-gap：行间距
+- grid-gap：简写属性
+
+```css
+.container{
+    width: 100vw;
+    height: 100vh;
+    background-color: aqua;
+
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+
+    grid-template-columns: repeat(3, 1fr);
+
+    grid-row-gap: 10px;
+    grid-column-gap: 20px;
+
+
+    /* 简写： */
+    /* grid-gap: 10px 20px; */
+}
+```
+
+![image-20231004164710953](CSS.assets/image-20231004164710953.png)
+
+
+
+### 合并单元格
+
+```html
+<div class="container">
+
+    <div class="item">1</div>
+    <div class="item one">2</div>
+    <!-- <div class="item">3</div> -->
+    <div class="item two">4</div>
+    <div class="item">5</div>
+    <div class="item">6</div>
+    <!-- <div class="item">7</div> -->
+    <div class="item three">8</div>
+    <!-- <div class="item">9</div> -->
+    <div class="item">10</div>
+    <!-- <div class="item">11</div>
+	<div class="item">12</div> -->
+
+</div>
+```
+
+```css
+.one{
+    /* 合并2，3区域
+    先将3区域给注释掉
+    然后给2区域设置为两列区域
+    */
+    grid-column: span 2;
+}
+
+.two{
+    /* 合并4,7区域
+    先将7区域给注释掉
+    然后给4区域设置为两行区域
+    */
+    grid-row: span 2;
+}
+
+.three{
+    /* 合并8,9,11,12区域
+    先将9,11,12区域给注释掉
+    然后给4区域设置为两行两列区域
+    */
+    /* grid-area: 行 / 列; */
+    grid-area: span 2 / span 2;
+}
+```
+
+![image-20231004165438497](CSS.assets/image-20231004165438497.png)
 
 
 
