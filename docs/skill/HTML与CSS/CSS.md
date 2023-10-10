@@ -1840,3 +1840,11 @@ Less (Leaner Style Sheets的缩写)是一门CSS扩展语言，并且兼容CSS
         width: .box()[width];
     }
     ```
+
+
+
+## 补充其他CSS
+
+- `user-select`：用于控制用户是否可以选择文本
+- `column-count`：描述元素的列数。
+- `aspect-ratio` ：为盒子规定了首选纵横比
