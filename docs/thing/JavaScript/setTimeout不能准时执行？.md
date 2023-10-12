@@ -1,10 +1,11 @@
 ---
-slug: /setTimeout
+id: setTimeout
+slug: /javascript/setTimeout
 title: setTimeout不能准时执行？
-date: 2023-08-24
-authors: jl
-tags: [知识点, js ]
-keywords: [知识点, js ]
+date: 2002-09-26
+authors: 鲸落
+tags: [Javascript]
+keywords: [Javascript]
 ---
 
 为什么都说定时器 `setTimeout` 不能准时执行呢？

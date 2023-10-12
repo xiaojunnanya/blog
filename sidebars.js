@@ -2,7 +2,7 @@
  * @Author: XJN
  * @Date: 2023-07-02 09:37:16
  * @LastEditors: xiaojunnanya
- * @LastEditTime: 2023-09-26 21:03:46
+ * @LastEditTime: 2023-10-12 22:14:37
  * @FilePath: \blog\sidebars.js
  * @Description: 
  * @前端实习生：鲸落: 
@@ -137,8 +137,72 @@ const sidebars = {
       ],
     },
   ],
-  tools: [
-    'tools/introduction'
+  thing: [
+    'thing/introduction',
+    {
+      label: 'HTML与CSS',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'thing/HTML与CSS/threecolumn',
+      ],
+    },
+    {
+      label: 'JavaScript',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'thing/JavaScript/console',
+        'thing/JavaScript/eventLoop',
+        'thing/JavaScript/lightDeppCopy',
+        'thing/JavaScript/jsRunPrinciple',
+        'thing/JavaScript/scope',
+        'thing/JavaScript/closure',
+        'thing/JavaScript/setTimeout',
+        'thing/JavaScript/noconsole',
+      ],
+    },
+    {
+      label: 'React',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'thing/React/reactstate',
+        'thing/React/setreact',
+        'thing/React/removeeffect',
+      ],
+    },
+    {
+      label: 'Node',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'thing/Node/commonjsnode',
+      ],
+    },
+    {
+      label: '网络',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'thing/网络/inputUrlHappen',
+        'thing/网络/inputUrlHappenAdd',
+        'thing/网络/websocket',
+        'thing/网络/networkModel',
+        'thing/网络/httpsencryption',
+        'thing/网络/websafe',
+      ],
+    },
   ]
 }
 

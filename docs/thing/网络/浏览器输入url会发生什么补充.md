@@ -1,10 +1,11 @@
 ---
-slug: /inputUrlHappenAdd
+id: inputUrlHappenAdd
+slug: /network/inputUrlHappenAdd
 title: 浏览器输入url会发生什么 — 补充
-date: 2023-08-04
-authors: jl
-tags: [知识点, 网络, js ]
-keywords: [知识点, 网络, js ]
+date: 2002-09-26
+authors: 鲸落
+tags: [网络]
+keywords: [网络]
 ---
 
 ## 细说HTTP缓存

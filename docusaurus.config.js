@@ -7,7 +7,7 @@ const announcementBarContent = ''
 const config = {
   title: '鲸落',
   titleDelimiter: '-',
-  url: 'http://xiaojunnan.cm',
+  url: 'http://xiaojunnan.cn',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
   organizationName: 'jl',
@@ -58,8 +58,8 @@ const config = {
               to: 'docs/skill/',
             },
             {
-              label: '工具推荐',
-              to: 'docs/tools/',
+              label: '思考纪录',
+              to: 'docs/thing/',
             },
             {
               label: '标签',

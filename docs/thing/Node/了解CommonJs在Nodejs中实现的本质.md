@@ -1,10 +1,11 @@
 ---
-slug: /commonjs
+id: commonjsnode
+slug: /node/commonjsnode
 title: 了解CommonJs在Nodejs中实现的本质
-date: 2023-09-22
-authors: jl
-tags: [知识点, node ]
-keywords: [知识点, node ]
+date: 2002-09-26
+authors: 鲸落
+tags: [Node]
+keywords: [Node]
 ---
 
 ## 基本使用

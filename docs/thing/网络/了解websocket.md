@@ -1,10 +1,11 @@
 ---
-slug: /websocket
+id: websocket
+slug: /network/websocket
 title: 了解Websocket
-date: 2023-08-06
-authors: jl
-tags: [知识点, Websocket ]
-keywords: [知识点, Websocket ]
+date: 2002-09-26
+authors: 鲸落
+tags: [网络, websocket]
+keywords: [网络, websocket]
 ---
 
 ## 什么是WebSocket

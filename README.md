@@ -5,7 +5,7 @@
 │   ├── first-blog.md
 ├── docs                           
 │   └── skill						# 文档/笔记
-|   └── tools						# 工具推荐
+|   └── tools						# 思考纪录
 ├── data                           # 项目/导航/友链数据
 │   ├── friend.ts                  # 友链
 │   ├── project.ts                 # 项目
@@ -29,7 +29,7 @@
 
 src\components\Hero\index.tsx：首页qq、github等的路径
 
-docs\tools：工具推荐，添加md后要在sidebars.js的tools中配置
+docs\tools：思考纪录，添加md后要在sidebars.js的tools中配置
 ```
 
 

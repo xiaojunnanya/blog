@@ -1,10 +1,11 @@
 ---
-slug: /websafe
+id: websafe
+slug: /network/websafe
 title: 了解web攻击和预防策略
-date: 2023-08-26
-authors: jl
-tags: [知识点, 网络, 网络安全 ]
-keywords: [知识点, 网络, 网络安全 ]
+date: 2002-09-26
+authors: 鲸落
+tags: [网络]
+keywords: [网络]
 ---
 
 ## 常见的web攻击

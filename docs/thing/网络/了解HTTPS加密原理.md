@@ -1,10 +1,11 @@
 ---
-slug: /httpsencryption
+id: httpsencryption
+slug: /network/httpsencryption
 title: 了解HTTPS加密原理
-date: 2023-08-18
-authors: jl
-tags: [知识点, 网络 ]
-keywords: [知识点, 网络 ]
+date: 2002-09-26
+authors: 鲸落
+tags: [网络, HTTP]
+keywords: [网络, HTTP]
 ---
 
 

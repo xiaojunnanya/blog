@@ -1,10 +1,11 @@
 ---
-slug: /inputUrlHappen
+id: inputUrlHappen
+slug: /network/inputUrlHappen
 title: 浏览器输入url会发生什么
-date: 2023-08-04
-authors: jl
-tags: [知识点, 网络, js ]
-keywords: [知识点, 网络, js ]
+date: 2002-09-26
+authors: 鲸落
+tags: [网络]
+keywords: [网络]
 ---
 
 **当我们向浏览器的地址栏输入URL的时候，网络会进行一系列的操作，最终获取到我们所需要的文件，如何交给浏览器进行渲染**

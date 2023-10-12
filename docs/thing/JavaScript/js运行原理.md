@@ -1,10 +1,11 @@
 ---
-slug: /jsRunPrinciple
+id: jsRunPrinciple
+slug: /javascript/jsRunPrinciple
 title: js运行原理
-date: 2023-08-01
-authors: jl
-tags: [知识点, js ]
-keywords: [知识点, js ]
+date: 2002-09-26
+authors: 鲸落
+tags: [Javascript]
+keywords: [Javascript]
 ---
 
 ## 前言

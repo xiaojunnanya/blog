@@ -1,13 +1,12 @@
 ---
-slug: /console
+id: console
+slug: /javascript/console
 title: console.log是异步还是同步？为什么console.log有时候不准？
-date: 2023-07-06
-authors: jl
-tags: [知识点, js]
-keywords: [知识点, js]
+date: 2002-09-26
+authors: 鲸落
+tags: [Javascript]
+keywords: [Javascript]
 ---
-
-
 
 ## console.log是异步还是同步
 
