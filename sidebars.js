@@ -2,7 +2,7 @@
  * @Author: XJN
  * @Date: 2023-07-02 09:37:16
  * @LastEditors: xiaojunnanya
- * @LastEditTime: 2023-10-12 22:14:37
+ * @LastEditTime: 2023-10-17 20:49:18
  * @FilePath: \blog\sidebars.js
  * @Description: 
  * @前端实习生：鲸落: 
@@ -56,6 +56,7 @@ const sidebars = {
       items: [
         'skill/React/react',
         'skill/React/reacthooks',
+        'skill/React/reactwebsite',
         'skill/React/tsreact',
         'skill/React/reactuse',
       ],
@@ -176,6 +177,7 @@ const sidebars = {
         'thing/React/reactstate',
         'thing/React/setreact',
         'thing/React/removeeffect',
+        'thing/React/build-your-own-react',
       ],
     },
     {
