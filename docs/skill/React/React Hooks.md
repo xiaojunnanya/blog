@@ -8,6 +8,8 @@ tags: [React]
 keywords: [React]
 ---
 
+
+
 以 `use` 开头的函数被称为 **Hook**。`useState` 是 React 提供的一个内置 Hook。你可以在 [React API 参考](https://react.docschina.org/reference/react) 中找到其他内置的 Hook。你也可以通过组合现有的 Hook 来编写属于你自己的 Hook。
 
 Hook 比普通函数更为严格。你只能在你的组件（或其他 Hook）的 **顶层** 调用 Hook。如果你想在一个条件或循环中使用 `useState`，请提取一个新的组件并在组件内部使用它。
@@ -1742,16 +1744,138 @@ function useLogoutTimer() {
 
 `navigate` 函数有两个签名：
 
-- 要么传递一个 `To` 值（与 `<Link to>` 相同的类型），带有可选的第二个 `{ replace, state }` 参数
+- 要么传递一个 `To` 值（与 `<Link to>` 相同的类型），带有可选的第二个 `{ replace, state }` 参数（可以用state携带一些参数）
 - 传递您想要在历史堆栈中前进的增量。例如， `navigate(-1)` 等同于点击后退按钮。
 
 
 
+```jsx
+// useNavigate传递参数的三种方式，也对于三种hoos获取参数
+
+/* 第一种：params传递参数， 此方式传递参数：需要注意的是在路由中需要配置占位符 */
+navigate('/login/17');
+
+/* 第二种：search传递参数 */
+navigate('/login?name=xiaoming&age=10')
+
+/* 第三种：state属性携带参数 */
+navigate('/login',{state: '我从登陆页面过来了！！！'})
+```
 
 
 
 
 
+### useParams
+
+params传递参数的获取，需要在路由中配置占位符
+
+`<Route path"/login/:id" element={}></Route>`
+
+```jsx
+/* 第一种params方法传递参数：用useParams来获取 */
+  const getParams = useParams();
+console.log(getParams, 'getParamsis')
+```
+
+
+
+### useSearchParams
+
+```jsx
+ /* 第二种search方法传递参数：用useSearchParams来获取*/
+ const [getSearchArr] = useSearchParams();
+ console.log(getSearchArr,getSearchArr.getAll('name'))//['xiaoming']
+ console.log(getSearchArr,getSearchArr.getAll('age'))//['10']
+```
+
+
+
+### useLocation
+
+```jsx
+/* 第三种state属性携带参数：用useLocation来获取 */
+  const currentLocation = useLocation();
+
+/* 
+  第三种：state属性传递参数
+  {
+    hash: ""
+    key: "jtlqbuv6"
+    pathname: "/login"
+    search: ""
+    state: "我从登陆页面过来了！！！"
+  } 
+*/
+console.log(currentLocation);
+```
+
+
+
+
+
+## redux hooks
+
+### useSelector
+
+使用一个 selector 函数从 Redux store state 中提取数据
+
+一般配合`shallowEqual`进行比较跟新
+
+```jsx
+import { shallowEqual, useSelector } from 'react-redux'
+
+//从store中获取数据
+  const {
+    goodPriceInfo,
+    highScoreInfo,
+  } = useSelector((state) =>({
+    goodPriceInfo: state.home.goodPriceInfo,
+    highScoreInfo: state.home.highScoreInfo,
+  }), shallowEqual)
+```
+
+
+
+### useDispatch
+
+这个 hook 返回一个对 Redux store 中的 `dispatch` 函数的引用。你可以按需使用它来 dispatch action
+
+```jsx
+import { useDispatch } from 'react-redux'
+import { fetchHomeDataAction } from '@/store/modules/home'
+
+//派发异步事件：发起网络请求 或者什么点击事件什么的
+const dispatch = useDispatch()
+useEffect(()=>{
+	dispatch(fetchHomeDataAction())
+},[dispatch])
+```
+
+
+
+
+
+### useStore
+
+`const store = useStore()`
+
+这个 hook 返回一个 Redux store 引用，该 store 与传递给 `<Provider>` 组件的 store 相同。
+
+不应该频繁使用这个 hook。宁愿将 `useSelector()` 作为主要选择。然而，对于少量需要访问 store 的场景而言，例如替换 reducer，这个 hook 很有用。
+
+```jsx
+import React from 'react'
+import { useStore } from 'react-redux'
+
+export const CounterComponent = ({ value }) => {
+  const store = useStore()
+
+  // 仅仅是示例！不要在实际的应用中这么做。
+  // 当 store state 变更时，组件不会自动更新
+  return <div>{store.getState()}</div>
+}
+```
 
 
 
