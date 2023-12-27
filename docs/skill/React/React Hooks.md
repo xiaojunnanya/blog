@@ -852,6 +852,29 @@ export default MyInput;
 
 最后，父级组件就可以得到它的 ref。
 
+但是对于一些自己定义的方法，我们需要暴露其句柄
+
+```js
+// 使用forwardRef包裹的子组件
+const ChildComponent = forwardRef<ChildMethods, ChildProps>((props, ref) => {
+  const childMethod = () => {
+    // 子组件的方法逻辑
+    console.log('Child method called');
+  };
+
+  // 将子组件的方法传递给父组件
+  useImperativeHandle(ref, () => ({
+    childMethod,
+  }));
+
+  return (
+    <div>
+      {/* 子组件的内容 */}
+    </div>
+  );
+});
+```
+
 阅读 [访问另一个组件的 DOM 节点](https://react.docschina.org/learn/manipulating-the-dom-with-refs#accessing-another-components-dom-nodes) 了解更多信息。
 
 
