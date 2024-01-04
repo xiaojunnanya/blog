@@ -2,7 +2,7 @@
  * @Author: XJN
  * @Date: 2023-07-02 09:37:16
  * @LastEditors: xiaojunnanya
- * @LastEditTime: 2023-07-03 09:51:01
+ * @LastEditTime: 2024-01-04 10:31:08
  * @FilePath: \blog\data\project.ts
  * @Description: 
  * @前端实习生：鲸落: 
@@ -25,6 +25,15 @@ export const projects: Project[] = [
     source: 'https://github.com/xiaojunnanya/xiaojunnanya.github.io',
     tags: ['opensource', 'design', 'personal'],
     type: '博客',
+  },
+  {
+    title: 'Easy云盘',
+    description: '网盘项目',
+    preview: '/img/project/easy.png',
+    website: 'http://www.easy.xiaojunnan.cn',
+    source: 'https://github.com/xiaojunnanya/easy_pan',
+    tags: ['opensource', 'personal'],
+    type: '个人项目',
   },
   {
     title: '实时聊天前端',
@@ -59,6 +68,15 @@ export const projects: Project[] = [
     preview: '/img/project/wyyyy.png',
     website: 'http://www.xiaojunnan.cn:83/discover/recommend',
     source: 'https://github.com/xiaojunnanya/cloud_music',
+    tags: ['opensource', 'personal'],
+    type: '个人项目',
+  },
+  {
+    title: '后台教师管理系统',
+    description: '课设作业教师管理系统',
+    preview: '/img/project/manage.png',
+    website: 'http://www.xiaojunnan.cn:82/login',
+    source: '',
     tags: ['opensource', 'personal'],
     type: '个人项目',
   }
