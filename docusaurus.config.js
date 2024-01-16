@@ -69,44 +69,32 @@ const config = {
               label: '归档',
               to: 'archive',
             },
-            // {
-            //   label: '前端示例',
-            //   to: 'https://example.kuizuo.cn',
-            // },
           ],
         },
         {
-          label: '工具',
+          label: '生活',
           position: 'right',
           items: [
             {
-              label: 'vercel',
-              to: 'https://vercel.com/',
+              label: '摄影',
+              to: 'docs/photography',
             },
             {
-              label: '匿名电子邮件',
-              to: 'https://temp-mail.org/zh/',
+              label: '骑行',
+              to: 'docs/ride',
             },
             {
-              label: '图片压缩',
-              to: 'https://tinypng.com/',
+              label: '旅游',
+              to: 'docs/travel',
             },
             {
-              label: 'PDF工具',
-              to: 'https://tools.pdf24.org/zh/',
+              label: '总结',
+              to: 'docs/summarize',
             },
-            {
-              label: 'codesandbox',
-              to: 'https://codesandbox.io/',
-            },
-            {
-              label: 'vscode自定义代码片段',
-              to: 'https://snippet-generator.app/',
-            },
-            {
-              label: 'algolia',
-              to: 'https://www.algolia.com/',
-            },
+            // {
+            //   label: 'vercel',
+            //   to: 'https://vercel.com/',
+            // },
           ],
         },
         {

@@ -2,7 +2,7 @@
  * @Author: XJN
  * @Date: 2023-07-02 09:37:16
  * @LastEditors: xiaojunnanya
- * @LastEditTime: 2023-10-17 21:02:02
+ * @LastEditTime: 2024-01-16 09:07:04
  * @FilePath: \blog\sidebars.js
  * @Description: 
  * @前端实习生：鲸落: 
@@ -203,6 +203,52 @@ const sidebars = {
         'thing/网络/networkModel',
         'thing/网络/httpsencryption',
         'thing/网络/websafe',
+      ],
+    },
+  ],
+  photography: [
+    'photography/introduction',
+    {
+      label: '2023',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [],
+    },
+  ],
+  ride: [
+    'ride/introduction',
+    {
+      label: '2023',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [],
+    },
+  ],
+  travel: [
+    'travel/introduction',
+    {
+      label: '2023',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [],
+    },
+  ],
+  summarize: [
+    'summarize/introduction',
+    {
+      label: '2023',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'summarize/2023/frondstudy21',
       ],
     },
   ]
