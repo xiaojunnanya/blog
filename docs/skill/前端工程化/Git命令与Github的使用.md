@@ -140,7 +140,34 @@ keywords: [前端工程化, git, github]
 
 
 
+## Git提交代码
 
+在git提交代码到github一些众所周知的问题，我们可以没有办法顺利提交，但是如果我们有tizi的话，可以这样设置git全局代理
+
+这里提供几种方式，自己可以都试试，我使用了sock是可以的
+
+代理主要是本地地址+端口号，本地地址都一样`127.0.0.1`，端口号看每个人电脑自己的那个软件
+
+
+
+```js
+git config --global http.proxy http://127.0.0.1:7890
+git config --global https.proxy https://1:27.0.0.1:7890
+```
+
+**sock**
+
+```js
+git config --global http.https://github.com.proxy socks5://127.0.0.1:7890
+git config --global https.https://github.com. proxy socks5://127.0.0.1:7890
+```
+
+或者可以设置仅github代理
+
+```js
+git config --global http.https://github.com.proxy socks5://127.0.0.1:7890
+git config --global https.https://github.com.proxy socks5://127.0.0.1:7890
+```
 
 
 
