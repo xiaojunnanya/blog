@@ -45,7 +45,7 @@ if(process.env.NODE_ENV === 'development'){
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
 
-import { jlRequestConfig } from './type'
+import { jlRequestConfig } from './type' 
 
 
 class jlRequest{
