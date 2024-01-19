@@ -158,8 +158,8 @@ git config --global https.proxy https://1:27.0.0.1:7890
 **sock**
 
 ```js
-git config --global http.https://github.com.proxy socks5://127.0.0.1:7890
-git config --global https.https://github.com. proxy socks5://127.0.0.1:7890
+git config --global http.proxy socks5://127.0.0.1:7890
+git config --global https.proxy socks5://127.0.0.1:7890
 ```
 
 或者可以设置仅github代理
@@ -167,7 +167,17 @@ git config --global https.https://github.com. proxy socks5://127.0.0.1:7890
 ```js
 git config --global http.https://github.com.proxy socks5://127.0.0.1:7890
 git config --global https.https://github.com.proxy socks5://127.0.0.1:7890
+
+// 取消代理
+git config --global --unset http.https://github.com.proxy
 ```
+
+
+
+当我们在其他的项目中，遇到了问题，可以取消代理（包括http和https）
+
+- 查看代理：`git config --global http.proxy`
+- 取消代理：`git config --global --unset http.proxy`
 
 
 
