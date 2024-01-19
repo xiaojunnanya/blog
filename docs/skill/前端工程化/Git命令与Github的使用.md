@@ -178,6 +178,7 @@ git config --global --unset http.https://github.com.proxy
 
 - 查看代理：`git config --global http.proxy`
 - 取消代理：`git config --global --unset http.proxy`
+- 查看本地代理详细信息：`git config --global -f`
 
 
 

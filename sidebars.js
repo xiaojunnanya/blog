@@ -2,7 +2,7 @@
  * @Author: XJN
  * @Date: 2023-07-02 09:37:16
  * @LastEditors: xiaojunnanya
- * @LastEditTime: 2024-01-16 09:07:04
+ * @LastEditTime: 2024-01-19 17:17:12
  * @FilePath: \blog\sidebars.js
  * @Description: 
  * @前端实习生：鲸落: 
@@ -22,6 +22,7 @@ const sidebars = {
         'skill/HTML与CSS/css',
         'skill/HTML与CSS/screen',
         'skill/HTML与CSS/skill',
+        'skill/HTML与CSS/canvas'
       ],
     },
     {
