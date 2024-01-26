@@ -285,6 +285,29 @@ keywords: [HTML, CSS]
 
 
 
+在这里补充一个属性：[attr](https://developer.mozilla.org/zh-CN/docs/Web/CSS/attr)
+
+我们一般会使用 content 来添加内容，但是如果我们的内容是动态的不确定的呢，可以使用attr来获取div中的数据
+
+```html
+<p data-foo="hello">world</p>
+```
+
+```css
+p:before {
+   /* 先取attr(data-foo)，没有在取后面的 */
+  content: attr(data-foo) " ";
+}
+```
+
+:::info 补充
+
+**备注：** `attr()` 理论上能用于所有的 CSS 属性但目前支持的仅有伪元素的 content属性，其他的属性和高级特性目前是实验性的
+
+:::
+
+
+
 
 
 ## CSS属性的特性 — 继承性
