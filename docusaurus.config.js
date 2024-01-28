@@ -134,11 +134,7 @@ const config = {
             {
               label: '实战项目',
               to: 'project',
-            },
-            // {
-            //   label: '前端示例',
-            //   to: 'https://example.kuizuo.cn',
-            // },
+            }
           ],
         },
         {
@@ -220,16 +216,16 @@ const config = {
       config: {},
     },
     matomo: {
-      matomoUrl: 'https://matomo.kuizuo.cn/',
+      matomoUrl: 'http://xiaojunnan.cn',
       siteId: '1',
       phpLoader: 'matomo.php',
       jsLoader: 'matomo.js',
     },
     giscus: {
-      repo: 'kuizuo/blog',
-      repoId: 'MDEwOlJlcG9zaXRvcnkzOTc2MjU2MTI=',
+      repo: 'xiaojunnanya/blog',
+      repoId: 'R_kgDOJ23KyQ',
       category: 'General',
-      categoryId: 'DIC_kwDOF7NJDM4CPK95',
+      categoryId: 'DIC_kwDOJ23Kyc4Ccv-l',
       theme: 'light',
       darkTheme: 'dark',
     },
@@ -238,11 +234,11 @@ const config = {
     },
     socials: {
       github: 'https://github.com/xiaojunnanya',
-      // twitter: 'https://twitter.com/kuizuo',
+      // twitter: 'https://twitter.com',
       // juejin: 'https://juejin.cn/user/3633256370537165',
-      // csdn: 'https://blog.csdn.net/kuizuo12',
+      // csdn: 'https://blog.csdn.net',
       // qq: 'https://wpa.qq.com/msgrd?v=3&amp;uin=911993023&amp;site=qq',
-      // zhihu: 'https://www.zhihu.com/people/kuizuo',
+      // zhihu: 'https://www.zhihu.com/people',
       // cloudmusic: 'https://music.163.com/#/user/home?id=1333010742',
     },
   },

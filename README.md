@@ -45,7 +45,7 @@ blog：文件夹可以随便起，按照时间排序
 slug: /macbook-aaa   # 页面的路径
 title: 测试用的哦	# 页面的标题
 date: 2023-07-02	# 时间
-authors: kuizuo		# 作者
+authors: jl		# 作者
 tags: [macOS, MacBook, 使用体验]	# 标签
 keywords: [macOS, MacBook, 使用体验]	# 关键词
 ---
@@ -149,8 +149,8 @@ sidebars.js                    配置
     title: '鲸落',  //标题
     description: '基于 Docusaurus 静态网站生成器实现个人博客',	//外面名称
     preview: '/img/project/blog.png',//图片
-    website: 'https://kuizuo.cn',//展示地址
-    source: 'https://github.com/kuizuo/blog',// github地址
+    website: 'https://xiaojunnan.cn',//展示地址
+    source: 'https://github.com/xiaojunnanya',// github地址
     tags: ['opensource', 'design', 'favorite'],// 标签
     type: 'web',//类型
   },

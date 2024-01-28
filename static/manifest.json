@@ -6,12 +6,7 @@
   "display": "standalone",
   "scope": "./",
   "start_url": "./index.html",
-  "related_applications": [
-    {
-      "platform": "webapp",
-      "url": "https://kuizuo.cn/manifest.json"
-    }
-  ],
+  "related_applications": [],
   "icons": [
     {
       "src": "img/icons/icon-128.pnag",
