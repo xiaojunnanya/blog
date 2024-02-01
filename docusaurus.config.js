@@ -50,24 +50,16 @@ const config = {
       hideOnScroll: true,
       items: [
         {
-          label: '学习',
+          label: '笔记',
           position: 'right',
           items: [
             {
-              label: '学习笔记',
+              label: '学习',
               to: 'docs/skill/',
             },
             {
-              label: '思考纪录',
+              label: '思考',
               to: 'docs/thing/',
-            },
-            {
-              label: '标签',
-              to: 'tags',
-            },
-            {
-              label: '归档',
-              to: 'archive',
             },
           ],
         },
@@ -97,20 +89,25 @@ const config = {
             // },
           ],
         },
-        {
-          label: '导航',
-          position: 'right',
-          to: 'resource',
-        },
+        // {
+        //   label: '导航',
+        //   position: 'right',
+        //   to: 'resource',
+        // },
         {
           label: '项目',
           position: 'right',
           to: 'project',
         },
         {
-          type: 'localeDropdown',
+          label: '归档',
           position: 'right',
+          to: 'archive',
         },
+        // {
+        //   type: 'localeDropdown',//中文英文
+        //   position: 'right',
+        // },
       ],
     },
     footer: {

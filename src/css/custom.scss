@@ -258,7 +258,10 @@ html[data-theme='dark'] .theme-code-block {
 .menu {
   font-weight: 400;
 }
-
+.navbar__items--right .navbar__item .dropdown__menu{
+  min-width: auto;
+  left: 0;
+}
 .bloghome__scroll-down {
   justify-self: center;
   align-self: end;
