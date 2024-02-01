@@ -157,14 +157,15 @@ export function SocialLinks({ ...prop }) {
     wx: string
     cloudmusic: string
     zhihu: string
+    emial: string
   }
 
   return (
     <animated.div className={styles.social__links} {...prop}>
-      <a href='https://github.com/xiaojunnanya' target="_blank">
+      <a href={socials.github} target="_blank">
         <Icon icon="ri:github-line" />
       </a>
-      <a href='https://juejin.cn/user/3633256370537165' target="_blank">
+      <a href={socials.juejin} target="_blank">
         <JuejinIcon />
       </a>
       <a href={socials.qq} target="_blank">

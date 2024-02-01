@@ -231,8 +231,8 @@ const config = {
     },
     socials: {
       github: 'https://github.com/xiaojunnanya',
+      juejin: 'https://juejin.cn/user/3633256370537165',
       // twitter: 'https://twitter.com',
-      // juejin: 'https://juejin.cn/user/3633256370537165',
       // csdn: 'https://blog.csdn.net',
       // qq: 'https://wpa.qq.com/msgrd?v=3&amp;uin=911993023&amp;site=qq',
       // zhihu: 'https://www.zhihu.com/people',
