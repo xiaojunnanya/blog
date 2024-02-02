@@ -207,38 +207,18 @@ const sidebars = {
       ],
     },
   ],
-  photography: [
-    'photography/introduction',
-    {
-      label: '2023',
-      type: 'category',
-      link: {
-        type: 'generated-index',
-      },
-      items: [],
-    },
-  ],
-  ride: [
-    'ride/introduction',
-    {
-      label: '2023',
-      type: 'category',
-      link: {
-        type: 'generated-index',
-      },
-      items: [],
-    },
-  ],
-  travel: [
-    'travel/introduction',
-    {
-      label: '2023',
-      type: 'category',
-      link: {
-        type: 'generated-index',
-      },
-      items: [],
-    },
+  hobby: [
+    'hobby/introduction',
+    // {
+    //   label: '2023',
+    //   type: 'category',
+    //   link: {
+    //     type: 'generated-index',
+    //   },
+    //   items: [
+    //     'summarize/2023/frondstudy21',
+    //   ],
+    // },
   ],
   summarize: [
     'summarize/introduction',

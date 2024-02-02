@@ -68,16 +68,8 @@ const config = {
           position: 'right',
           items: [
             {
-              label: '摄影',
-              to: 'docs/photography',
-            },
-            {
-              label: '骑行',
-              to: 'docs/ride',
-            },
-            {
-              label: '旅游',
-              to: 'docs/travel',
+              label: '爱好',
+              to: 'docs/hobby',
             },
             {
               label: '总结',
