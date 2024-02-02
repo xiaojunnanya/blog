@@ -43,8 +43,8 @@ keywords: [使用, mvn]
    arch: 64
    proxy: none
    
-   node_mirror: https://npm.taobao.org/mirrors/node/
-   npm_mirror: https://npm.taobao.org/mirrors/npm/
+   node_mirror: https://npmmirror.com/mirrors/node/
+   npm_mirror: https://npmmirror.com/mirrors/npm/
    ```
 
    这里解释一下参数：
@@ -63,6 +63,6 @@ keywords: [使用, mvn]
 ## 常见命令
 
 - 查看已经安装的nodejs：`nvm list`
-- 查看可安装的nodejs版本：`vm list available`
+- 查看可安装的nodejs版本：`nvm list available`
 - 安装node：`nvm install node版本`【`nvm install 16.16.0`】
 - 使用node：`nvm use 16.16.0`
