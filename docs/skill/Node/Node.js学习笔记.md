@@ -1,7 +1,7 @@
 ---
 id: node
 slug: /node
-title: Node
+title: NodeJs学习笔记
 date: 2023-02-21
 authors: 鲸落
 tags: [Node]

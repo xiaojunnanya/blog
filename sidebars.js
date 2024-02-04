@@ -72,6 +72,8 @@ const sidebars = {
         'skill/Node/node',
         'skill/Node/nodesql',
         'skill/Node/nodeuse',
+        'skill/Node/nestjs',
+        'skill/Node/nestjsbefore'
       ],
     },
     {
