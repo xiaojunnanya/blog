@@ -2116,3 +2116,14 @@ export { jlReq, jlReq1 }
 ### 小知识
 
 - 定义类是 class，定义函数是function，定义枚举类型是enum
+- 当我们使用第三方库的时候他的返回值类型并没有导出，当时我们又想使用
+
+  ```ts
+  import { login } from '.'
+  
+  let options = Parameters<typeof login>[0];// Parameters<typeof login>可以拿到所有的类型，我们可以去第0个
+  
+  let resp: ReturnType<typeof login> | null
+  ```
+
+  
