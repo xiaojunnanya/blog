@@ -3815,6 +3815,29 @@ store.dispatch({type:"num",num})
     </div>
     ```
 
+> 补充，我们可以可以使用Outlet来传递参数，不过不是我们直接使用组件的传递
+>
+> https://reactrouter.com/en/main/hooks/use-outlet-context
+
+```jsx
+function Parent() {
+  const [count, setCount] = React.useState(0);
+  return <Outlet context={[count, setCount]} />;
+  // return <Outlet context={count} />;
+}
+
+-----
+import { useOutletContext } from "react-router-dom";
+
+function Child() {
+  const [count, setCount] = useOutletContext();
+  const increment = () => setCount((c) => c + 1);
+  return <button onClick={increment}>{count}</button>;
+}
+```
+
+
+
 
 
 ### 自定义js代码的跳转
