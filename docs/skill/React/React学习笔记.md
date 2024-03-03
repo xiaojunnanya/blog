@@ -1140,6 +1140,28 @@ function Fun(){
 }
 ```
 
+```jsx
+// 使用useContext
+
+// 在最外面的组件
+export const ThemeContext = createContext<any>(null);
+
+export const WidgetContentEdit = (props) => {
+    return (
+        <ThemeContext.Provider value={[componentStyle, setComponentStyle]}>
+        	...
+        </ThemeContext.Provider>
+    )
+}
+
+
+// 使用的组件：记得导入ThemeContext
+const context = useContext(ThemeContext)
+// 就可以正常使用了
+```
+
+
+
 
 
 ##### 事件总线
