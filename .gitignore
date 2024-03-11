@@ -19,6 +19,7 @@ cloudbaserc.json
 .env.production.local
 .env
 scp.sh
+commit.sh
 
 # Packages
 /packages

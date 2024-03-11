@@ -27,6 +27,15 @@ export const projects: Project[] = [
     type: '博客',
   },
   {
+    title: 'whale-design',
+    description: '个人组件库',
+    preview: '/img/project/whale-design.png',
+    website: 'http://www.whale-design.xiaojunnan.cn/',
+    source: 'https://github.com/xiaojunnanya/whale-design',
+    tags: ['opensource', 'personal'],
+    type: '个人项目',
+  },
+  {
     title: 'Easy云盘',
     description: '网盘项目',
     preview: '/img/project/easy.png',
