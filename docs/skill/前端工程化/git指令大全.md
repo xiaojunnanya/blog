@@ -1,10 +1,11 @@
 ---
-slug: /git
-title: git命令使用大全
-date: 2023-10-10
-authors: jl
-tags: [使用, git]
-keywords: [使用, git]
+id: usegit
+slug: /usegit
+title: git指令大全
+date: 2023-09-23
+authors: 鲸落
+tags: [前端工程化, git]
+keywords: [前端工程化, git]
 ---
 
 ## git简介
@@ -214,10 +215,25 @@ doc/**/*.txt
 
 - `git add .`
 - `git comit -m "描述信息"`
-- `git push ...`
-- `git pull`
-- `git clone ...`
-- `git init`
+- `git push ...`：提交
+- `git pull`：拉去代码，`git pull = git fetch + git merge`
+- `git clone ...`：克隆
+- `git init`：初始化
+- `git rebase ...`：以...分支为基点
+- `git merge ...`：将...分支合并到当前分支
+- `git stash`：存入缓存区
+- `git stash pop`：从缓存区取出
+- `git status`：查看文件的状态
+- `git log`：查看日志
+- `git reset`：版本回退/切换
+  - 回退上个版本：`git reset --hard HEAD^`
+  - 回退上上个版本：`git reset --hard HEAD^^`
+  - 如果是上1000个版本，我们可以使用`HEAD~1000`
+  - 我们可以可以指定某一个commit id（git log查看id）：`git reset --hard 884ef0f45`
+
+- `git branch dev`：创建新的分支命名为dev
+- `git checkout dev`：切换到dev分支
+- `git branch -d dev`：删除dev分支
 
 
 

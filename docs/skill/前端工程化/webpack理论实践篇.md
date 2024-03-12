@@ -1,10 +1,11 @@
 ---
+id: webpack
 slug: /webpack
 title: webpack理论实践
-date: 2023-11-10
-authors: jl
-tags: [使用, webpack]
-keywords: [使用, webpack]
+date: 2023-09-23
+authors: 鲸落
+tags: [前端工程化, webpack]
+keywords: [前端工程化, webpack]
 ---
 
 ## 复习

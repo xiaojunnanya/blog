@@ -1,10 +1,11 @@
 ---
-slug: /git-commit-emoji
+id: gitcommit
+slug: /git-commit
 title: git 提交规范
-date: 2024-03-10
-authors: jl
-tags: [使用, git ]
-keywords: [使用, git ]
+date: 2023-09-23
+authors: 鲸落
+tags: [前端工程化, git]
+keywords: [前端工程化, git]
 ---
 
 ## 前提
