@@ -214,16 +214,16 @@ const sidebars = {
   ],
   hobby: [
     'hobby/introduction',
-    // {
-    //   label: '2023',
-    //   type: 'category',
-    //   link: {
-    //     type: 'generated-index',
-    //   },
-    //   items: [
-    //     'summarize/2023/frondstudy21',
-    //   ],
-    // },
+    {
+      label: '摄影',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'hobby/摄影/studyphotography',
+      ],
+    },
   ],
   summarize: [
     'summarize/introduction',
