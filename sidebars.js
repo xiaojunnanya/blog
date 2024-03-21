@@ -36,6 +36,7 @@ const sidebars = {
         'skill/JavaScript/javascript2',
         'skill/JavaScript/javascript3',
         'skill/JavaScript/javascript4',
+        'skill/JavaScript/javascripttip'
       ],
     },
     {
