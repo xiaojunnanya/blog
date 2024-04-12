@@ -1,10 +1,11 @@
 ---
-slug: /windowcmd
+id: windowcmd
+slug: /tool/windowcmd
 title: window cmd命令大全
 date: 2023-11-12
-authors: jl
-tags: [使用, cmd]
-keywords: [使用, cmd]
+authors: 鲸落
+tags: [tool, cmd]
+keywords: [tool, cmd]
 ---
 
 ## npm相关

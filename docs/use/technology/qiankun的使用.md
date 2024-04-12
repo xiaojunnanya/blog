@@ -1,10 +1,11 @@
 ---
-slug: /qiankun
+id: qiankun
+slug: /technology/qiankun
 title: qiankun的使用
-date: 2023-07-01
-authors: jl
-tags: [使用, qiankun, 微前端]
-keywords: [使用, qiankun, 微前端]
+date: 2023-11-12
+authors: 鲸落
+tags: [tool, qiankun]
+keywords: [tool, qiankun]
 ---
 
 ## qiankun官网

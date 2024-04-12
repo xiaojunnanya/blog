@@ -213,6 +213,52 @@ const sidebars = {
       ],
     },
   ],
+  use: [
+    'use/introduction',
+    {
+      label: '工具',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'use/tool/windowcmd',
+        'use/tool/yalc',
+        'use/tool/xswitch',
+        'use/tool/release-it',
+        'use/tool/mvn',
+        'use/tool/delete_node_modules',
+        'use/tool/markdown',
+        'use/tool/gitee',
+      ],
+    },
+    {
+      label: '技术',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'use/technology/bigfile',
+        'use/technology/tsaxios',
+        'use/technology/qiankun',
+      ],
+    },
+    {
+      label: '其他',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'use/other/cli',
+        'use/other/scpsh',
+        'use/other/projectUbun',
+        'use/other/hexo',
+        'use/other/ubuntusetvue',
+      ],
+    },
+  ],
   hobby: [
     'hobby/introduction',
     {

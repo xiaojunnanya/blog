@@ -1,11 +1,13 @@
 ---
-slug: /markdown
+id: markdown
+slug: /tool/markdown
 title: markdown语法纪录
-date: 2023-08-22
-authors: jl
-tags: [使用, markdown ]
-keywords: [使用, markdown ]
+date: 2023-11-12
+authors: 鲸落
+tags: [tool, markdown]
+keywords: [tool, markdown]
 ---
+
 [Markdown 官方教程](https://markdown.com.cn/) 
 ## 基本语法
 

@@ -1,10 +1,11 @@
 ---
-slug: /xswitch
+id: xswitch
+slug: /tool/xswitch
 title: XSwitch-请求转发插件
-date: 2024-01-18
-authors: jl
-tags: [使用, XSwitch ]
-keywords: [使用, XSwitch ]
+date: 2023-11-12
+authors: 鲸落
+tags: [tool, XSwitch]
+keywords: [tool, XSwitch]
 ---
 
 

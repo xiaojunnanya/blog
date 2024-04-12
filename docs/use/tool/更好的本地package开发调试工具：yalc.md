@@ -1,10 +1,11 @@
 ---
-slug: /yalc
+id: yalc
+slug: /tool/yalc
 title: 更好的本地package开发调试工具：yalc
-date: 2023-12-27
-authors: jl
-tags: [使用, yalc ]
-keywords: [使用, yalc ]
+date: 2023-11-12
+authors: 鲸落
+tags: [tool, yalc]
+keywords: [tool, yalc]
 ---
 
 

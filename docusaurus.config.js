@@ -55,11 +55,15 @@ const config = {
           items: [
             {
               label: '学习',
-              to: 'docs/skill/',
+              to: 'docs/skill',
             },
             {
               label: '思考',
-              to: 'docs/thing/',
+              to: 'docs/thing',
+            },
+            {
+              label: '使用',
+              to: 'docs/use',
             },
           ],
         },

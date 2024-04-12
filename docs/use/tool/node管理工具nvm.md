@@ -1,10 +1,11 @@
 ---
-slug: /mvn
-title: mvn的使用
-date: 2023-07-02
-authors: jl
-tags: [使用, mvn]
-keywords: [使用, mvn]
+id: mvn
+slug: /tool/mvn
+title: node管理工具nvm
+date: 2023-11-12
+authors: 鲸落
+tags: [tool, mvn]
+keywords: [tool, mvn]
 ---
 
 ## 前言
@@ -66,3 +67,11 @@ keywords: [使用, mvn]
 - 查看可安装的nodejs版本：`nvm list available`
 - 安装node：`nvm install node版本`【`nvm install 16.16.0`】
 - 使用node：`nvm use 16.16.0`
+
+
+## 补充
+还有一个npm管理工具：nrm，这个是用来切换npm源的，比如切换到淘宝源：`nrm use taobao`
+常见命令：
+- `nrm ls`：查看哪些npm源可以使用
+- `nrm use npm`：切换为npm源
+- `nrm test npm`：测试npm源的速度

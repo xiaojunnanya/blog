@@ -1,10 +1,11 @@
 ---
-slug: /release-it
+id: release-it
+slug: /tool/release-it
 title: 提效工具：使用release-it 自动发包
-date: 2024-01-19
-authors: jl
-tags: [使用, 工具 ]
-keywords: [使用, 工具 ]
+date: 2023-11-12
+authors: 鲸落
+tags: [tool, release]
+keywords: [tool, release]
 ---
 
 > [release-it(github.com)](https://github.com/release-it/release-it)
