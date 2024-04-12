@@ -7,6 +7,16 @@ tags: [使用, cmd]
 keywords: [使用, cmd]
 ---
 
+## npm相关
+
+- 查看全局安装的包：`npm ls -g` （`npm ls`也可以用来查看包的依赖）
+- 删除全局的包：`npm uninstall xxx -g`
+- 清除缓存：`npm cache clean --force`
+
+
+
+## 本机相关
+
 - 新建文件夹：`mkdir 名字`   /  `md 名字`
 - 新建文件：`touch 名字`（window需要安装touch：`npm install touch-cli -g`）
 - 目录跳转：`cd 相对路径`
