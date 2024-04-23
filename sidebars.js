@@ -269,6 +269,7 @@ const sidebars = {
       },
       items: [
         'hobby/摄影/studyphotography',
+        'hobby/摄影/studyphoto',
       ],
     },
   ],
