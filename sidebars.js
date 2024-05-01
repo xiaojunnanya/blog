@@ -172,6 +172,7 @@ const sidebars = {
         'thing/JavaScript/closure',
         'thing/JavaScript/setTimeout',
         'thing/JavaScript/noconsole',
+        'thing/JavaScript/sessionStorage',
       ],
     },
     {
