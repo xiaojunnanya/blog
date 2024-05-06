@@ -8,7 +8,10 @@ tags: [Vue2]
 keywords: [Vue2]
 ---
 
-## 初识Vue
+
+
+
+## 初始Vue
 
 ### hello world
 
@@ -105,7 +108,7 @@ keywords: [Vue2]
 4. methods中配置的函数，都是被Vue所管理的函数，this的指向是vm或组件实例对象
 5. @click="demo”和@click="demo($event)”效果一致，但后者可以传参，在进行多个数据的传参的时候， &event 起到占位的作用
 
-```javas
+```vue
 <body>
     <!-- 创建容器 -->
     <div id="app">
@@ -540,7 +543,7 @@ v-for指令:
 </body>
 ```
 
-#### key作用与原理
+key作用与原理
 
 面试题:react、vue中的key有什么作用?（key的内部原理)
 
@@ -731,7 +734,6 @@ v-for指令:
 #### Vue监视数据的原理总结
 
 vue监视数据的原理:
-
 1. vue会监视data中所有层次的数据。
 
 2. 如何监测对象中的数据?
@@ -1090,6 +1092,8 @@ v-pre指令:
 2. 销毁后自定义事件会失效，但原生DOM事件依然有效。
 3. 一般不会再beforeDestroy操作数据，因为即便操作数据，也不会再触发更新流程了。
 
+
+
 ## Vue组件化编程
 
 非单文件组件︰一个文件中包含有n个组件。
@@ -1296,8 +1300,7 @@ v-pre指令:
 
 3. 特别注意:每次调用vue.extend，返回的都是一个全新的VueComponent！！！
 
-4. $\textcolor{Red}{关于this指向:}$
-
+4. 关于this指向:
    1. 组件配置中:
       data函数、methods中的函数、watch中的函数、computed中的函数它们的this均是【VueComponent实例对象】
    2. new Vue(options)配置中:
@@ -1365,12 +1368,374 @@ v-pre指令:
    </body>
    ```
 
+
+
 ## Vue使用习惯
 
 1. pages页面放置路由组件
 2. components页面放置组件
 3. router文件夹配置路由
 4. store文件夹配置仓库
+
+
+
+## 使用Vue脚手架
+
+创建Vue文件：vue create 名字
+
+### 分析Vue脚手架
+
+1. .gitignore：git上传忽略文件
+
+2. babel.config.js：babel控制文件
+
+3. package.json：配置文件
+
+4. main.js：整个文件的入口文件
+
+   ```
+   // 整个项目的入口文件：
+   
+   //引入vue
+   import Vue from 'vue'
+   //引入App组件
+   import App from './App.vue'
+   //关闭vue的生产提示
+   Vue.config.productionTip = false
+   //创建vue1的实例对象
+   new Vue({
+     //将App组件放入实例中
+     render: h => h(App),
+   }).$mount('#app')
+   ```
+
+   
+
+5. assets：静态资源
+
+### 配置可选择文件
+
+1. vue.config.js：`module.exports = {}`
+2. lintOnSave:false 【关闭Vue编译时候的语法检查】
+3. 在Vue中，Vue = this.$
+
+
+
+### ref属性
+
+ref 与 `$refs`
+
+1. 被用来给元素或子组件注册引用信息(id的替代者)
+
+2. 应用在html标签上获取的是真实DOM元素，应用在组件标签上是组件实例对象(vc)
+
+3. 3.使用方式:
+   打标识:`<h1 ref="xxx">.....</h1>或<School ref="xxx">x</School>`
+
+   获取: this.$refs.xxx
+
+
+
+### 组件通信
+
+#### 父给子：props
+
+子用props来接受父传来的数据
+
+```javascript
+//App.vue:这个:age加不加引号主要是看他是否涉及到js的运行，:age传的就是number18，不加传的是string18，当你是运行表达式的时候就要加冒号
+<school name="鲸落" :age="18"></school>
+
+//school.vue:
+<template>
+  <div>
+    名字：{{name}}
+    年龄：{{age}}
+  </div>
+</template>
+
+<script>
+export default {
+    name:'school',
+    data(){
+        return{
+            // name:'鲸落',
+            // age:18,
+
+            // props是只读的，Vue底层会监测你对props的修改，
+            // 如果进行了修改,就会发出警告，若业务需求确实需要修改，
+            // 那么请复制props的内容到data中一份，然后去修改data中的数据。
+            myAge:this.age
+        }
+    },
+    //简单的声明
+    props:['name','age'],
+    //接收到的数据进行限制，但也只是报警告错误，比如你限制传来number，接收的是string，还是会正常执行，但控制台会报错
+    props:{
+        name:String,
+        age:Number,
+    },
+    //接收的同时进行数据的限制+默认值的指定+必要性的限制
+    props:{
+        name:{
+            type:String,
+            required:true,//必传的，意思是name是必传的
+        },
+        age:{
+            type:Number,
+            default:99,//默认值【不是必传的，但如果传就是你传的数，不传就默认的数，99】
+        }
+    }
+}
+</script>
+```
+
+
+
+#### 子给父：绑定自定义事件
+
+子使用`$emit`来绑定自定义事件来给父传送数据，父用`$on`来接收【使用 `$off`解绑自定义事件】，而在父组件上，子组件需要绑定自定义事件
+
+```javascript
+//子：one.vue
+<template>
+  <div>
+    <div>{{name}}</div>
+    <button @click="send">发送</button>
+  </div>
+</template>
+
+<script>
+export default {
+    name:"one",
+    data(){
+        return{
+           name:"鲸落"
+        }
+    },
+    methods:{
+        send(){
+            console.log("dd");
+            this.$emit('myName',this.name)
+            //this.$off('myName')【解绑自定义事件】
+            //解绑多个自定义得用数组：this.$off(['myName','first'])
+            //解绑所有的自定义事件：this.$off()
+            //当前使用destory()也会解绑自定义事件
+        }
+    }
+}
+</script>
+
+//父：App.vue
+<template>
+  <div id="app">
+      //绑定了自定义事件，来接受子传来的数据【其实对于这样的接收事件来说，如果当组件之间的通讯变多的时候，或者当我要设置组件挂在完成后三秒在传参，就不方便了，我们可以按下面这样写：（在下面）】
+    <one @myName="myName"></one>
+	//<one @myName.once="myName"></one>【自定义事件触发一次就不触发了】
+	//<one v-on:myName="myName"></one>
+  </div>
+</template>
+
+<script>
+import one from "./components/one.vue"
+
+export default {
+  name:"App",
+  components:{
+    one
+  },
+  methods:{
+    myName(name){
+      console.log(name);
+    }
+  },
+}
+</script>
+
+
+//父：App.vue
+<template>
+  <div id="app">
+     //采用ref的形式，使用this.$refs来获取到改Vuecomponents实例，
+    <one ref="ones"></one>
+  </div>
+</template>
+
+<script>
+import one from "./components/one.vue"
+
+export default {
+  name:"App",
+  components:{
+    one
+  },
+  methods:{
+    myName(name){
+      console.log(name);
+    }
+  },
+  mounted(){
+      //获取到Vuecomponents实例，使用$on来添加自定义事件【灵活性更强】
+    this.$refs.ones.$on('myName',this.myName)
+    //this.$refs.ones.$once('myName',this.myName)【自定义事件触发一次就不触发了】
+  }
+}
+</script>
+```
+
+组件上也可以绑定原生DOM事件，需要使用**native**修饰符。`<school @click.native="demo"></school>`
+
+注意：通过 `this.$refs.xx.$on(' atguigu',回调)`定自定义事件时，回调要么配置在methods中，要么用箭头函数,否则this指向会出问题!
+
+
+
+#### 任意组件间通信：全局事件总线
+
+![image-20221102155057436](img/image-20221102155057436.png)
+
+
+
+#### 任意组件间通信：消息订阅与发布
+
+![image-20221102155556153](img/image-20221102155556153.png)
+
+原生的js无法事件该操作，所以我们借用第三方库，推荐：pubsub-js：`npm i pubsub-js`
+
+```javascript
+//school.vue：
+//先引入：
+import pubsub from 'pubsub-js'
+//订阅消息：
+mounted(){
+    this.pubId = pubsub.subscribe("hello",function(msgName,data)){【两个参数，第一个是发布的名字，第二个是传的参数】
+        console.log("hello你好呀",msgName,data)
+    	//同样的，这个时候打印this为undefined，解决方法当然是使用箭头函数，或者配置一个函数
+    })
+}
+//取消订阅：
+beforeDestroy(){
+     pubsub.unsubscribe("hello")//但是这样是不行的，对于pubsub这个库来说不行，定义一个变量来表示：
+    pubsub.unsubscribe(this.pubId)
+}
+
+//studen.vue：
+//先引入：
+import pubsub from 'pubsub-js'
+//发布消息：
+pubsub.subscribe("hello","hhhh")
+```
+
+
+
+
+
+### mixin混入
+
+功能：可以把说个组件共用的配置提取成一个混入，比如什么data数据，method方法，在外部定义一个mixin.js进行定义
+
+对象使用方式:
+	第一步定义混合,例如:
+	{
+		data(){....},
+
+​		methods:{....}
+​	}
+​	第二步使用混入，例如:
+​		(1).全局混入：import {xxx} from ".."   Vue.mixin(xxx)
+
+​		(2).局部混入：import {xxx} from ".."   mixins: [xxx]
+
+```javascript
+export const mixin = {
+    methods:{
+        show(){
+            console.log("鲸落")
+        }
+    }
+}
+
+//引入
+import {mixin} from ".."
+//最重要的点！！！mixin
+mixins: [mixin]
+```
+
+
+
+### 插件
+
+功能:用于增强Vue
+本质:包含install方法的一个对象，install的第一个参数是Vue，第二个以后的参数是插件使用者传递的数据。
+
+```javascript
+??.js:
+export default {
+	install(vue){
+        console.log(vue)
+    }
+}
+
+//引入：
+import ?? from ".."
+Vue.use(??)
+```
+
+使用插件:Vue.use()
+
+
+
+## $nextTick
+
+1. 语法:this.$nextTick(回调函数)
+2. 作用:在下一次DOM更新结束后执行其指定的回调。
+3. 什么时候用:当改变数据后，要基于更新后的新DOM进行某些操作时，要在nextTick所指定的回调函数中执行。
+
+
+
+### 过渡与动画
+
+#### 动画
+
+```
+当你想让哪个地方有动画就给他包包裹上标签：<transition></transition>
+然后加上class .v-enter-avtive【进入】.v-leave-active【离开】来实现效果
+给 transition加上name，就要改变v-的值，
+如：<transition name="hello"></transition>【用来区分多个动画】
+则：.hello-enter-avtive【进入】.hello-leave-active【离开】
+
+但对于<transition>他只能包裹一个标签，想要包裹多个标签使用<transition-group>【需要指定key值】
+```
+
+#### 过渡
+
+Vue在进入和离开的时候除了`.v-enter-avtive【进入】.v-leave-active【离开】`，
+
+还有`v-enter,v-enter-to,v-leave,v-leave-to`，
+
+v-enter：进去的起点
+
+v-enter-to：进去的终点
+
+过渡就是设置起点终点，让其变化
+
+#### 第三方动画库
+
+推荐：animate.css
+
+安装：npm install animate.css
+
+引入：import 'animate.css'
+
+配置：加上`name="animate__animated animate__bounce"`
+
+加动画：配上class即可，进入：`enter-active-class=""`，离开`leave-active-class=""`
+
+#### 总结
+
+1. 作用：在插入、更新或移除DOM元素时，在合适的时候给元素添加样式类名。
+2. 图示：![image-20221103102353426](img/image-20221103102353426.png)
+3. 写法![image-20221103102458622](img/image-20221103102458622.png)
+
 
 
 ## Vue中的ajax
@@ -1401,6 +1766,8 @@ devServer:{
 
 ![image-20221103105654094](img/image-20221103105654094.png)
 
+
+
 ### 插槽
 
 #### 默认插槽
@@ -1428,6 +1795,8 @@ devServer:{
     </div>
 </template>
 ```
+
+
 
 #### 具名插槽
 
@@ -1479,6 +1848,7 @@ devServer:{
 ```
 
 #### 总结
+
 1. 作用：让父组件可以向子组件指定位置插入html结构，也是一种组件间通信的方式，适用于父组件==>子组件。
 
 2. 分类：默认插槽、具名插槽、作用域插槽
@@ -1490,6 +1860,9 @@ devServer:{
 5. 作用域插槽：![image-20221103182502183](img/image-20221103182502183.png)
 
    ![image-20221103182522240](img/image-20221103182522240.png)
+
+
+
 
 
 ## Vuex
@@ -1548,11 +1921,11 @@ devServer:{
       //     render: h => h(App),
       // }).$mount('#app')
       ```
-
       
-
+      
+      
    2. main.js中引入我们写的store
-
+   
       ```javascript
       import Vue from 'vue'
       import App from './App.vue'
@@ -1569,11 +1942,11 @@ devServer:{
         render: h => h(App),
       }).$mount('#app')
       ```
-
+   
       
-
+   
    3. 这个时候我们打开项目，会报一个错误：`[vuex] must call Vue.use(Vuex) before creating a store instance`，这是我们js代码在解析的时候，会先扫描代码，然后先解析所有import，解决办法：我们把use(vuex)放在store中执行，我们改代码
-
+   
       ```javascript
       //store-index.js:
       
@@ -1613,11 +1986,11 @@ devServer:{
         render: h => h(App),
       }).$mount('#app')
       ```
-
+   
       ![image-20221104190544512](img/image-20221104190544512.png)
-
+   
       ![image-20221104190557196](img/image-20221104190557196.png)
-
+   
    4. 在组件中打印`console.log(this)`，就可以看到$store这个实例对象了。
 
 
@@ -1821,6 +2194,7 @@ const getters = {
 ![image-20221106151019955](img/image-20221106151019955.png)
 
 
+
 ## Vue-Router
 
 ### 如何使用
@@ -1994,6 +2368,8 @@ export default new VueRouter({
 
 ![image-20221106231325017](img/image-20221106231325017.png)
 
+
+
 ### 编程式导航
 
 最重要的当时是配置在Vue上的实例对象`$router`【注意不是`$route`】【可以这样理解，router是路由器，而route仅仅是路由，只有路由器才有权限控制浏览器的上下流动】
@@ -2029,6 +2405,8 @@ export default new VueRouter({
 2. deactivated：路由组件失活时触发。
 
 使用场景：比如开一个定时器的操作，当我给这个组件的展示区加上`<keep-alive>`那我在跳转的时候这个组件就不会被销毁，一直在加载定时器，很浪费资源这个时候我们就可以把开启定时器的操作放在activated中，关闭定时器的操作放在deactivated
+
+
 
 ### 路由守卫
 
@@ -2153,6 +2531,8 @@ beforeRouteLeave(to,from,next){}//【注意这个离开也有next()放行】
 
 ![image-20221107092403993](img/image-20221107092403993.png)
 
+
+
 ### history模式和hash模式
 
 修改模式：router-index.js中，一般我们都使用history，但他会出现404的问题，需要后端配合
@@ -2171,10 +2551,11 @@ new VueRouter({
 2. hash值不会包含在HTTP请求中，即: hash值不会带给服务器。
 
 3. hash模式:
-4. 地址中永远带着#号，不美观。
-5. 若以后将地址通过第三方手机app分享，若app校验严格，则地址会被标记为不合法。
-6. 兼容性较好。
-7. history模式:
+1. 地址中永远带着#号，不美观。
+2. 若以后将地址通过第三方手机app分享，若app校验严格，则地址会被标记为不合法。
+3. 兼容性较好。
+4. history模式:
    1. 地址干净，美观。
    2. 兼容性和hash模式相比略差。
    3. 应用部署上线时需要后端人员支持，解决刷新页面服务端404的问题。
+
