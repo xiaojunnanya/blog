@@ -100,6 +100,16 @@ const sidebars = {
       ],
     },
     {
+      label: 'Uniapp',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/Uniapp/uniapp'
+      ],
+    },
+    {
       label: '数据结构与算法',
       type: 'category',
       link: {
