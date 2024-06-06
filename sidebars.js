@@ -267,6 +267,7 @@ const sidebars = {
         'use/other/projectUbun',
         'use/other/hexo',
         'use/other/ubuntusetvue',
+        'use/other/useubuntu',
       ],
     },
   ],
