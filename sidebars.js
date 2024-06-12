@@ -183,6 +183,7 @@ const sidebars = {
         'thing/JavaScript/setTimeout',
         'thing/JavaScript/noconsole',
         'thing/JavaScript/sessionStorage',
+        'thing/JavaScript/jslanguagedesign',
       ],
     },
     {
@@ -268,6 +269,7 @@ const sidebars = {
         'use/other/hexo',
         'use/other/ubuntusetvue',
         'use/other/useubuntu',
+        'use/other/googletoolsipload',
       ],
     },
   ],
