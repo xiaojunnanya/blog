@@ -5,7 +5,7 @@ const announcementBarContent = ''
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  onBrokenLinks: false,
+  onBrokenLinks: 'ignore',
   title: '鲸落',
   titleDelimiter: '-',
   url: 'http://xiaojunnan.cn',
