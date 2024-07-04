@@ -1,7 +1,4 @@
 const path = require('path')
-const beian = '闽ICP备2020017848号-2'
-
-const announcementBarContent = ''
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {

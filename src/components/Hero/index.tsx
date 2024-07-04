@@ -14,6 +14,8 @@ import { Icon } from '@iconify/react'
 
 import styles from './styles.module.scss'
 
+import video from '../../../static/video/1.mp4'
+
 function Hero() {
   const trails = useTrail(4, {
     from: { opacity: 0, transform: 'translate3d(0px, 2em, 0px)' },
@@ -135,7 +137,7 @@ function Hero() {
             </div>
             <div className={styles.line}></div>
             <div>
-              <video src="http://62.234.178.157/video/1.mp4" controls></video>
+              <video src={video} controls></video>
             </div>
 
           </div>
