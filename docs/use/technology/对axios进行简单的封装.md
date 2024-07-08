@@ -27,6 +27,7 @@ keywords: [tool, axios]
 ## 定义常量
 
 ```ts
+// service\config\index.ts
 export const TIMEOUT = 10000
 
 // 设置开发环境和生产环境
@@ -43,6 +44,7 @@ if(process.env.NODE_ENV === 'development'){
 ## 封装
 
 ```ts
+// service\request\index.ts
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
 
@@ -117,6 +119,7 @@ export default jlRequest
 ## 定义类型
 
 ```ts
+// service\request\type.ts
 import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 
 // 在这里配置拦截器的类型，这样我们就可以动态的设置哪个请求有对应的拦截器
@@ -137,6 +140,7 @@ export interface jlRequestConfig extends AxiosRequestConfig{
 ## 创建实例
 
 ```ts
+// service\modules
 import { BASE_URL, TIMEOUT } from "./config";
 import jlRequest from "./request";
 
