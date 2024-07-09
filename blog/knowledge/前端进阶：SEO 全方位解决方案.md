@@ -3,8 +3,8 @@ slug: /frontendseo
 title: 前端进阶：SEO 全方位解决方案
 date: 2024-07-01
 authors: jl
-tags: [知识点, 前端 ]
-keywords: [知识点, 前端 ]
+tags: [ 前端, 基建 ]
+keywords: [ 前端, 基建 ]
 ---
 
 

@@ -153,7 +153,7 @@ const sidebars = {
         'skill/抓住小细节/detailwl',
         'skill/抓住小细节/detailbc',
       ],
-    },
+    }
   ],
   thing: [
     'thing/introduction',
@@ -270,6 +270,17 @@ const sidebars = {
         'use/other/ubuntusetvue',
         'use/other/useubuntu',
         'use/other/googletoolsipload',
+      ],
+    },
+    {
+      label: '开发纪录',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'use/开发纪录/whaledevfrontend',
+        'use/开发纪录/whaledevbackEnd',
       ],
     },
   ],
