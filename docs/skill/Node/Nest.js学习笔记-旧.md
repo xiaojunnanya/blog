@@ -570,7 +570,7 @@ export class StudentsService {
 
 
 
-## 数据库
+## 数据库 - typeorm
 
 使用 `mysql` 作为数据库连接。使用 `NestJs` 内置的[数据库连接](https://link.juejin.cn/?target=https%3A%2F%2Fdocs.nestjs.com%2Ftechniques%2Fdatabase) `typeorm`，可在 [这里](https://link.juejin.cn/?target=https%3A%2F%2Ftypeorm.io%2F) 查阅 typeorm 详细文档
 
@@ -976,6 +976,233 @@ export class StudentsController {
 
 
 浏览器：`http://localhost:3000/students/getClass?id=1` 查询数据
+
+
+
+## 数据库 - prisma(推荐)
+
+[Prisma | Simplify working and interacting with databases](https://www.prisma.io/)
+
+### 依赖
+
+```
+npm i prisma -D
+npm i @prisma/client
+```
+
+安装的第一个 prisma，它是一个 CLI 命令，主要通过它来调用 Prisma 的各种功能，包括数据库迁移，创建Prisma Client 等等
+
+执行下面的命令，看一下 prisma 的使用说明：`npx prisma init`
+
+可以看到，prisma 提供了 7 个命令：
+
+| 命令     | 说明                                                  |
+| -------- | ----------------------------------------------------- |
+| init     | 在应用中初始化 Prisma                                 |
+| generate | 主要用来生成 Prisma Client                            |
+| db       | 管理数据库的模式和生命周期                            |
+| migrate  | 迁移数据库                                            |
+| studio   | 启动一个Web 端的工作台来管理数据                      |
+| validate | 检查 Prisma 的模式文件的语法是否正确                  |
+| format   | 格式化Prisma的模式文件，默认就是 prisma/schema.prisma |
+
+
+
+
+
+### 初始化 Prisma
+
+`npx prisma init`
+
+这个命令的效果是在命令所在目录，也就是现在的根目录中，创建一个 `.env` 文件，一个 `prisma` 目录，并在此目录下创建`schema.prisma` 文件，如下：
+
+![image-20240708194428116](Nest.js学习笔记-旧.assets/image-20240708194428116.png)
+
+`prisma` 目录，用来存放和 Prisma 相关的文件，目前只有一个 `schema.prisma` 文件，这个文件就是前面提及过的 Prisma 模式文件，我们会在此文件中定义数据库的连接信息和模型。
+
+> 在编辑模式文件前，在 VS Code 中安装 `Prisma` 插件，它针对 `.prisma` 文件提供了代码高亮、格式化、自动补全、跳转定义和检查的功能。没有这个插件的加持，模式文件就是一个纯文本。
+
+
+
+### 设置生成器
+
+使用 `generate` 定义生成器，通过 provider 属性声明为 `prisma-client-js`（目前也只支持这一种）。当执行 `prisma generate` 命令时就会生成 Prisma Client，使用它完成数据的增删改查。
+
+```
+generator client {
+  provider = "prisma-client-js"
+}
+```
+
+
+
+### 设置数据源
+
+> 使用 `datasource` 是定义数据源，用来设置 Prisma 连接的数据库所需要的一些信息。`provider` 是连接到的数据库的类型，默认是 postgresql，我们改为要用到的 mysql。 `url` 是数据库URL，通常为了保持配置分离，会将其单独定义到一个环境变量文件中，也就是 prisma cli 自动生成的 `.env` 文件。通过 `env()` 函数，会去读取此文件中的变量。
+
+```
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+```
+
+> 看一下 `.env` 文件，默认连接的是 Postgresql：
+
+```
+DATABASE_URL=postgresql://johndoe:mypassword@localhost:5432/mydb?schema=public
+```
+
+这是一个 数据库连接 URL的组成：
+
+![Structure of the MySQL connection URL](Nest.js学习笔记-旧.assets/ff5943febe404ff993df14aee8abc733tplv-k3u1fbpfcp-zoom-in-crop-mark1512000.webp)
+
+下面都是必填项：
+
+| 名称     | 占位符     | 描述                               |
+| -------- | ---------- | ---------------------------------- |
+| Host     | `HOST`     | 数据库 IP 或域名, 例如 `localhost` |
+| Port     | `PORT`     | 数据库端口, 例如 `3306`            |
+| User     | `USER`     | 数据库用户名, 例如 `root`          |
+| Password | `PASSWORD` | 数据库密码                         |
+| Database | `DATABASE` | 数据库名称，例如 `mydb`            |
+
+根据这个说明，定义我们自己的 MySQL URL：`DATABASE_URL="mysql://root:root123@localhost:3306/prisma"`
+
+> 最后arguments不确定可以不填
+
+
+
+### 定义模型
+
+> 定义模型时会用到形如 `@id()` 、`@default()` 这些 Prisma 内置的工具函数。比如 `@id()` 用来声明主键，`@default()` 用来设置默认值，命名都非常语义化，基本就是 SQL 中的一些关键字，非常容易理解。
+
+prisma\schema.prisma文件中：
+
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  name        String   
+  email       String   @unique
+  password    String
+  createdTime DateTime @default(now()) @map("created_time")
+  updatedTime DateTime @updatedAt @map("updated_time")
+​
+  @@map("user")
+}
+```
+
+
+
+需要说明的几点信息：
+
+1. 模型的名字默认就是创建的数据表的名字，这里是大写的 User，那么数据表名也就是大写的 User，可以使用 `@@map()` 来设置映射的表名，改为小写的 user
+2. 每个模型的记录都是唯一可识别的，也就是要有主键，可以使用 @id 去声明。
+3. 字段的类型，比如 Int，String，会经过Prisma 转为数据库对应的类型，也就是 int 和 varchar。
+4. `@unique` 是唯一值约束，所以生成的 user 表的 email 字段的值不能重复。
+5. 像是创建时间和更新时间，为了符合 JS、TS 中的命名规范，使用了小驼峰命名，为了符合数据库命名规范，在后面使用 `@map()` 重新映射为了下划线命名。
+
+
+
+### 同步数据库
+
+将Prisma 模型同步到数据库，对于我们这样一个**新项目，空项目**，可以使用下面的命令：`npx prisma db push`
+
+如果是一个已经有数据的项目，就不能使用这个命令了，转而使用 `prisma migrate` 迁移
+
+
+
+### CRUD 增删改查
+
+#### 初始化 Prisma Client
+
+有了 Prisma Client，可以使用它来执行 CRUD 操作。初始化：
+
+```ts
+const { PrismaClient } = require('@prisma/client')
+
+const prisma = new PrismaClient()
+```
+
+Prisma Client 的实例 prisma ，具备丰富的类型，使用方式是 `prisma.模型.CRUD方法`
+
+我们先来介绍几个常用的 API:
+
+- findMany：查询多条记录
+- findUnique：查询单条记录
+- create：创建记录
+- update：更新记录
+- delete：删除记录
+
+使用这几个 API 在路由方法中操作数据库，完成接口的开发。
+
+
+
+#### 查询所有
+
+findMany 不传入参数，表示查询整张 user 表的所有记录，它返回的是一个数组，是 User 模型的实例集合：
+
+```ts
+const users = await prisma.user.findMany()
+```
+
+
+
+#### 查询单个
+
+在 `findUnique` 方法中通过 `where` 设置查询条件，也就是根据指定的 ID 来查询一条用户记录，该方法只返回一条记录，也就是 `User` 模型的一个实例：
+
+```ts
+const user = await prisma.user.findUnique({
+    where: { id }
+})
+```
+
+
+
+#### 创建用户
+
+```ts
+const newUser = await prisma.user.create({
+    data: user
+})
+```
+
+
+
+#### 更新用户
+
+```ts
+const user = await prisma.user.update({
+    where: {
+        id
+    },
+    data: updateUser
+})
+```
+
+
+
+#### 删除用户
+
+```ts
+const user = await prisma.user.delete({
+    where: {
+        id
+    }
+})
+```
+
+
 
 
 
