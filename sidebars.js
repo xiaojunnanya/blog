@@ -210,6 +210,16 @@ const sidebars = {
       ],
     },
     {
+      label: '前端工程化',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'thing/前端工程化/dependencies',
+      ],
+    },
+    {
       label: '网络',
       type: 'category',
       link: {
