@@ -2,7 +2,7 @@
 id: vue2
 slug: /vue/vue2
 title: Vue2
-date: 2023-02-21
+date: 2002-09-26
 authors: 鲸落
 tags: [Vue2]
 keywords: [Vue2]

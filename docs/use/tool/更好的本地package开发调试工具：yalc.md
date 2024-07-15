@@ -2,7 +2,7 @@
 id: yalc
 slug: /tool/yalc
 title: 更好的本地package开发调试工具：yalc
-date: 2023-11-12
+date: 2002-09-26
 authors: 鲸落
 tags: [tool, yalc]
 keywords: [tool, yalc]

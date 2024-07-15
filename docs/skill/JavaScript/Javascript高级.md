@@ -2,7 +2,7 @@
 id: javascript2
 slug: /javascript/high
 title: Javascript高级
-date: 2023-02-21
+date: 2002-09-26
 authors: 鲸落
 tags: [JavaScript]
 keywords: [JavaScript]

@@ -2,7 +2,7 @@
 id: typescript
 slug: /ts/typescript
 title: TypeScript
-date: 2023-07-09
+date: 2002-09-26
 authors: 鲸落
 tags: [TypeScript]
 keywords: [TypeScript]

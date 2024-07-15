@@ -2,7 +2,7 @@
 id: gitcommit
 slug: /git-commit
 title: git 提交规范
-date: 2023-09-23
+date: 2002-09-26
 authors: 鲸落
 tags: [前端工程化, git]
 keywords: [前端工程化, git]

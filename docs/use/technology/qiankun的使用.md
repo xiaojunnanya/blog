@@ -2,7 +2,7 @@
 id: qiankun
 slug: /technology/qiankun
 title: qiankun的使用
-date: 2023-11-12
+date: 2002-09-26
 authors: 鲸落
 tags: [tool, qiankun]
 keywords: [tool, qiankun]

@@ -2,7 +2,7 @@
 id: useubuntu
 slug: /other/useubuntu
 title: Ubuntu系统操作记录
-date: 2023-11-12
+date: 2002-09-26
 authors: 鲸落
 tags: [tool, Ubuntu]
 keywords: [tool, Ubuntu]

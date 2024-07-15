@@ -2,7 +2,7 @@
 id: detailvue
 slug: /detailvue
 title: Vue
-date: 2023-07-14
+date: 2002-09-26
 authors: 鲸落
 tags: [抓住小细节]
 keywords: [抓住小细节]

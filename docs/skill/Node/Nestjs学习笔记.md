@@ -2,7 +2,7 @@
 id: nestjs
 slug: /nestjs
 title: Nestjs学习笔记
-date: 2023-02-21
+date: 2002-09-26
 authors: 鲸落
 tags: [Node, NestJs]
 keywords: [Node, NestJs]

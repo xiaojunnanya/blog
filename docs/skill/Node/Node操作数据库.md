@@ -2,7 +2,7 @@
 id: nodesql
 slug: /nodesql
 title: Node操作数据库
-date: 2023-02-21
+date: 2002-09-26
 authors: 鲸落
 tags: [Node, sql]
 keywords: [Node, sql]

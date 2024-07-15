@@ -2,7 +2,7 @@
 id: mvn
 slug: /tool/mvn
 title: node管理工具nvm
-date: 2023-11-12
+date: 2002-09-26
 authors: 鲸落
 tags: [tool, mvn]
 keywords: [tool, mvn]

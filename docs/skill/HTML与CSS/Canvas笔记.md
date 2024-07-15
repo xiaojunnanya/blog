@@ -2,7 +2,7 @@
 id: canvas
 slug: /htmlAndCss/canvas
 title: Canvas
-date: 2023-02-14
+date: 2002-09-26
 authors: 鲸落
 tags: [Canvas]
 keywords: [Canvas]

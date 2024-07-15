@@ -2,7 +2,7 @@
 id: markdown
 slug: /tool/markdown
 title: markdown语法纪录
-date: 2023-11-12
+date: 2002-09-26
 authors: 鲸落
 tags: [tool, markdown]
 keywords: [tool, markdown]

@@ -136,6 +136,17 @@ const sidebars = {
       ],
     },
     {
+      label: '力扣算法',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/力扣算法/algorithmbefore',
+        'skill/力扣算法/algorithmarr',
+      ],
+    },
+    {
       label: '抓住小细节',
       type: 'category',
       link: {

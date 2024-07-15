@@ -2,7 +2,7 @@
 id: react
 slug: /react
 title: React
-date: 2023-02-21
+date: 2002-09-26
 authors: 鲸落
 tags: [React]
 keywords: [React]

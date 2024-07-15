@@ -2,7 +2,7 @@
 id: javascript3
 slug: /javascript/highCon
 title: Javascript高级 - 续
-date: 2023-02-21
+date: 2002-09-26
 authors: 鲸落
 tags: [JavaScript]
 keywords: [JavaScript]

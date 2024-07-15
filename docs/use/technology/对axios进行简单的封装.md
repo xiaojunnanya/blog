@@ -2,7 +2,7 @@
 id: tsaxios
 slug: /technology/tsaxios
 title: 用ts对axios进行一个简单的封装
-date: 2023-11-12
+date: 2002-09-26
 authors: 鲸落
 tags: [tool, axios]
 keywords: [tool, axios]
