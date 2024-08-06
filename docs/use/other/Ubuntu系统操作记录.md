@@ -117,3 +117,13 @@ cd /mnt/hgfs
 ls
 ```
 
+
+
+
+
+### Ubuntu 上运行 Shell 脚本
+
+- 将一个脚本保存为带有扩展名的文件，如 test1.sh
+- 在终端上输入: chmod +x test1.sh，赋予可执行权限
+- 在终端上输入: ./test1.sh 或者 sh test1.sh 就能运行成功
+- 另外，如果脚本文件没有扩展名的话，在终端上输入: ./test1 或者 test1 脚本都能执行成功

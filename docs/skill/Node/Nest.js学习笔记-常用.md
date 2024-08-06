@@ -33,6 +33,7 @@ keywords: [Node, NestJs]
   - 运行：`npm run start`
   - 开发中使用：`npm run start:dev`，他会在每次文件更改的时候为我们提供实时编译和自动服务器重建
   - 生成控制器：`nest generate controller`  /  `nest g co`
+  - 生成模板：`nest g resource 名字`
 
 
 
