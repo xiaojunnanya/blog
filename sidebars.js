@@ -318,6 +318,16 @@ const sidebars = {
         'hobby/摄影/studyphoto',
       ],
     },
+    {
+      label: '旅行',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'hobby/旅行/travel',
+      ],
+    },
   ],
   summarize: [
     'summarize/introduction',
