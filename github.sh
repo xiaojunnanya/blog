@@ -5,7 +5,7 @@ read -p "请输入提交信息 (默认: 新增文章): " commit_message
 
 # 如果用户未输入，使用默认值
 if [ -z "$commit_message" ]; then
-  commit_message="新增文章"
+  commit_message="feat: 新增文章"
 fi
 
 # 执行git add
