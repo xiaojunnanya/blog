@@ -317,6 +317,8 @@ const sidebars = {
         'series/前端调试通关秘籍/frontenddebug01',
         'series/前端调试通关秘籍/frontenddebug02',
         'series/前端调试通关秘籍/frontenddebug03',
+        'series/前端调试通关秘籍/frontenddebug04',
+        'series/前端调试通关秘籍/frontenddebug05',
       ],
     },
   ],
