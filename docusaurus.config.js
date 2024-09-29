@@ -15,7 +15,7 @@ const config = {
   themeConfig: {
     image: 'img/logo.png',
     colorMode: {
-      defaultMode: 'dark',
+      defaultMode: 'light',
       disableSwitch: false,
       respectPrefersColorScheme: false,
     },
@@ -62,6 +62,10 @@ const config = {
             {
               label: '使用',
               to: 'docs/use',
+            },
+            {
+              label: '系列',
+              to: 'docs/series',
             },
           ],
         },

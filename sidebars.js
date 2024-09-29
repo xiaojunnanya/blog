@@ -305,6 +305,21 @@ const sidebars = {
       ],
     },
   ],
+  series: [
+    'series/introduction',
+    {
+      label: '前端调试通关秘籍',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'series/前端调试通关秘籍/frontenddebug01',
+        'series/前端调试通关秘籍/frontenddebug02',
+        'series/前端调试通关秘籍/frontenddebug03',
+      ],
+    },
+  ],
   hobby: [
     'hobby/introduction',
     {
