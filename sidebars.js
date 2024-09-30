@@ -324,7 +324,7 @@ const sidebars = {
         'series/前端调试通关秘籍/frontenddebug08',
         'series/前端调试通关秘籍/frontenddebug09',
         'series/前端调试通关秘籍/frontenddebug10',
-        // 'series/前端调试通关秘籍/frontenddebug11',
+        'series/前端调试通关秘籍/frontenddebug11',
         // 'series/前端调试通关秘籍/frontenddebug12',
         // 'series/前端调试通关秘籍/frontenddebug13',
         // 'series/前端调试通关秘籍/frontenddebug14',
