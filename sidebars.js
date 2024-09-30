@@ -320,7 +320,7 @@ const sidebars = {
         'series/前端调试通关秘籍/frontenddebug04',
         'series/前端调试通关秘籍/frontenddebug05',
         'series/前端调试通关秘籍/frontenddebug06',
-        // 'series/前端调试通关秘籍/frontenddebug07',
+        'series/前端调试通关秘籍/frontenddebug07',
         'series/前端调试通关秘籍/frontenddebug08',
         // 'series/前端调试通关秘籍/frontenddebug09',
         // 'series/前端调试通关秘籍/frontenddebug10',
