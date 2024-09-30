@@ -8,7 +8,7 @@ tags: [前端调试]
 keywords: [前端调试]
 ---
 
-节我们来调试下 React 的源码。
+这节我们来调试下 React 的源码。
 
 把 react 和 react-dom 包下载了下来，在项目里引入，开发服务跑起来后，打开 Chrome Devtools 打断点调试。
 

@@ -1,7 +1,7 @@
 ---
 id: frontenddebug08
 slug: /frontenddebug08
-title: 08-用VSCodeSnippets快速创建调试配置
+title: 08-用VSCode Snippets快速创建调试配置
 date: 2002-09-26
 authors: 鲸落
 tags: [前端调试]
