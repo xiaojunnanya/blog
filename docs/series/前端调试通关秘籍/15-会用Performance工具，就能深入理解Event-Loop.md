@@ -1,7 +1,7 @@
 ---
 id: frontenddebug15
 slug: /frontenddebug15
-title: 15-如何用Performance工具分析并优化性能
+title: 15-会用Performance工具，就能深入理解Event Loop
 date: 2002-09-26
 authors: 鲸落
 tags: [前端调试]
@@ -20,39 +20,39 @@ keywords: [前端调试]
 
 [https://claudiopro.github.io/react-fiber-vs-stack-demo/fiber.html](https://claudiopro.github.io/react-fiber-vs-stack-demo/fiber.html)
 
-![](15-如何用Performance工具分析并优化性能.assets/7ee7f9b4ad1a4137a03a671bc5ba58e0tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/7ee7f9b4ad1a4137a03a671bc5ba58e0tplv-k3u1fbpfcp-watermark.png)
 
 点击 Performance 面板的 reload，录制 3 s 的数据：
 
-![](15-如何用Performance工具分析并优化性能.assets/7c630e46f2624dfbb55db80b6be87e18tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/7c630e46f2624dfbb55db80b6be87e18tplv-k3u1fbpfcp-watermark.png)
 
 其中 Main 这部分就是网页的主线程，也就是执行 Event Loop 的部分：
 
-![](15-如何用Performance工具分析并优化性能.assets/5b96063054014c39b6d7ffa9a4fb1f40tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/5b96063054014c39b6d7ffa9a4fb1f40tplv-k3u1fbpfcp-watermark.png)
 
 这块区域包含了所有 task 执行的流程，每个 task 的调用栈，因为像燃烧的火焰，所以也叫做火焰图。
 
 鼠标划到想看的部分，向下拖动，就可以放大那个区域：
 
-![](15-如何用Performance工具分析并优化性能.assets/7ea97e5cde004853a68315aab07c4featplv-k3u1fbpfcp-watermark.gif)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/7ea97e5cde004853a68315aab07c4featplv-k3u1fbpfcp-watermark.gif)
 
 左右上下拖动可以调整看的位置：
 
-![](15-如何用Performance工具分析并优化性能.assets/919cad7201574741a798522e4c6eecebtplv-k3u1fbpfcp-watermark.gif)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/919cad7201574741a798522e4c6eecebtplv-k3u1fbpfcp-watermark.gif)
 
 展示的信息中很多种颜色，这些颜色代表着不同的含义：
 
 灰色就代表宏任务 task：
 
-![](15-如何用Performance工具分析并优化性能.assets/43f8048aba374c4da4935c3e6b91fcdftplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/43f8048aba374c4da4935c3e6b91fcdftplv-k3u1fbpfcp-watermark.png)
 
 蓝色的是 html 的 parse，橙色的是浏览器内部的 JS：
 
-![](15-如何用Performance工具分析并优化性能.assets/6203a905499a41c09d81bb207c8512f4tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/6203a905499a41c09d81bb207c8512f4tplv-k3u1fbpfcp-watermark.png)
 
 紫色是样式的 reflow、repaint，绿色的部分就是渲染：
 
-![](15-如何用Performance工具分析并优化性能.assets/adb88bbc108149c4aae9eba7c5d91c05tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/adb88bbc108149c4aae9eba7c5d91c05tplv-k3u1fbpfcp-watermark.png)
 
 其余的颜色都是用户 JS 的执行了，那些可以不用区分。
 
@@ -62,17 +62,17 @@ keywords: [前端调试]
 
 你会发现每隔一段时间就会有一个这种任务：
 
-![](15-如何用Performance工具分析并优化性能.assets/b43e85e13beb454ea64bfbc2f166e1e9tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/b43e85e13beb454ea64bfbc2f166e1e9tplv-k3u1fbpfcp-watermark.png)
 
 放大一下是这样的：
 
-![](15-如何用Performance工具分析并优化性能.assets/fcbe336bab2b4b52909646dd6f8747e6tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/fcbe336bab2b4b52909646dd6f8747e6tplv-k3u1fbpfcp-watermark.png)
 
 执行了 Animation Frame 的回调，然后执行了回流重绘，最后执行渲染。
 
 这种任务每隔 16.7 ms 就会执行一次（因为我电脑是 60HZ 的刷新率，一秒 60 次，也就是 1s / 60 = 16.7ms 刷新一次）：
 
-![](15-如何用Performance工具分析并优化性能.assets/98e4df9c04394642b706ad7f5ab4c03atplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/98e4df9c04394642b706ad7f5ab4c03atplv-k3u1fbpfcp-watermark.png)
 
 这就是网页里怎么执行渲染的。
 
@@ -80,7 +80,7 @@ keywords: [前端调试]
 
 为什么有的时候会掉帧、卡顿，就是因为阻塞的渲染的宏任务的执行：
 
-![](15-如何用Performance工具分析并优化性能.assets/18ef87c912a7450aaafa6f45e8fdff04tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/18ef87c912a7450aaafa6f45e8fdff04tplv-k3u1fbpfcp-watermark.png)
 
 在 Performance 中宽度代表时间，超过 50ms 就被认为是 Long Task，会被标红。因为如果 16.7 ms 渲染一帧，那 50ms 就跨了 3、4 帧了。
 
@@ -92,19 +92,19 @@ keywords: [前端调试]
 
 可以看到 requestIdleCallback 的回调是宏任务：
 
-![](15-如何用Performance工具分析并优化性能.assets/8bb1171ed9254660bbd109f11247287dtplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/8bb1171ed9254660bbd109f11247287dtplv-k3u1fbpfcp-watermark.png)
 
 垃圾回收 GC 是宏任务：
 
-![](15-如何用Performance工具分析并优化性能.assets/a6fcd11ac5294fa3b8f3112866e24728tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/a6fcd11ac5294fa3b8f3112866e24728tplv-k3u1fbpfcp-watermark.png)
 
 requestAnimationFrame 的回调是宏任务：
 
-![](15-如何用Performance工具分析并优化性能.assets/3eb80e69e6e646c5936fe75feec8bdd8tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/3eb80e69e6e646c5936fe75feec8bdd8tplv-k3u1fbpfcp-watermark.png)
 
 html 中直接执行的 script 也是宏任务：
 
-![](15-如何用Performance工具分析并优化性能.assets/4f638039cdf64311bade36a48ec547b0tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/4f638039cdf64311bade36a48ec547b0tplv-k3u1fbpfcp-watermark.png)
 
 这些需要记么？
 
@@ -112,11 +112,11 @@ html 中直接执行的 script 也是宏任务：
 
 在 rAF 调用栈末尾有个 requestAnimationFrame 的调用，是橙色的，也就是浏览器的 api，会把下次 rAF 的回调加入 Event Loop。
 
-![](15-如何用Performance工具分析并优化性能.assets/7c67eb4d5e5a473687dff436a073b764tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/7c67eb4d5e5a473687dff436a073b764tplv-k3u1fbpfcp-watermark.png)
 
 大家可能知道 requestIdleCallback 是在空闲时执行代码，那什么时候算空闲呢？
 
-![](15-如何用Performance工具分析并优化性能.assets/06e147367ce34d9ca87b6288525b2036tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/06e147367ce34d9ca87b6288525b2036tplv-k3u1fbpfcp-watermark.png)
 
 这些渲染任务之间的没有执行 task 的时间就是空闲，或者执行完了任务，离渲染任务执行还有一段时间的时候。可以通过参数 deadline 的 timeRemaining 的 api 来获取剩余的空闲时间：
 
@@ -140,10 +140,10 @@ requestIdleCallback((deadline) => {
 
 那微任务是怎么执行的呢？
 
-![](15-如何用Performance工具分析并优化性能.assets/c92d5c32abf444f68f6f45735bbec51ctplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/c92d5c32abf444f68f6f45735bbec51ctplv-k3u1fbpfcp-watermark.png)
 
 
-![](15-如何用Performance工具分析并优化性能.assets/fd98b061f69c4db6a0b4c20c4dd314batplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/fd98b061f69c4db6a0b4c20c4dd314batplv-k3u1fbpfcp-watermark.png)
 
 有的 task 中包含 Run Microtasks，也就是说 micro task 只是 task 的一部分。
 
@@ -151,7 +151,7 @@ requestIdleCallback((deadline) => {
 
 当你对这些熟悉了之后，看到下面的火焰图，你就能分析出一些东西来了：
 
-![](15-如何用Performance工具分析并优化性能.assets/c26885c1d4ba4cfd857bbd18105eec8ctplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/c26885c1d4ba4cfd857bbd18105eec8ctplv-k3u1fbpfcp-watermark.png)
 
 中间比较宽的标红的就是 Long Task，是性能优化的主要目标。
 
@@ -161,7 +161,7 @@ requestIdleCallback((deadline) => {
 
 当你展开看的时候，它也能展示完整的代码运行流程：
 
-![](15-如何用Performance工具分析并优化性能.assets/fbf04df2a7554536a4b1c2d07d82b5e8tplv-k3u1fbpfcp-watermark.png)
+![](15-会用Performance工具，就能深入理解Event-Loop.assets/fbf04df2a7554536a4b1c2d07d82b5e8tplv-k3u1fbpfcp-watermark.png)
 
 而如果你打断点调试，只能看到其中的一个调用栈，这是用 Performance 工具分析代码流程比 debugger 断点调试更好的地方。
 
