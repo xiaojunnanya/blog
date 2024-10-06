@@ -1,7 +1,7 @@
 ---
 id: frontenddebug17
 slug: /frontenddebug17
-title: 17-Web-Vitals如何计算？如何衡量网页性能？
+title: 17-Web Vitals如何计算？如何衡量网页性能？
 date: 2002-09-26
 authors: 鲸落
 tags: [前端调试]
