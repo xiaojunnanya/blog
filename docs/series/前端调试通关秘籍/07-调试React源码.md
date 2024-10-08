@@ -58,7 +58,7 @@ keywords: [前端调试]
 
 用 VSCode 调试比 Chrome DevTools 方便一些，但现在调试的依然是 react-dom.development.js：
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7bac7f31b42d4667bbd0793710b60ef5~tplv-k3u1fbpfcp-watermark.image?)
+![](07-调试React源码.assets/7bac7f31b42d4667bbd0793710b60ef5tplv-k3u1fbpfcp-watermark.gif)
 
 那怎么调试 react 最初的源码呢？
 
@@ -358,7 +358,7 @@ root.render(React.createElement(Aaa));
 
 点击 Debug 启动：
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ca2297dcead64cb9b70e414c38683626~tplv-k3u1fbpfcp-watermark.image?)
+![](07-调试React源码.assets/ca2297dcead64cb9b70e414c38683626tplv-k3u1fbpfcp-watermark.gif)
 
 这时候调用栈中的就是 React 的源码。
 
