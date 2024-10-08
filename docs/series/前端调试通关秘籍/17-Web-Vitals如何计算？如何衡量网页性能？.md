@@ -286,7 +286,7 @@ LightHouse 还提供了一个[可视化的计算器](https://googlechrome.github
 
 可以看到指标在不同值的时候的分数和颜色，或者看达到多少分数需要把指标优化到多少：
 
-![](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/780b1a2e96a7416bae3f8a67aeefc5c9~tplv-k3u1fbpfcp-watermark.image?)
+![](17-Web-Vitals如何计算？如何衡量网页性能？.assets/780b1a2e96a7416bae3f8a67aeefc5c9tplv-k3u1fbpfcp-watermark.gif)
 
 当你有优化目标的时候，可以通过这个计算器看看要达到多少分需要把指标优化到什么程度。
 
