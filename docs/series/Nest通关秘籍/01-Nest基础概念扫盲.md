@@ -87,7 +87,19 @@ post 的请求体，get 的请求参数，都可以通过装饰来取：
 
 
 
+### import
+
+### controllers
+
+导入controller文件
+
+ @Module 声明模块，其中 controllers 是控制器，只能被注入。
+
+
+
 ### providers
+
+providers 里可以被注入，也可以注入别的对象，比如AppService。
 
 :::info 思考
 
@@ -134,7 +146,7 @@ provider 有很多种写法，默认的`providers: [BookService]` 只是一种�
    - `jwtService` 是一个属性，而不是构造函数参数。
    - 通常在这种方式中，您需要使用 `@Inject()` 来指明要注入的服务类型，这在某些情况下非常有用，比如当依赖的类型无法直接通过类型推断时。
 
-### 总结：
+**总结**
 
 - **构造函数注入**更常用，适合大多数情况，因为它可以确保依赖在类的实例化时就可用。
 - **属性注入**在特定情况下（如循环依赖或需要不同的注入方式时）更为灵活。
@@ -145,6 +157,14 @@ provider 有很多种写法，默认的`providers: [BookService]` 只是一种�
 
 
 
+### exports
+
+当我们在项目中需要使用到其他模块的service中，其他模块需要将他的service导出，我们才能使用
+
+
+
+## 文件分类
+
 每个模块都会包含 controller、service、module、dto、entities 这些东西：
 
 ![](01-Nest基础概念扫盲.assets/23e5423fbe7a4aa0a97f0313d9427c53tplv-k3u1fbpfcp-jj-mark0000q75.png)
@@ -153,6 +173,23 @@ provider 有很多种写法，默认的`providers: [BookService]` 只是一种�
 - service 是处理业务逻辑的，比如操作数据库。
 - dto 是封装请求参数的。
 - entities 是封装对应数据库表的实体的。(用prisma也不需要这个了)
+
+
+
+## 依赖注入
+
+**为什么 Controller 是单独的装饰器呢？**
+
+**因为 Service 是可以被注入也是可以注入到别的对象的，所以用 @Injectable 声明。**
+
+**而 Controller 只需要被注入，所以 nest 单独给它加了 @Controller 的装饰器。**
+
+- `@Gontroller()`：在controller 声明了 @Controller，代表这个 class 可以被注入，nest 也会把它放到 IoC 容器里
+  - 在controller中注入依赖有两种方式：构造器参数(`constructor(private appService: AppService)`)和属性声明
+    (`@Inject(AppService)/private appService: AppService`)
+- `@Inject()`：
+- `@Injectable()`：在service中声明，代表这个 class 可注入，那么 nest 就会把它的对象放到 IOC 容器里
+- 
 
 
 

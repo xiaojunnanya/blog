@@ -347,7 +347,10 @@ const sidebars = {
       },
       items: [
         'series/Nest通关秘籍/nestseries01',
-        // 'series/Nest通关秘籍/nestseries02',
+        'series/Nest通关秘籍/nestseries02',
+        'series/Nest通关秘籍/nestseries03',
+        'series/Nest通关秘籍/nestseries04',
+        'series/Nest通关秘籍/nestseries05',
       ],
     },
   ],
