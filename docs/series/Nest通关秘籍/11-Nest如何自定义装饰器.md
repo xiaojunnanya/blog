@@ -1,3 +1,13 @@
+---
+id: nestseries11
+slug: /nestseries11
+title: 11-Nest如何自定义装饰器
+date: 2002-09-26
+authors: 鲸落
+tags: [Nest]
+keywords: [Nest]
+---
+
 Nest 内置了很多装饰器，大多数功能都是通过装饰器来使用的。
 
 但当这些装饰器都不满足需求的时候，能不能自己开发呢？

@@ -1,3 +1,13 @@
+---
+id: nestseries10
+slug: /nestseries10
+title: 10-ExecutionContext：切换不同上下文
+date: 2002-09-26
+authors: 鲸落
+tags: [Nest]
+keywords: [Nest]
+---
+
 Nest 支持创建 HTTP 服务、WebSocket 服务，还有基于 TCP 通信的微服务。
 
 这些不同类型的服务都需要 Guard、Interceptor、Exception Filter 功能。
