@@ -375,6 +375,7 @@ const sidebars = {
         'series/Nest通关秘籍/nestseries27',
         'series/Nest通关秘籍/nestseries28',
         'series/Nest通关秘籍/nestseries29',
+        'series/Nest通关秘籍/nestseries30',
       ],
     },
   ],
