@@ -38,13 +38,13 @@ import * as path from 'path';
 @Module({
   imports: [
     I18nModule.forRoot({
-      fallbackLanguage: 'en',
+      fallbackLanguage: 'en', // 默认值
       loaderOptions: {
         path: path.join(__dirname, '/i18n/'),
-        watch: true,
+        watch: true, // 在开发模式下自动重载翻译文件
       },
       resolvers: [
-        new QueryResolver(["lang", "l"]),
+        new QueryResolver(["lang1", "l2"]), //?lang1=en、?l2=zh 可以匹配
       ]
     }),
   ],
@@ -99,6 +99,7 @@ export class AppService {
   i18n: I18nService;
 
   getHello(): string {
+      // t是translate， this.i18n.translate
     return this.i18n.t('test.hello', { lang: I18nContext.current().lang })
   }
 }
