@@ -30,7 +30,6 @@ Nest 实现了 IoC 容器，会从入口模块开始扫描，分析 Module 之�
 这就是 provider。
 
 
-
 ## 完整写法
 
 ### token class
