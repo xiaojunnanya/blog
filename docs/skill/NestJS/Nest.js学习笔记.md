@@ -1,7 +1,7 @@
 ---
-id: nestjsbefore
-slug: /nestjsbefore
-title: Nestjs学习笔记-常用
+id: nestjs
+slug: /nestjs
+title: Nestjs学习笔记
 date: 2002-09-26
 authors: 鲸落
 tags: [Node, NestJs]
@@ -71,7 +71,7 @@ src
 
 module 的作用是在程序运行时给模块处理依赖。好处是所有模块的依赖都可以在 module 中清晰明了的知道引用还是被引用
 
-![image-20231023203758240](Nest.js学习笔记-旧.assets/image-20231023203758240.png)
+![image-20231023203758240](Nest.js学习笔记.assets/image-20231023203758240.png)
 
 
 
@@ -79,7 +79,7 @@ module 的作用是在程序运行时给模块处理依赖。好处是所有模�
 
 controller 的作用是处理请求，所有的请求会先到 controller，再经 controller 调用其他模块业务逻辑
 
-![image-20231023203832307](Nest.js学习笔记-旧.assets/image-20231023203832307.png)
+![image-20231023203832307](Nest.js学习笔记.assets/image-20231023203832307.png)
 
 ### service
 
@@ -325,7 +325,7 @@ export class StudentsController {
 
 postman
 
-![image-20231023210905340](Nest.js学习笔记-旧.assets/image-20231023210905340.png)
+![image-20231023210905340](Nest.js学习笔记.assets/image-20231023210905340.png)
 
 
 
@@ -451,7 +451,7 @@ export class StudentDto {
 
 不传或者参数不是string都会报错
 
-![image-20231023212304589](Nest.js学习笔记-旧.assets/image-20231023212304589.png)
+![image-20231023212304589](Nest.js学习笔记.assets/image-20231023212304589.png)
 
 
 
@@ -502,7 +502,7 @@ export class StudentsController {
 
 postman
 
-![image-20231023220404501](Nest.js学习笔记-旧.assets/image-20231023220404501.png)
+![image-20231023220404501](Nest.js学习笔记.assets/image-20231023220404501.png)
 
 ## 日志
 
@@ -567,7 +567,7 @@ export class StudentsService {
 
 访问接口，控制台输出
 
-![image-20231023221010747](Nest.js学习笔记-旧.assets/image-20231023221010747.png)
+![image-20231023221010747](Nest.js学习笔记.assets/image-20231023221010747.png)
 
 
 
@@ -972,7 +972,7 @@ export class StudentsController {
 
 将id1和2加入班级中
 
-![image-20231023230617292](Nest.js学习笔记-旧.assets/image-20231023230617292.png)
+![image-20231023230617292](Nest.js学习笔记.assets/image-20231023230617292.png)
 
 
 
@@ -1017,7 +1017,7 @@ npm i @prisma/client
 
 这个命令的效果是在命令所在目录，也就是现在的根目录中，创建一个 `.env` 文件，一个 `prisma` 目录，并在此目录下创建`schema.prisma` 文件，如下：
 
-![image-20240708194428116](Nest.js学习笔记-旧.assets/image-20240708194428116.png)
+![image-20240708194428116](Nest.js学习笔记.assets/image-20240708194428116.png)
 
 `prisma` 目录，用来存放和 Prisma 相关的文件，目前只有一个 `schema.prisma` 文件，这个文件就是前面提及过的 Prisma 模式文件，我们会在此文件中定义数据库的连接信息和模型。
 
@@ -1056,7 +1056,7 @@ DATABASE_URL=postgresql://johndoe:mypassword@localhost:5432/mydb?schema=public
 
 这是一个 数据库连接 URL的组成：
 
-![Structure of the MySQL connection URL](Nest.js学习笔记-旧.assets/ff5943febe404ff993df14aee8abc733tplv-k3u1fbpfcp-zoom-in-crop-mark1512000.webp)
+![Structure of the MySQL connection URL](Nest.js学习笔记.assets/ff5943febe404ff993df14aee8abc733tplv-k3u1fbpfcp-zoom-in-crop-mark1512000.webp)
 
 下面都是必填项：
 

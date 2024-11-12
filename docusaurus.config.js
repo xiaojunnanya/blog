@@ -48,11 +48,11 @@ const config = {
       hideOnScroll: true,
       items: [
         {
-          label: '笔记',
+          label: '学习',
           position: 'right',
           items: [
             {
-              label: '学习',
+              label: '笔记',
               to: 'docs/skill',
             },
             {

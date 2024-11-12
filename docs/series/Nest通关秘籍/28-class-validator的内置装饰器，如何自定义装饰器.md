@@ -315,6 +315,8 @@ import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface 
 @ValidatorConstraint()
 export class MyValidator implements ValidatorConstraintInterface {
     validate(text: string, validationArguments: ValidationArguments) {
+        // text是待验证的字段的值
+        // validationArguments验证时的附加信息和上下文，是个对象
         console.log(text, validationArguments)
         return true;
     }
@@ -326,6 +328,7 @@ export class MyValidator implements ValidatorConstraintInterface {
 用一下：
 
 ```javascript
+// [11, 22] 是传递给 MyValidator 的参数数组。这些参数可以在 MyValidator 类的验证方法中使用，帮助定义验证规则，可以省略
 @Validate(MyValidator, [11, 22], {
     message: 'jjj 校验失败',
 })

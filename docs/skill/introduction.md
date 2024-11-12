@@ -25,6 +25,8 @@ keywords:
 - Vue
 - React
 - Node
+- NestJS
+- 数据库(Mysql、Redis)
 - TypeScript
 - 微信小程序
 - 数据结构与算法

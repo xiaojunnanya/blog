@@ -1,7 +1,7 @@
 ---
 id: nodeuse
 slug: /nodeuse
-title: Node开发纪录
+title: Node使用纪录
 date: 2002-09-26
 authors: 鲸落
 tags: [Node]
@@ -69,7 +69,7 @@ token的意思是“令牌”，是服务端生成的一串字符串，作为客
 
 ### jwt的原理
 
-![image-20230717143214701](Node开发纪录.assets/image-20230717143214701.png)
+![image-20230717143214701](Node使用纪录.assets/image-20230717143214701.png)
 
 **总结**：
 

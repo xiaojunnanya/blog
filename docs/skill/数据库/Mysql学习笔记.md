@@ -1,11 +1,11 @@
 ---
 id: nodesql
 slug: /nodesql
-title: Node操作数据库
+title: Mysql学习笔记
 date: 2002-09-26
 authors: 鲸落
-tags: [Node, sql]
-keywords: [Node, sql]
+tags: [Node, mysql]
+keywords: [Node, mysql]
 ---
 
 ## SQL语句 
@@ -245,13 +245,13 @@ select brand, MAX(price) maxPrice from phone group by brand having maxPrice < 30
 
 ### 创建外键
 
-![image-20230623000051403](Node操作数据库.assets/image-20230623000051403.png)
+![image-20230623000051403](Mysql学习笔记.assets/image-20230623000051403.png)
 
 
 
 ### 外键存在时更新/删除数据
 
-![image-20230623002147826](Node操作数据库.assets/image-20230623002147826.png)
+![image-20230623002147826](Mysql学习笔记.assets/image-20230623002147826.png)
 
 
 
@@ -275,7 +275,7 @@ select brand, MAX(price) maxPrice from phone group by brand having maxPrice < 30
 select * from products left join 'brands' on products.id = brands.id
 ```
 
-![image-20230623003419422](Node操作数据库.assets/image-20230623003419422.png)
+![image-20230623003419422](Mysql学习笔记.assets/image-20230623003419422.png)
 
 
 
@@ -297,21 +297,21 @@ select * from products left join 'brands' on products.id = brands.id
 
 #### 全连接
 
-![image-20230623003737763](Node操作数据库.assets/image-20230623003737763.png)
+![image-20230623003737763](Mysql学习笔记.assets/image-20230623003737763.png)
 
 
 
 ## 多对多的表结构
 
-![image-20230623004413798](Node操作数据库.assets/image-20230623004413798.png)
+![image-20230623004413798](Mysql学习笔记.assets/image-20230623004413798.png)
 
 
 
 ### 查询操作
 
-![image-20230623004946757](Node操作数据库.assets/image-20230623004946757.png)
+![image-20230623004946757](Mysql学习笔记.assets/image-20230623004946757.png)
 
-![image-20230623004957773](Node操作数据库.assets/image-20230623004957773.png)
+![image-20230623004957773](Mysql学习笔记.assets/image-20230623004957773.png)
 
 
 
@@ -319,7 +319,7 @@ select * from products left join 'brands' on products.id = brands.id
 
 不应该将所有的数据放在一个对象里，应该一个对象包含一个对象
 
-![image-20230623102554187](Node操作数据库.assets/image-20230623102554187.png)
+![image-20230623102554187](Mysql学习笔记.assets/image-20230623102554187.png)
 
 
 
@@ -327,9 +327,9 @@ select * from products left join 'brands' on products.id = brands.id
 
 查询结果转为数组，数组中存放对象类型
 
-![image-20230623103445453](Node操作数据库.assets/image-20230623103445453.png)
+![image-20230623103445453](Mysql学习笔记.assets/image-20230623103445453.png)
 
-![image-20230623103546475](Node操作数据库.assets/image-20230623103546475.png)
+![image-20230623103546475](Mysql学习笔记.assets/image-20230623103546475.png)
 
 
 

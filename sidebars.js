@@ -71,11 +71,29 @@ const sidebars = {
       },
       items: [
         'skill/Node/node',
-        'skill/Node/nodesql',
         'skill/Node/nodeuse',
-        'skill/Node/nestjs',
-        'skill/Node/nestjsbefore',
-        'skill/Node/redis'
+      ],
+    },
+    {
+      label: 'NestJS',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/NestJS/nestjs',
+        'skill/NestJS/nestuse'
+      ],
+    },
+    {
+      label: '数据库',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/数据库/nodesql',
+        'skill/数据库/redis'
       ],
     },
     {
