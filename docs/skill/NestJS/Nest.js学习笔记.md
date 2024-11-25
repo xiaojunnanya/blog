@@ -1207,6 +1207,64 @@ const user = await prisma.user.delete({
 
 
 
+### 多表联查
+
+- `@relation` 用于定义表之间的关系
+- `fields: [project_id]`指定当前模型中用于建立关系的外键字段（本例中是 `pages` 表的 `project_id` 字段）
+- `references: [project_id]`指定外键引用的字段（本例中是 `project` 表的 `project_id` 字段）。
+
+```
+model project{
+  id Int @id @default(autoincrement())
+  user_id String
+  project_id String @unique
+  project_name String
+  status Int @default(0) // 0:正常 1:删除
+
+  // 添加的关系字段
+  pages pages[] @relation("project_pages") // 定义一对多关系
+}
+
+model pages{
+  id Int @id @default(autoincrement())
+  project_id String
+  page_id String @unique
+  page_name String
+  status Int @default(0) // 0:正常 1:删除
+
+  // 添加的关系字段
+  project project @relation("project_pages", fields: [project_id], references: [project_id])
+}
+```
+
+```
+// 使用
+// 直接查询pages
+const list = await this.prisma.pages.findMany({
+      where: {
+        project: {
+          user_id: this.store.get('user_id'),
+        },
+        project_id,
+        status: 0,
+      },
+    })
+    
+ //查询project
+ const userPages = await this.prisma.pages.findMany({
+      where: {
+        project: {
+          user_id: this.store.get('user_id')
+        },
+        status: 0,
+      },
+    })
+```
+
+
+
+
+
 
 
 ## 高阶用法
