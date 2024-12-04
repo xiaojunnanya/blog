@@ -1,12 +1,3 @@
-/*
- * @Author: XJN
- * @Date: 2023-07-02 09:37:16
- * @LastEditors: xiaojunnanya
- * @LastEditTime: 2024-01-19 17:17:12
- * @FilePath: \blog\sidebars.js
- * @Description:
- * @前端实习生：鲸落:
- */
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   skill: [
