@@ -20,6 +20,20 @@ text-overflow: ellipsis;	/* 超出的用省略号 */
 
 
 
+## 多行显示省略号
+
+```css
+display: -webkit-box;
+-webkit-box-orient: vertical;
+box-orient: vertical;
+-webkit-line-clamp: 2; /* 限制显示两行 */
+line-clamp: 2; /* 限制显示两行 */
+overflow: hidden;   /* 隐藏超出的文本 */
+text-overflow: ellipsis;    /* 超出的用省略号 */
+```
+
+
+
 ## 去除表格中间隙和两层边框
 
 当我们给td设置 border的时候，两个单元格之间会出现间隙和两层边框
