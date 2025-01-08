@@ -1983,3 +1983,4 @@ Less (Leaner Style Sheets的缩写)是一门CSS扩展语言，并且兼容CSS
   - `column-width`：宽度
   - `column-count`：列数
 - `aspect-ratio` ：为盒子规定了首选纵横比
+- `gap`: 设置行与行、列与列之间的间隙, 属性用来表示`row-gap`和可选的`column-gap`的值。如果缺失`column-gap`，则其会被设置成跟`row-gap`一样的值。
