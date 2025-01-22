@@ -1,7 +1,7 @@
 ---
 id: gitgithub
 slug: /gitgithub
-title: Git命令与Github的使用
+title: Git 如何与 Github 连接
 date: 2002-09-26
 authors: 鲸落
 tags: [前端工程化, git, github]
