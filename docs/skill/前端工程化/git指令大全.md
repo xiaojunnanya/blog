@@ -216,7 +216,7 @@ doc/**/*.txt
 - `git add .`
 - `git comit -m "描述信息"`
 - `git push ...`：提交
-- `git pull`：拉去代码，`git pull = git fetch + git merge`
+- `git pull`：拉取代码，`git pull = git fetch + git merge`
 - `git clone ...`：克隆
 - `git init`：初始化
 - `git reset --soft HEAD^`: 撤回当前commit提交
@@ -234,7 +234,8 @@ doc/**/*.txt
 
 - `git branch dev`：创建新的分支命名为dev
 - `git checkout dev`：切换到dev分支
-- `git branch -d dev`：删除dev分支
+- `git branch -d dev`：删除本地dev分支
+- `git push origin --delete dev`：删除远程dev分支
 
 
 
