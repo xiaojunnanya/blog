@@ -8,7 +8,17 @@ tags: [前端工程化, git]
 keywords: [前端工程化, git]
 ---
 
-## git简介
+
+
+## git 简介
+
+### Git 分区概念
+
+![image-20250122211223466](git指令大全.assets/image-20250122211223466.png)
+
+
+
+### old
 
 git的通用操作流程：
 
@@ -175,6 +185,19 @@ Git 使用的标签有两种类型：**轻量级的（lightweight）和含附注
 
 
 
+:::info 补充：`rebase`/`merge`/`squash merge` 区别
+
+| 操作     | rebase                     | merge                               | squash merge           |
+| -------- | -------------------------- | ----------------------------------- | ---------------------- |
+| 特点     | 只有线性提交记录           | 会出现所有的提交记录，包括merge记录 | 只出现一条merge记录，  |
+| 优点     | 减少一次merge记录          | 保证分支可溯源                      | 历史记录更加清爽干净   |
+| 缺点     | 必须使用强推               | 多一次merge记录                     | 历史记录被合并到了一起 |
+| 应用场景 | 在私有分支上可以使用rebase | 多人协作推荐使用merge               | 当需要保持记录清爽时   |
+
+:::
+
+
+
 ## 本地仓库上的操作
 
 1. 查看本地仓库关联的远程仓库：`git remote`；在克隆完每个远程仓库后，远程仓库默认为`origin`;加上`-v`的参数后，会显示远程仓库的`url`地址
@@ -186,6 +209,22 @@ Git 使用的标签有两种类型：**轻量级的（lightweight）和含附注
 7. 查看远程仓库的详细信息：`git remote show origin`
 8. 修改某个远程仓库在本地的简称：`git remote rename [old-name] [new-name]`，如`git remote rename origin org`
 9. 移除远程仓库：`git remote rm [remote-name]`
+
+
+
+:::info `git pull` 与 `git pull --rebase`
+
+前提：我们拉下来的代码将会进行merge合并
+
+使用git pull 会将本地代码与远端代码进行merge并且创建了一个额外的merge记录，但其实这个merge信息并不像我们主动去merge的时候所需要的merge信息那么有用。所以大部分情况下我们仅仅要做的是把自己的提交挂到同事的提交之后，保持历史数据的线性干净，这个时候我们就可以使用`git pull --rebase` 命令
+
+ `git pull --rebase`，会将你的提交暂时放到一边，然后拉去远端仓库的提交，再把你的提交挂到后面去
+
+`git pull = git fetch + git merge`
+
+`git pull --rebase = git fetch + git rebase`
+
+:::
 
 
 
@@ -215,13 +254,15 @@ doc/**/*.txt
 
 - `git add .`
 - `git comit -m "描述信息"`
-- `git push ...`：提交
-- `git pull`：拉取代码，`git pull = git fetch + git merge`
-- `git clone ...`：克隆
+- `git push`：提交
+- `git push -f`：强制推送
+- `git pull`：拉去代码，`git pull = git fetch + git merge`
+- `git pull --rebase`：
+-  `git clone ...`：克隆
 - `git init`：初始化
 - `git reset --soft HEAD^`: 撤回当前commit提交
-- `git rebase ...`：以...分支为基点
-- `git merge ...`：将...分支合并到当前分支
+- `git rebase ...`：变基
+- `git merge ...`：合并
 - `git stash`：存入缓存区
 - `git stash pop`：从缓存区取出
 - `git status`：查看文件的状态
