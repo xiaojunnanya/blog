@@ -256,9 +256,9 @@ doc/**/*.txt
 - `git comit -m "描述信息"`
 - `git push`：提交
 - `git push -f`：强制推送
-- `git pull`：拉去代码，`git pull = git fetch + git merge`
+- `git pull`：拉取代码，`git pull = git fetch + git merge`
 - `git pull --rebase`：
--  `git clone ...`：克隆
+- `git clone ...`：克隆
 - `git init`：初始化
 - `git reset --soft HEAD^`: 撤回当前commit提交
 - `git rebase ...`：变基
