@@ -130,6 +130,7 @@ const sidebars = {
         'skill/数据结构与算法/build',
         'skill/数据结构与算法/count',
         'skill/数据结构与算法/leetcode',
+        'skill/数据结构与算法/programmercarl',
       ],
     },
     {
@@ -144,17 +145,6 @@ const sidebars = {
         'skill/前端工程化/gitgithub',
         'skill/前端工程化/usegit',
         'skill/前端工程化/gitcommit',
-      ],
-    },
-    {
-      label: '力扣算法',
-      type: 'category',
-      link: {
-        type: 'generated-index',
-      },
-      items: [
-        'skill/力扣算法/algorithmbefore',
-        'skill/力扣算法/algorithmarr',
       ],
     },
     {
