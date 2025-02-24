@@ -141,6 +141,7 @@ const sidebars = {
       },
       items: [
         'skill/前端工程化/frontendEngineering',
+        'skill/前端工程化/vite',
         'skill/前端工程化/webpack',
         'skill/前端工程化/gitgithub',
         'skill/前端工程化/usegit',
