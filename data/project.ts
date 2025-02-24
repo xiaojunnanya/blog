@@ -4,8 +4,8 @@
  * @LastEditors: xiaojunnanya
  * @LastEditTime: 2024-01-04 10:31:08
  * @FilePath: \blog\data\project.ts
- * @Description: 
- * @前端实习生：鲸落: 
+ * @Description:
+ * @前端实习生：鲸落:
  */
 export const projects: Project[] = [
   {
@@ -27,68 +27,68 @@ export const projects: Project[] = [
     type: '博客',
   },
   {
-    title: 'whale-design',
-    description: '个人组件库',
-    preview: '/img/project/whale-design.png',
-    website: 'http://www.whale-design.xiaojunnan.cn/',
-    source: 'https://github.com/xiaojunnanya/whale-design',
+    title: '精灵开发低代码平台',
+    description: '低代码产品',
+    preview: '/img/project/whaledev.png',
+    website: 'http://whaledev.xiaojunnan.cn/',
+    source: 'https://github.com/xiaojunnanya',
     tags: ['opensource', 'personal'],
-    type: '个人项目',
+    type: '全栈项目',
+  },
+  {
+    title: '实时聊天前端',
+    description: '基于React的实时聊天前端部分',
+    preview: '/img/project/chatFrontEnd.png',
+    website: 'https://github.com/xiaojunnanya/chat-frontEnd',
+    source: 'https://github.com/xiaojunnanya/chat-frontEnd',
+    tags: ['opensource', 'personal'],
+    type: '全栈项目',
+  },
+  {
+    title: '实时聊天后端',
+    description: '基于Node/Express的实时聊天后端部分',
+    preview: '/img/project/null.png',
+    website: 'https://github.com/xiaojunnanya/chat-backEnd',
+    source: 'https://github.com/xiaojunnanya/chat-backEnd',
+    tags: ['opensource', 'personal'],
+    type: '全栈项目',
+  },
+  {
+    title: '网易云音乐',
+    description: '基于TS+React实现网易云音乐部分内容',
+    preview: '/img/project/wyyyy.png',
+    website: 'https://github.com/xiaojunnanya/cloud_music',
+    source: 'https://github.com/xiaojunnanya/cloud_music',
+    tags: ['opensource', 'personal'],
+    type: '前端项目',
   },
   {
     title: 'Easy云盘',
     description: '网盘项目',
     preview: '/img/project/easy.png',
-    website: 'http://www.easy.xiaojunnan.cn',
+    website: 'https://github.com/xiaojunnanya/easy_pan',
     source: 'https://github.com/xiaojunnanya/easy_pan',
     tags: ['opensource', 'personal'],
-    type: '个人项目',
-  },
-  {
-    title: '实时聊天前端',
-    description: '基于react的实时聊天前端部分',
-    preview: '/img/project/chatFrontEnd.png',
-    website: 'http://www.xiaojunnan.cn:84/login',
-    source: 'https://github.com/xiaojunnanya/chat-frontEnd',
-    tags: ['opensource', 'personal'],
-    type: '个人项目',
-  },
-  {
-    title: '实时聊天后端',
-    description: '基于node/express的实时聊天后端部分',
-    preview: '/img/project/null.png',
-    website: '',
-    source: 'https://github.com/xiaojunnanya/chat-backEnd',
-    tags: ['opensource', 'personal'],
-    type: '个人项目',
+    type: '前端项目',
   },
   {
     title: '仿爱彼迎页面',
     description: '初学React仿爱彼迎页面',
     preview: '/img/project/airbnbReact.png',
-    website: 'http://www.xiaojunnan.cn:81/home',
+    website: 'https://github.com/xiaojunnanya/airbnbReact',
     source: 'https://github.com/xiaojunnanya/airbnbReact',
     tags: ['opensource', 'personal'],
-    type: '个人项目',
+    type: '前端项目',
   },
   {
-    title: '网易云音乐',
-    description: '基于ts+react实现网易云音乐部分内容',
-    preview: '/img/project/wyyyy.png',
-    website: 'http://www.xiaojunnan.cn:83/discover/recommend',
-    source: 'https://github.com/xiaojunnanya/cloud_music',
+    title: 'whale-design',
+    description: '个人组件库',
+    preview: '/img/project/whale-design.png',
+    website: 'https://github.com/xiaojunnanya/whale-design',
+    source: 'https://github.com/xiaojunnanya/whale-design',
     tags: ['opensource', 'personal'],
-    type: '个人项目',
+    type: '前端项目',
   },
-  {
-    title: '后台教师管理系统',
-    description: '课设作业教师管理系统',
-    preview: '/img/project/manage.png',
-    website: 'http://www.xiaojunnan.cn:82/login',
-    source: '',
-    tags: ['opensource', 'personal'],
-    type: '个人项目',
-  }
 ]
 
 export type Tag = {
@@ -107,7 +107,7 @@ export type TagType =
   | 'personal'
 
   // 添加个人项目的类型
-export type ProjectType = '博客' | '个人项目'
+export type ProjectType = '博客' | '前端项目' | '个人项目' | '全栈项目'
 
 export type Project = {
   title: string
