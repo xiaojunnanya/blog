@@ -299,6 +299,7 @@ video{
   left: 0;
   right: 0;
   margin: 30px auto;
+  border: 1px solid #ccc;
 }
 
 .showTitle{
@@ -315,9 +316,9 @@ video{
 .cursor{
   cursor: pointer;
   color: #ccc;
-  
+
 }
 .cursor:hover{
   color: #333;
-  
+
 }
