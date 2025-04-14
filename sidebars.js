@@ -149,12 +149,23 @@ const sidebars = {
       ],
     },
     {
+      label: 'AI',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/AI/aboutaiconcept',
+      ],
+    },
+    {
       label: '抓住小细节',
       type: 'category',
       link: {
         type: 'generated-index',
       },
       items: [
+        'skill/抓住小细节/wait',
         'skill/抓住小细节/detail',
         'skill/抓住小细节/detailhtmlcss',
         'skill/抓住小细节/detailjs',
