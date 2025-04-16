@@ -248,6 +248,19 @@ doc/*.txt
 doc/**/*.txt
 ```
 
+如果 .env 文件早就已经被提交（比如第一次开发就 commit 进去了），即使后面你加了 .env 到 .gitignore，它也还是会被继续追踪。
+解决方法：
+```
+# 从 Git 的“追踪列表”里移除 .env，但保留文件本地不删
+git rm --cached .env
+
+# 确保 .env 在 .gitignore 中。
+echo ".env" >> .gitignore
+
+# 重新 commit 一下，之后就不会再被追踪了。
+git add .gitignore
+git commit -m "remove tracked .env and ignore it"
+```
 
 
 ## 常用命令!
