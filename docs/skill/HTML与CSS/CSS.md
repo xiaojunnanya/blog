@@ -1985,3 +1985,4 @@ Less (Leaner Style Sheets的缩写)是一门CSS扩展语言，并且兼容CSS
 - `aspect-ratio` ：为盒子规定了首选纵横比
 - `gap`: 设置行与行、列与列之间的间隙, 属性用来表示`row-gap`和可选的`column-gap`的值。如果缺失`column-gap`，则其会被设置成跟`row-gap`一样的值。
 - `object-fit`：指定如何调整替换元素（例如`<img>`或`<video>`）的内容尺寸以适应其容器
+- `width: fit-content`：元素将根据其内容调整大小，但不会超过其父元素的大小
