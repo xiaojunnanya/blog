@@ -1,3 +1,13 @@
+---
+id: threejs02
+slug: /threejs02
+title: 02-dat可视化调试
+date: 2002-09-26
+authors: 鲸落
+tags: [Nest]
+keywords: [Nest]
+---
+
 ## 准备
 
 现在还是上节的代码。

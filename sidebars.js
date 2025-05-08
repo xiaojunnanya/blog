@@ -402,6 +402,8 @@ const sidebars = {
       },
       items: [
         'series/Threejs通关秘籍/threejs01',
+        'series/Threejs通关秘籍/threejs02',
+        'series/Threejs通关秘籍/threejs03',
       ],
     },
   ],
