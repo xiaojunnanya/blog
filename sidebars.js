@@ -383,6 +383,16 @@ const sidebars = {
         'series/Nest通关秘籍/nestseries34',
       ],
     },
+    {
+      label: 'Threejs通关秘籍',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'series/Threejs通关秘籍/threejs01',
+      ],
+    },
   ],
   hobby: [
     'hobby/introduction',
