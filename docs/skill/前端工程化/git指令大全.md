@@ -230,7 +230,7 @@ Git 使用的标签有两种类型：**轻量级的（lightweight）和含附注
 
 ## 忽略文件.gitignore
 
-一般我们总会有些文件无需纳入 Git 的管理，也不希望它们总出现在未跟踪文件列表。通常都是些自动生成的文件，比如日志文件，或者编译过程中创建的临时文件等。我们可以创建一个名为 .gitignore 的文件，列出要忽略的文件模式。如下例：
+一般我们总会有些文件无需纳入 Git 的管理，也不希望它们总出现在未跟踪文件列表。通常都是些自动生成的文件，比如日志文件，或者编译过程中创建的临时文件等。我们可以创建一个名为 .gitignore 的文件，列出要忽略的文件模式。如：
 
 ```
 # 此为注释 – 将被 Git 忽略
@@ -248,6 +248,19 @@ doc/*.txt
 doc/**/*.txt
 ```
 
+如果 .env 文件早就已经被提交（比如第一次开发就 commit 进去了），即使后面你加了 .env 到 .gitignore，它也还是会被继续追踪。
+解决方法：
+```
+# 从 Git 的“追踪列表”里移除 .env，但保留文件本地不删
+git rm --cached .env
+
+# 确保 .env 在 .gitignore 中。
+echo ".env" >> .gitignore
+
+# 重新 commit 一下，之后就不会再被追踪了。
+git add .gitignore
+git commit -m "remove tracked .env and ignore it"
+```
 
 
 ## 常用命令!
