@@ -407,6 +407,16 @@ const sidebars = {
         'series/Threejs通关秘籍/threejs04',
       ],
     },
+    {
+      label: '代码随想录',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'series/代码随想录/programmercarl01',
+      ],
+    },
   ],
   hobby: [
     'hobby/introduction',
