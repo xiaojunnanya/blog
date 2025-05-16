@@ -415,6 +415,7 @@ const sidebars = {
       },
       items: [
         'series/代码随想录/programmercarl01',
+        'series/代码随想录/programmercarl02',
       ],
     },
   ],
