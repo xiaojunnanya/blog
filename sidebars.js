@@ -129,8 +129,6 @@ const sidebars = {
       items: [
         'skill/数据结构与算法/build',
         'skill/数据结构与算法/count',
-        'skill/数据结构与算法/leetcode',
-        'skill/数据结构与算法/programmercarl',
       ],
     },
     {
@@ -416,6 +414,7 @@ const sidebars = {
       items: [
         'series/代码随想录/programmercarl01',
         'series/代码随想录/programmercarl02',
+        'series/代码随想录/programmercarl03',
       ],
     },
   ],
