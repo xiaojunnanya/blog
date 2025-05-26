@@ -14,7 +14,7 @@ keywords: [前端工程化, git]
 
 基本上有两种模式，emoji模式和 type模式
 
-在我实习的公司使用的是type模式，在逛github上，月看到了emoji模式，都纪录下来
+在我实习的公司使用的是type模式，在逛github上，有看到了emoji模式，都纪录下来
 
 
 ## type模式
