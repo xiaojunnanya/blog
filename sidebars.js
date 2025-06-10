@@ -419,6 +419,7 @@ const sidebars = {
         'series/代码随想录/programmercarl05',
         'series/代码随想录/programmercarl06',
         'series/代码随想录/programmercarl07',
+        'series/代码随想录/programmercarl08',
         'series/代码随想录/programmercarl99',
       ],
     },
