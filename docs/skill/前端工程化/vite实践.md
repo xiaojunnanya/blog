@@ -23,7 +23,104 @@ Vite 是一种新型前端构建工具，能够显著提升前端开发体验，
 
 
 
+## 1
+
+### 文件分类
+
+`vite`默认会把所有静态资源都打包到`assets`文件夹，配置`chunkFileNames`、`entryFileNames`、`assetFileNames`将静态资源分类。
+
+```js
+build: {
+    outDir: '../../build/front',
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // 入口文件命名规则
+        entryFileNames: 'js/[name].[hash].js',
+        // 动态 import 的 chunk 命名规则
+        chunkFileNames: 'js/[name].[hash].js',
+        // 静态资源分类打包
+        assetFileNames: assetInfo => {
+          const ext = assetInfo.name?.split('.').pop()?.toLowerCase()
+          if (!ext) return 'assets/[name].[hash][extname]'
+
+          if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(ext)) {
+            return 'images/[name].[hash][extname]'
+          }
+
+          if (['css'].includes(ext)) {
+            return 'css/[name].[hash][extname]'
+          }
+
+          if (['woff', 'woff2', 'eot', 'ttf', 'otf'].includes(ext)) {
+            return 'fonts/[name].[hash][extname]'
+          }
+
+          return 'assets/[name].[hash][extname]'
+        },
+      },
+    },
+  },
+```
+
+
+
+
+
+| 配置项           | 作用目标                  | 控制什么文件                       | 示例                                                  |
+| ---------------- | ------------------------- | ---------------------------------- | ----------------------------------------------------- |
+| `entryFileNames` | **入口 JS 文件**          | 入口模块（如 `main.ts`）           | `js/main.[hash].js`                                   |
+| `chunkFileNames` | **代码分割生成的 chunk**  | 通过 `import()`、共享模块生成的 JS | `js/chunk-[name].[hash].js`                           |
+| `assetFileNames` | **静态资源文件（非 JS）** | 图片、字体、CSS、媒体等            | `images/[name].[hash].[ext]`、`css/[name].[hash].css` |
+
+- `entryFileNames`
+  - 控制的是：**构建入口文件的输出位置和命名**
+  - 入口文件：就是你在 `index.html` 中通过 `<script type="module" src="main.ts">` 或 Vite 配置里 `build.rollupOptions.input` 指定的文件
+  - 典型输出路径：`dist/js/main.abc123.js`
+
+- `chunkFileNames`
+
+  - 控制的是：**通过动态导入（`import()`）或代码分割生成的 JS 模块的输出位置和命名**。
+  - 常见的 chunk 来源：动态 `import('./module')`、`node_modules`
+
+- `assetFileNames`
+
+  - 控制的是：**所有非 JS 的静态资源文件的输出位置和命名**。
+
+  - 包括：样式、图片、字体、视频、音频
+
+  - 可根据文件后缀动态分类，如：
+
+    ```js
+    assetFileNames: (assetInfo) => {
+      const ext = assetInfo.name?.split('.').pop()
+      if (ext === 'css') return 'css/[name].[hash][extname]'
+      if (['png', 'jpg', 'jpeg'].includes(ext)) return 'images/[name].[hash][extname]'
+      return 'assets/[name].[hash][extname]'
+    }
+    ```
+
+
+
+
+
 ## vite插件
+
+### 打包分析插件
+
+`npm i rollup-plugin-visualizer -D`
+
+> rollup-plugin-visualizer是一个打包体积分析插件，对应webpack中的`webpack-bundle-analyzer`。配置好后运行构建命令会生成一个`stats.html`。
+
+```js
+plugins: [
+	visualizer({ open: true })
+],
+```
+
+之后每次打包后，该插件都会在根目录生成`stats.html`，在浏览器打开后就可以看到各个`chunk`的大小信息
+
+
 
 ### 分包
 
@@ -80,6 +177,8 @@ export default defineConfig({
 });
 ```
 
+分包目的是 **合理拆分代码，提高加载效率**。下面是它的详细作用和应用场景：
+
 
 
 ### 文件压缩
@@ -99,7 +198,7 @@ plugins:[
 ]
 ```
 
-> 一般来说deleteOriginFile都设置为false，虽然体检会变大，但是会适合服务器根据客户端支持情况自动选择加载 `.gz` 或原始文件。如果支持gzip就加载gzip，不支持就加载正常的
+> 一般来说deleteOriginFile都设置为false，虽然体积会变大，但是会适合服务器根据客户端支持情况自动选择加载 `.gz` 或原始文件。如果支持gzip就加载gzip，不支持就加载正常的
 
 需要配置`nginx`，使其开启`gzip`模式
 
@@ -150,16 +249,33 @@ server {
 
 
 
-### 查看打包后的依赖大小
 
-`npm i rollup-plugin-visualizer -D`
 
-> rollup-plugin-visualizer是一个打包体积分析插件，对应webpack中的`webpack-bundle-analyzer`。配置好后运行构建命令会生成一个`stats.html`。
 
-```js
-plugins: [
-	visualizer({ open: true })
-],
-```
 
-之后每次打包后，该插件都会在根目录生成`stats.html`，在浏览器打开后就可以看到各个`chunk`的大小信息
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
