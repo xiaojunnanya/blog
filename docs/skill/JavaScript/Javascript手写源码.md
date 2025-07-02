@@ -1936,6 +1936,7 @@ class EventEmitter{
         this.events = {}
     }
 
+    // 注册事件
     on(event, listener){
         if(!this.events[event]){
             this.events[event] = [listener]
@@ -1944,11 +1945,13 @@ class EventEmitter{
         }
     }
 
+    // 触发事件
     emit(event, ...args){
         const listeners = this.events[event] || [];
         listeners.forEach((listener) => listener(...args));
     }
 
+    // 取消事件(移除事件)
     off(event, listener){
         const listeners = this.events[event] || [];
         const index = listeners.indexOf(listener);
@@ -1957,9 +1960,10 @@ class EventEmitter{
         }
     }
 
+    // 只触发一次事件
     once(event, listener){
-        let fn = () =>{
-            listener()
+        let fn = (...args) =>{
+            listener(...args)
             this.off(event, fn)
         }
 
@@ -1978,6 +1982,94 @@ ev.on('say', fun1);
 ev.once('say', fun1)
 ev.emit('say', 'visa');
 ev.off('say', fun1);
+```
+
+但是上述的简单写法有一个问题，off 无法移除 once 的原始 listener
+
+无法通过 off(event, listener) 移除 once 注册的监听器
+
+为什么会发生这个问题？
+
+来看你写的 once 方法：
+
+```js
+once(event, listener) {
+    let fn = (...args) => {
+        listener(...args);
+        this.off(event, fn);
+    };
+    this.on(event, fn);
+}
+```
+
+你注册的是 包装函数 fn，而不是传入的原始 listener 本身。
+
+举个例子说明
+
+```js
+let ev = new EventEmitter();
+
+function hello() {
+  console.log('hi');
+}
+
+ev.once('say', hello);
+
+// 尝试取消
+ev.off('say', hello);  // ⚠️ 这不会生效
+```
+
+**为什么不起作用？**
+
+- 因为 `ev.on('say', fn)` 注册的是包装函数 `fn`；
+- `ev.off('say', hello)` 会去 `this.events['say']` 里找是否有 `hello` 函数；
+- 但数组中只有 `fn`，找不到 `hello`，所以 `splice` 不执行，移除失败。
+
+
+
+**解决方法（进阶写法）**
+
+用 Map 存储原始函数与包装函数的映射关系，以便用原始函数也能找到包装函数并移除
+
+```js
+class EventEmitter {
+  constructor() {
+    this.events = {};
+    this.onceWrappers = new Map(); // 存储原始函数 => 包装函数
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = [listener];
+    } else {
+      this.events[event].push(listener);
+    }
+  }
+
+  emit(event, ...args) {
+    const listeners = this.events[event] || [];
+    listeners.forEach((listener) => listener(...args));
+  }
+
+  off(event, listener) {
+    const listeners = this.events[event] || [];
+    const fn = this.onceWrappers.get(listener) || listener; // 找到包装函数
+    const index = listeners.indexOf(fn);
+    if (index >= 0) {
+      listeners.splice(index, 1);
+    }
+  }
+
+  once(event, listener) {
+    const fn = (...args) => {
+      listener(...args);
+      this.off(event, listener);
+      this.onceWrappers.delete(listener);
+    };
+    this.onceWrappers.set(listener, fn);
+    this.on(event, fn);
+  }
+}
 ```
 
 
