@@ -2031,6 +2031,7 @@ ev.off('say', hello);  // ⚠️ 这不会生效
 
 用 Map 存储原始函数与包装函数的映射关系，以便用原始函数也能找到包装函数并移除
 
+相较于上一版，它引入了 Map 来解决一个关键问题：支持通过原始的 listener 来移除 once 注册的回调函数
 ```js
 class EventEmitter {
   constructor() {
