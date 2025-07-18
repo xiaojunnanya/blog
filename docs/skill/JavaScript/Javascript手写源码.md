@@ -2075,6 +2075,67 @@ class EventEmitter {
 
 
 
+## 异步任务的并发控制与执行顺序调度
+
+题目
+
+```js
+// 1. 并发控制：同一时间最多只能有 1 个任务 在执行
+// 2. 执行顺序：当当前任务执行完成后，按照指定的顺序执行任务
+
+class Scheduler{
+    add(promiseCreator) {
+
+    }
+}
+
+const timeout = (time) => new Promise(resolve => {
+    setTimeout(resolve, time)
+})
+
+const scheduler = new Scheduler()
+const addTask = (time, order) => {
+    scheduler.add(() => timeout(time))
+        .then(() => console.log(order))
+}
+
+addTask(1000, '1')
+addTask(500, '2')
+addTask(300, '3')
+addTask(400, '4')
+```
+
+实现：
+
+```js
+class Scheduler {
+  constructor() {
+    this.queue = []           // 任务队列
+    this.running = false      // 当前是否有任务在执行
+  }
+
+  add(promiseCreator) {
+    return new Promise(resolve => {
+      // 把任务包装好加入队列
+      this.queue.push(() => promiseCreator().then(resolve))
+      this.runNext() // 尝试执行下一个任务
+    })
+  }
+
+  runNext() {
+    if (this.running) return // 已有任务在执行，不再执行新的
+    const task = this.queue.shift() // 取出下一个任务
+    if (task) {
+      this.running = true
+      task().then(() => {
+        this.running = false
+        this.runNext() // 执行下一个任务
+      })
+    }
+  }
+}
+```
+
 
 
 
