@@ -290,6 +290,7 @@ git commit -m "remove tracked .env and ignore it"
 - `git checkout dev`：切换到dev分支
 - `git branch -d dev`：删除本地dev分支
 - `git push origin --delete dev`：删除远程dev分支
+- `git rm --cached path/build.zip`：.gitignore 文件中删除了 zip 文件，但它仍然被上传了。是因为在 .gitignore 文件生效之前，zip 文件已经被 Git 跟踪
 
 
 

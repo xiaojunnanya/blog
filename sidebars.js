@@ -56,6 +56,16 @@ const sidebars = {
       ],
     },
     {
+      label: 'NextJS',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/NextJS/nextjs'
+      ],
+    },
+    {
       label: 'Node',
       type: 'category',
       link: {
