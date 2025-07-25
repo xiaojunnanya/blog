@@ -2077,12 +2077,12 @@ class EventEmitter {
 
 ## 异步任务的并发控制与执行顺序调度
 
-题目
+**题目1**
+
+1. 并发控制：同一时间最多只能有 1 个任务 在执行
+2. 执行顺序：当当前任务执行完成后，按照指定的顺序执行任务
 
 ```js
-// 1. 并发控制：同一时间最多只能有 1 个任务 在执行
-// 2. 执行顺序：当当前任务执行完成后，按照指定的顺序执行任务
-
 class Scheduler{
     add(promiseCreator) {
 
@@ -2138,7 +2138,61 @@ class Scheduler {
 
 
 
+**题目2**
 
+1. 并发控制：同一时间最多只能有 n 个任务 在执行
+2. 执行顺序：当当前任务执行完成后，按照指定的顺序执行任务
+
+```js
+class Scheduler {
+  constructor(limit) {
+    this.queue = []
+    this.maxConcurrent = limit     // 最大并发数
+    this.runningCount = 0          // 当前运行的任务数
+  }
+
+  add(promiseCreator) {
+    return new Promise(resolve => {
+      this.queue.push(() => promiseCreator().then(resolve))
+      this.runNext()
+    })
+  }
+
+  runNext() {
+    // 如果没有任务 或 达到最大并发限制，则不处理
+    if (this.runningCount >= this.maxConcurrent || this.queue.length === 0) return
+
+    const task = this.queue.shift()
+    this.runningCount++
+
+    task().then(() => {
+      this.runningCount--         // 执行完，释放并发
+      this.runNext()              // 尝试继续执行下一个
+    })
+
+    // 多个任务可同时启动（但不超过限制）
+    this.runNext()
+  }
+}
+```
+
+```js
+const timeout = (time) => new Promise(resolve => {
+  setTimeout(resolve, time)
+})
+
+const scheduler = new Scheduler(2) // 最多并发两个任务
+
+const addTask = (time, order) => {
+  scheduler.add(() => timeout(time))
+    .then(() => console.log(order))
+}
+
+addTask(1000, '1')
+addTask(500, '2')
+addTask(300, '3')
+addTask(400, '4')
+```
 
 
 
