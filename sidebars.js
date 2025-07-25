@@ -315,17 +315,6 @@ const sidebars = {
         'use/other/googletoolsipload',
       ],
     },
-    {
-      label: '开发纪录',
-      type: 'category',
-      link: {
-        type: 'generated-index',
-      },
-      items: [
-        'use/开发纪录/whaledevfrontend',
-        'use/开发纪录/whaledevbackEnd',
-      ],
-    },
   ],
   series: [
     'series/introduction',
