@@ -1,7 +1,7 @@
 ---
-id: nextjs
-slug: /nextjs
-title: Nextjs学习笔记
+id: nextjs01
+slug: /nextjs01
+title: NextJS学习笔记 - 路由篇
 date: 2002-09-26
 authors: 鲸落
 tags: [Node, NextJs]
@@ -94,7 +94,7 @@ src/
 
 如何保证这个路由可以被访问呢？你需要创建一个特殊的名为 `page.js` 的文件。至于为什么叫 `page.js`呢？除了 `page` 有“页面”这个含义之外，你可以理解为这是一种约定或者规范。
 
-![image-20250724112453995](NextJS学习笔记.assets/image-20250724112453995.png)
+![image-20250724112453995](NextJS学习笔记-路由篇.assets/image-20250724112453995.png)
 
 在上图这个例子中：
 
@@ -126,7 +126,7 @@ export default function Page() {
 
 举个例子，我们新建目录和文件如下图所示：
 
-![image-20250724112442369](NextJS学习笔记.assets/image-20250724112442369.png)
+![image-20250724112442369](NextJS学习笔记-路由篇.assets/image-20250724112442369.png)
 
 相关代码如下：
 
@@ -293,7 +293,7 @@ export default async function DashboardPage(props) {
 
 `loading.tsx` 的实现原理是将 `page.tsx`和下面的 children 用 `<Suspense>` 包裹。因为`page.tsx`导出一个 async 函数，Suspense 得以捕获数据加载的 promise，借此实现了 loading 组件的关闭。
 
-![image-20250724112349302](NextJS学习笔记.assets/image-20250724112349302.png)
+![image-20250724112349302](NextJS学习笔记-路由篇.assets/image-20250724112349302.png)
 
 如果你想针对 `/dashboard/about` 单独实现一个 loading 效果，那就在 `about` 目录下再写一个 `loading.tsx` 即可。
 
@@ -301,7 +301,7 @@ export default async function DashboardPage(props) {
 
 对于这些特殊文件的层级问题，直接一张图搞定：
 
-![image-20250724112554126](NextJS学习笔记.assets/image-20250724112554126.png)
+![image-20250724112554126](NextJS学习笔记-路由篇.assets/image-20250724112554126.png)
 
 
 
@@ -349,7 +349,7 @@ export default function Error({ error, reset }) {
 
 
 
-之前的层级问题：![image-20250724112554126](NextJS学习笔记.assets/image-20250724112554126.png)
+之前的层级问题：![image-20250724112554126](NextJS学习笔记-路由篇.assets/image-20250724112554126.png)
 
 从这张图里你会发现一个问题：因为 `Layout` 和 `Template` 在 `ErrorBoundary` 外面，这说明错误边界不能捕获同级的 `layout.tsx` 或者 `template.js` 中的错误。如果你想捕获特定布局或者模板中的错误，那就需要在父级的 `error.tsx` 里进行捕获。
 
@@ -606,7 +606,7 @@ export default function Page({ params }) {
 }
 ```
 
-效果如下：![image-20250725145912903](NextJS学习笔记.assets/image-20250725145912903.png)
+效果如下：![image-20250725145912903](NextJS学习笔记-路由篇.assets/image-20250725145912903.png)
 
 :::caution `Error: Route "/blog/[slug]" used params.slug. params should be awaited before using its properties. `
 
@@ -689,7 +689,7 @@ export default page
 
 **将路由按逻辑分组，但不影响 URL 路径：**
 
-![image-20250725153200070](NextJS学习笔记.assets/image-20250725153200070.png)
+![image-20250725153200070](NextJS学习笔记-路由篇.assets/image-20250725153200070.png)
 
 你会发现，最终的 URL 中省略了带括号的文件夹（上图中的`(marketing)`和`(shop)`）。
 
@@ -699,7 +699,7 @@ export default page
 
 **借助路由组，即便在同一层级，也可以创建不同的布局：**
 
-![image-20250725153305711](NextJS学习笔记.assets/image-20250725153305711.png)
+![image-20250725153305711](NextJS学习笔记-路由篇.assets/image-20250725153305711.png)
 
 在这个例子中，`/account` 、`/cart`、`/checkout` 都在同一层级。但是 `/account`和 `/cart`使用的是 `/app/(shop)/layout.js`布局和`app/layout.js`布局，`/checkout`使用的是 `app/layout.js`
 
@@ -707,7 +707,7 @@ export default page
 
 #### 创建多个根布局
 
-![image-20250725153946541](NextJS学习笔记.assets/image-20250725153946541.png)
+![image-20250725153946541](NextJS学习笔记-路由篇.assets/image-20250725153946541.png)
 
 创建多个根布局，你需要删除掉 `app/layout.js` 文件，然后在每组都创建一个 `layout.js`文件。创建的时候要注意，因为是根布局，所以要有 `<html>` 和 `<body>` 标签。
 
@@ -736,7 +736,7 @@ export default page
 
 举个例子，在后台管理页面，需要同时展示团队（team）和数据分析（analytics）页面：
 
-![image-20250725160104184](NextJS学习笔记.assets/image-20250725160104184.png)
+![image-20250725160104184](NextJS学习笔记-路由篇.assets/image-20250725160104184.png)
 
 ```js
 // app/layout.js
@@ -761,7 +761,7 @@ export default function Layout({ children, team, analytics }) {
 
 **平行路由可以让你为每个路由定义独立的错误处理和加载界面：**
 
-![image-20250725160846743](NextJS学习笔记.assets/image-20250725160846743.png)
+![image-20250725160846743](NextJS学习笔记-路由篇.assets/image-20250725160846743.png)
 
 
 
@@ -769,7 +769,7 @@ export default function Layout({ children, team, analytics }) {
 
 注意我们描述 team 和 analytics 时依然用的是“页面”这个说法，因为它们就像书写正常的页面一样使用 page.js。除此之外，它们也能像正常的页面一样，添加子页面，比如我们在 `@analytics` 下添加两个子页面：`/page-views` and `/visitors`：
 
-![image-20250725160940065](NextJS学习笔记.assets/image-20250725160940065.png)
+![image-20250725160940065](NextJS学习笔记-路由篇.assets/image-20250725160940065.png)
 
 平行路由跟路由组一样，不会影响 URL，所以 `/@analytics/page-views/page.js` 对应的地址是 `/page-views`，`/@analytics/visitors/page.js` 对应的地址是 `/visitors`
 
@@ -889,12 +889,12 @@ export default function Page() {
 此时访问 `/`，效果如下：
 
 
-![parallel-routers-1.gif](NextJS学习笔记.assets/03bf7c7e81bc444283375b880e052a39tplv-k3u1fbpfcp-jj-mark0000q75.gif)
+![parallel-routers-1.gif](NextJS学习笔记-路由篇.assets/03bf7c7e81bc444283375b880e052a39tplv-k3u1fbpfcp-jj-mark0000q75.gif)
 
 到这里其实还只是上节例子的样式美化版。现在，点击 `Visitors` 链接导航至 `/visitors` 路由，然后刷新页面，此时你会发现，页面出现了 404 错误：
 
 
-![parallel-routers-2.gif](NextJS学习笔记.assets/73952768f78c47eea8a04ead5db4d09dtplv-k3u1fbpfcp-jj-mark0000q75.gif)
+![parallel-routers-2.gif](NextJS学习笔记-路由篇.assets/73952768f78c47eea8a04ead5db4d09dtplv-k3u1fbpfcp-jj-mark0000q75.gif)
 
 这是为什么呢？为什么我们从首页导航至 `/visitors` 的时候可以正常显示？而直接进入 `/visitors` 就会出现 404 错误呢？
 
@@ -937,7 +937,7 @@ export default function Page() {
 
 此时效果如下：
 
-![parallel-routers-4.gif](NextJS学习笔记.assets/04a4460dc66b4ecabbd5117198fe5039tplv-k3u1fbpfcp-jj-mark0000q75.gif)
+![parallel-routers-4.gif](NextJS学习笔记-路由篇.assets/04a4460dc66b4ecabbd5117198fe5039tplv-k3u1fbpfcp-jj-mark0000q75.gif)
 
 
 
@@ -957,7 +957,7 @@ export default function Page() {
 
 示意图如下：
 
-![image-20250725162938477](NextJS学习笔记.assets/image-20250725162938477.png)
+![image-20250725162938477](NextJS学习笔记-路由篇.assets/image-20250725162938477.png)
 
 这是另一个拦截路由的 Demo 演示：<https://nextjs-app-route-interception.vercel.app/>
 
@@ -978,7 +978,7 @@ export default function Page() {
 
 但是要注意的是，这个匹配的是路由的层级而不是文件夹路径的层级，就比如路由组、平行路由这些不会影响 URL 的文件夹就不会被计算层级。
 
-看个例子：![image-20250725163247307](NextJS学习笔记.assets/image-20250725163247307.png)
+看个例子：![image-20250725163247307](NextJS学习笔记-路由篇.assets/image-20250725163247307.png)
 
 `/feed/(..)photo`对应的路由是 `/feed/photo`，要拦截的路由是 `/photo`，两者只差了一个层级，所以使用 `(..)`
 
@@ -1058,7 +1058,7 @@ export default function Layout({ children, modal }) {
 
 此时访问 `/`，效果如下：
 
-![image.png](NextJS学习笔记.assets/7656b3c2eef549f5b5ac13e15649edfctplv-k3u1fbpfcp-jj-mark0000q75.png)
+![image.png](NextJS学习笔记-路由篇.assets/7656b3c2eef549f5b5ac13e15649edfctplv-k3u1fbpfcp-jj-mark0000q75.png)
 
 现在我们再来实现下单独访问图片地址时的效果，新建 `app/photo/[id]/page.js`，代码如下：
 
@@ -1073,7 +1073,7 @@ export default function PhotoPage({ params: { id } }) {
 
 访问 `/photo/6`，效果如下：
 
-![image.png](NextJS学习笔记.assets/d75c00958d4b4fc989a5c3c669dfbcactplv-k3u1fbpfcp-jj-mark0000q75.png)
+![image.png](NextJS学习笔记-路由篇.assets/d75c00958d4b4fc989a5c3c669dfbcactplv-k3u1fbpfcp-jj-mark0000q75.png)
 
 
 现在我们开始实现拦截路由，为了和单独访问图片地址时的样式区分，我们声明另一种样式效果。`app/@modal/(.)photo/[id]/page.js` 代码如下：
@@ -1101,7 +1101,7 @@ export default function Default() {
 
 最终的效果如下：
 
-![intercepting-routers-5.gif](NextJS学习笔记.assets/a60151ea58a24313aca456e9aa90814atplv-k3u1fbpfcp-jj-mark0000q75.gif)
+![intercepting-routers-5.gif](NextJS学习笔记-路由篇.assets/a60151ea58a24313aca456e9aa90814atplv-k3u1fbpfcp-jj-mark0000q75.gif)
 
 你可以看到，在 `/`路由下，访问 `/photo/5`，路由会被拦截，并使用 `@modal/(.)photo/[id]/page.js` 的样式。
 
@@ -1121,7 +1121,7 @@ export default function Default() {
 
 写路由处理程序，你需要定义一个名为 `route.js`的特殊文件。（注意是 `route` 不是 `router`）
 
-![image-20250726130146661](NextJS学习笔记.assets/image-20250726130146661.png)
+![image-20250726130146661](NextJS学习笔记-路由篇.assets/image-20250726130146661.png)
 
 该文件必须在 `app`目录下，可以在 `app` 嵌套的文件夹下，但是要注意 `page.js`和 `route.js`不能在同一层级同时存在。
 
@@ -1258,12 +1258,12 @@ export async function GET() {
 注意：在开发模式下，并不会被缓存，每次刷新时间都会改变：
 
 
-![get-cache.gif](NextJS学习笔记.assets/d95418beb1214522a86c15aebde94538tplv-k3u1fbpfcp-jj-mark0000q75.gif)
+![get-cache.gif](NextJS学习笔记-路由篇.assets/d95418beb1214522a86c15aebde94538tplv-k3u1fbpfcp-jj-mark0000q75.gif)
 
 现在我们部署生产版本，运行 `npm run build && npm run start`：
 
 
-![get-cache-1.gif](NextJS学习笔记.assets/114035e161cb479b9aa4e12cc036ba94tplv-k3u1fbpfcp-jj-mark0000q75.gif)
+![get-cache-1.gif](NextJS学习笔记-路由篇.assets/114035e161cb479b9aa4e12cc036ba94tplv-k3u1fbpfcp-jj-mark0000q75.gif)
 
 你会发现，无论怎么刷新，时间都不会改变。这就是被缓存了。
 
@@ -1271,7 +1271,7 @@ export async function GET() {
 
 让我们看下构建（npm run build）时的命令行输出：
 
-![截屏2024-02-29 12.02.47.png](NextJS学习笔记.assets/403817cc707a4a95ad6c994d03353ccctplv-k3u1fbpfcp-jj-mark0000q75.png)
+![截屏2024-02-29 12.02.47.png](NextJS学习笔记-路由篇.assets/403817cc707a4a95ad6c994d03353ccctplv-k3u1fbpfcp-jj-mark0000q75.png)
 
 根据输出的结果，你会发现 `/api/time` 是静态的，也就是被预渲染为静态的内容，换言之，`/api/time` 的返回结果其实在构建的时候就已经确定了，而不是在第一次请求的时候才确定。
 
@@ -1294,11 +1294,11 @@ export async function GET(request) {
 
 现在我们部署生产版本，运行 `npm run build && npm run start`：
 
-![截屏2024-02-29 12.37.21.png](NextJS学习笔记.assets/55aceee3f8c340359a8517ee57903212tplv-k3u1fbpfcp-jj-mark0000q75.png)
+![截屏2024-02-29 12.37.21.png](NextJS学习笔记-路由篇.assets/55aceee3f8c340359a8517ee57903212tplv-k3u1fbpfcp-jj-mark0000q75.png)
 
 运行效果如下：
 
-![get-cache-2.gif](NextJS学习笔记.assets/0bfa4f4e118343c795d4f377826f525etplv-k3u1fbpfcp-jj-mark0000q75.gif)
+![get-cache-2.gif](NextJS学习笔记-路由篇.assets/0bfa4f4e118343c795d4f377826f525etplv-k3u1fbpfcp-jj-mark0000q75.gif)
 
 此时会动态渲染，也就是在请求的时候再进行服务端渲染，所以时间会改变。
 
@@ -1398,7 +1398,7 @@ export async function GET() {
 让我们在开发模式下打开这个页面：
 
 
-![get-cache-3.gif](NextJS学习笔记.assets/d24ddaaf8cf74ecd89f7209696210260tplv-k3u1fbpfcp-jj-mark0000q75.gif)
+![get-cache-3.gif](NextJS学习笔记-路由篇.assets/d24ddaaf8cf74ecd89f7209696210260tplv-k3u1fbpfcp-jj-mark0000q75.gif)
 
 你会发现与之前的 `/api/time` 不同，`/api/image` 接口返回的数据在开发模式下刷新就已经不会改变了，即使 console.log 每次都会打印，返回的结果却还是一样。
 
@@ -1419,7 +1419,7 @@ export async function GET() {
 在本地多次刷新页面，你会发现数据发生了更新：
 
 
-![get-cache-4.gif](NextJS学习笔记.assets/61b01c30135e4776919b1eaab0e0f375tplv-k3u1fbpfcp-jj-mark0000q75.gif)
+![get-cache-4.gif](NextJS学习笔记-路由篇.assets/61b01c30135e4776919b1eaab0e0f375tplv-k3u1fbpfcp-jj-mark0000q75.gif)
 
 如果你使用生产版本，虽然在构建的时候，`/api/image` 显示的是静态渲染，但是数据会更新。具体更新的规律和第一种方案是一样的，这里就不多赘述了。
 
@@ -2232,130 +2232,4 @@ export const withHeaders = (next) => {
   };
 };
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -62,7 +62,8 @@ const sidebars = {
         type: 'generated-index',
       },
       items: [
-        'skill/NextJS/nextjs'
+        'skill/NextJS/nextjs01',
+        'skill/NextJS/nextjs02'
       ],
     },
     {
