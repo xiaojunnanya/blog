@@ -4,7 +4,7 @@ slug: /nextjs01
 title: NextJS学习笔记 - 路由篇
 date: 2002-09-26
 authors: 鲸落
-tags: [Node, NextJs]
+tags: [React, NextJs]
 keywords: [Node, NextJs]
 ---
 
