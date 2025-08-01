@@ -170,15 +170,276 @@ export const getItem = cache(async (id) => {
 
 ### 客户端使用路由处理程序
 
+如果你需要在客户端组件中获取数据，可以在客户端调用路由处理程序。路由处理程序会在服务端被执行，然后将数据返回给客户端，适用于不想暴露敏感信息给客户端（比如 API tokens）的场景。
+
+如果你使用的是服务端组件，无须借助路由处理程序，直接获取数据即可。
 
 
 
+### 客户端使用三方请求库
+
+你也可以在客户端使用三方的库如 [SWR](https://swr.vercel.app/) 或 [React Query](https://tanstack.com/query/latest) 来获取数据。这些库都有提供自己的 API 实现记忆请求、缓存、重新验证和更改数据。
 
 
 
+### 建议与最佳实践
 
 
 
+**尽可能在服务端获取数据**
+
+尽可能在服务端获取数据，这样做有很多好处，比如：
+
+1.  可以直接访问后端资源（如数据库）
+2.  防止敏感信息泄漏
+3.  减少客户端和服务端之间的来回通信，加快响应时间
+4.  ...
+
+
+
+**在需要的地方就地获取数据**
+
+如果组件树中的多个组件使用相同的数据，无须先全局获取，再通过 props 传递，你可以直接在需要的地方使用 `fetch` 或者 React `cache` 获取数据，不用担心多次请求造成的性能问题，因为 `fetch` 请求会自动被记忆化。这也同样适用于布局，毕竟本来父子布局之间也不能传递数据。
+
+
+
+**适当的时候使用 Streaming**
+
+Streaming 和 `Suspense`都是 React 的功能，允许你增量传输内容以及渐进式渲染 UI 单元。页面可以直接渲染部分内容，剩余获取数据的部分会展示加载态，这也意味着用户不需要等到页面完全加载完才能与其交互。
+
+
+
+**串行获取数据**
+
+在 React 组件内获取数据时，有两种数据获取模式，并行和串行。
+
+所谓串行数据获取，数据请求相互依赖，形成瀑布结构，这种行为有的时候是必要的，但也会导致加载时间更长。
+
+所谓并行数据获取，请求同时发生并加载数据，这会减少加载数据所需的总时间。
+
+
+
+我们先说说串行数据获取，直接举个例子：
+
+```javascript
+// app/artist/page.js
+// ...
+ 
+async function Playlists({ artistID }) {
+  // 等待 playlists 数据
+  const playlists = await getArtistPlaylists(artistID)
+ 
+  return (
+    <ul>
+      {playlists.map((playlist) => (
+        <li key={playlist.id}>{playlist.name}</li>
+      ))}
+    </ul>
+  )
+}
+ 
+export default async function Page({ params: { username } }) {
+  // 等待 artist 数据
+  const artist = await getArtist(username)
+ 
+  return (
+    <>
+      <h1>{artist.name}</h1>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Playlists artistID={artist.id} />
+      </Suspense>
+    </>
+  )
+}
+```
+
+在这个例子中，`Playlists` 组件只有当 `Artist` 组件获得数据才会开始获取数据，因为 `Playlists` 组件依赖 `artistId` 这个 prop。这也很容易理解，毕竟只有先知道了是哪位艺术家，才能获取这位艺术家对应的曲目。
+
+在这种情况下，你可以使用 `loading.js` 或者 React 的 `<Suspense>` 组件，展示一个即时加载状态，防止整个路由被数据请求阻塞，而且用户还可以与未被阻塞的部分进行交互。
+
+关于阻塞数据请求：
+
+*   一种防止出现串行数据请求的方法是在应用程序根部全局获取数据，但这会阻塞其下所有路由段的渲染，直到数据加载完毕。
+*   任何使用 `await` 的 `fetch` 请求都会阻塞渲染和下方所有组件的数据请求，除非它们使用了 `<Suspense>` 或者 `loading.js`。另一种替代方式就是使用并行数据请求或者预加载模式。
+
+
+
+要实现并行请求数据，你可以在使用数据的组件外定义请求，然后在组件内部调用，举个例子：
+
+```javascript
+import Albums from './albums'
+
+// 组件外定义
+async function getArtist(username) {
+  const res = await fetch(`https://api.example.com/artist/${username}`)
+  return res.json()
+}
+ 
+async function getArtistAlbums(username) {
+  const res = await fetch(`https://api.example.com/artist/${username}/albums`)
+  return res.json()
+}
+ 
+export default async function Page({ params: { username } }) {
+  // 组件内调用，这里是并行的
+  const artistData = getArtist(username)
+  const albumsData = getArtistAlbums(username)
+ 
+  // 等待 promise resolve
+  const [artist, albums] = await Promise.all([artistData, albumsData])
+ 
+  return (
+    <>
+      <h1>{artist.name}</h1>
+      <Albums list={albums}></Albums>
+    </>
+  )
+}
+```
+
+在这个例子中，`getArtist` 和 `getArtistAlbums` 函数都是在 `Page` 组件外定义，然后在 `Page` 组件内部调用。用户需要等待两个 promise 都 resolve 后才能看到结果。
+
+为了提升用户体验，可以使用 Suspense 组件来分解渲染工作，尽快展示出部分结果。
+
+
+
+### 使用 React `cache` `server-only` 和预加载模式
+
+你可以将 `cache` 函数，`preload` 模式和 [server-only](https://juejin.cn/book/7307859898316881957/section/7309076661532622885#heading-15) 包一起使用，创建一个可在整个应用使用的数据请求工具函数。
+
+```javascript
+// utils/get-article.js
+import { cache } from 'react'
+import 'server-only'
+ 
+export const preloadArticle = (id) => {
+  void getArticle(id)
+}
+ 
+export const getArticle = cache(async (id) => {
+  // ...
+})
+```
+
+现在，你可以提前获取数据、缓存返回结果，并保证数据获取只发生在服务端。此外，布局、页面、组件都可以使用 `utils/get-article.js`
+
+注：如果想要细致了解 preload 函数和 server-only 以及 cache 的特性，可以查看： [（技巧）当 Next.js 遇到频繁重复的数据库操作时，记住使用 React 的 cache 函数](https://juejin.cn/post/7348643498117038099#heading-5)
+
+
+
+:::info 详解
+
+这一段是在讲 **Next.js 的 Server Component 模式下如何写一个服务端专用、自动缓存的数据获取工具函数**，结合了：
+
+- React 的 `cache`（缓存函数结果）
+- `server-only`（限制只能服务端用）
+- preload（预加载机制）
+
+
+
+**背景**
+
+在 Next.js App Router 中（使用 React Server Components），我们常常需要在服务端获取数据，但又希望：
+
+- 数据只在服务端获取（不会被打包进客户端）
+- 同一个参数的请求只发一次（避免重复 fetch）
+- 可以手动「预加载」，实现延迟加载、提前加载的效果
+
+
+
+**代码解释**
+
+- 第一句：`import { cache } from 'react'`
+  - `cache(fn)` 会返回一个**缓存版本的函数**
+  - 当你用相同参数调用它多次，只会真正执行一次
+  - 类似“记忆化”函数（Memoization）。
+- 第二句：`import 'server-only'`
+  - 这是一个特殊的标志语句，告诉 **Next.js 构建工具**：这个模块只能在服务端使用，如果被客户端代码引用，会报错。
+  - 它的作用是为了**安全、性能和构建体积**：
+    - 避免把 `getArticle` 打包进客户端
+    - 防止客户端访问到服务端接口（可能暴露 secret）
+- `getArticle = cache(async (id) => { ... })`
+  - 这是你真正获取文章数据的函数。
+  - 它是缓存过的，**相同参数只 fetch 一次**。
+  - 你可以在布局、页面、组件中反复用这个函数，它只发一次请求。
+- `preloadArticle(id)`
+  - 这是你用来**“提前加载文章”**的工具。
+  - 它调用 `getArticle(id)` 但不等待结果，只是触发。
+  - 比如你在页面加载时预取接下来用户可能要看的文章，配合交互：`onMouseEnter={() => preloadArticle('123')}`。用户 hover 的时候先预取数据，等点进去时已经加载好了。
+
+
+
+需要注意的是：`cache` 和 `'server-only'` 都**只能在 Server Component 中使用**，**不能用于客户端组件（带 `use client`）**
+
+
+
+**示例代码**
+
+1. 封装数据请求函数（服务端专用）
+
+```ts
+// utils/get-article.ts
+import { cache } from 'react'
+import 'server-only'
+
+export const getArticle = cache(async (id: string) => {
+  // 模拟服务端请求
+  const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`)
+
+  if (!res.ok) throw new Error('Failed to fetch article')
+  return res.json()
+})
+
+// 预加载函数
+export const preloadArticle = (id: string) => {
+  void getArticle(id)
+}
+```
+
+2. 页面使用 `getArticle`
+
+```tsx
+// app/article/[id]/page.tsx
+import { getArticle } from '@/utils/get-article'
+
+export default async function ArticlePage({ params }: { params: { id: string } }) {
+  const article = await getArticle(params.id)
+
+  return (
+    <div>
+      <h1>{article.title}</h1>
+      <p>{article.body}</p>
+    </div>
+  )
+}
+```
+
+3. 客户端组件中使用 `preloadArticle`
+
+```tsx
+// components/ArticleLink.tsx
+'use client'
+
+import Link from 'next/link'
+import { preloadArticle } from '@/utils/get-article'
+
+export function ArticleLink({ id, title }: { id: string; title: string }) {
+  return (
+    <Link
+      href={`/article/${id}`}
+      onMouseEnter={() => preloadArticle(id)} // 悬停时预取数据
+    >
+      {title}
+    </Link>
+  )
+}
+```
+
+:::
+
+
+
+## Server Actions
 
 
 
