@@ -4,8 +4,8 @@ slug: /nextjs02
 title: NextJS学习笔记 - 渲染篇
 date: 2002-09-26
 authors: 鲸落
-tags: [Node, NextJs]
-keywords: [Node, NextJs]
+tags: [React, NextJs]
+keywords: [React, NextJs]
 ---
 
 
