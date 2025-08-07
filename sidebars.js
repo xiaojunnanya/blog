@@ -67,8 +67,7 @@ const sidebars = {
         'skill/NextJS/nextjs03',
         'skill/NextJS/nextjs04',
         'skill/NextJS/nextjs05',
-        'skill/NextJS/nextjs06',
-        'skill/NextJS/nextjs07'
+        'skill/NextJS/nextjs06'
       ],
     },
     {
