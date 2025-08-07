@@ -24,6 +24,7 @@ keywords:
 - JavaScript
 - Vue
 - React
+- Next
 - Node
 - NestJS
 - 数据库(Mysql、Redis)
