@@ -169,6 +169,7 @@ const sidebars = {
       },
       items: [
         'skill/AI/aboutaiconcept',
+        'skill/AI/mcpdev',
       ],
     },
     {
