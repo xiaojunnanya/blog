@@ -40,7 +40,7 @@ Tailwind CSS 看起来很简单，就是将 CSS 的简写放到 HTML 类名中�
 
 ![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1eb48e2510d94371b1383cefb7e8bc9f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=2918\&h=1078\&s=353173\&e=png\&b=11182b)
 
-注：VSCode 有 [Tailwind Documentation](https://marketplace.visualstudio.com/items?itemName=alfredbirk.tailwind-documentation)<font style="color:rgb(37, 41, 51);"> 或 </font>[Tailwind Docs](https://marketplace.visualstudio.com/items?itemName=austenc.tailwind-docs)<font style="color:rgb(37, 41, 51);"> 这两个插件可以帮助你查阅文档</font>
+注：VSCode 有 [Tailwind Documentation](https://marketplace.visualstudio.com/items?itemName=alfredbirk.tailwind-documentation)`<font style="color:rgb(37, 41, 51);"> 或 </font>`[Tailwind Docs](https://marketplace.visualstudio.com/items?itemName=austenc.tailwind-docs)`<font style="color:rgb(37, 41, 51);"> 这两个插件可以帮助你查阅文档</font>`
 
 如果你会写 CSS，大部分的类名都很容易想到，比如 `display: flex`就写作 `flex`，`flex-direction: row` 就写作 `flex-row`。
 
