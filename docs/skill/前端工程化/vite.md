@@ -1,7 +1,7 @@
 ---
 id: vite
 slug: /vite
-title: vite实践
+title: vite
 date: 2002-09-26
 authors: 鲸落
 tags: [前端工程化, vite]
@@ -23,7 +23,79 @@ Vite 是一种新型前端构建工具，能够显著提升前端开发体验，
 
 
 
-## 1
+## 原理
+
+### vite打包图片
+
+#### 图片在 Vite 中的引用方式
+
+在 Vite 项目里，你通常会这样引用图片：`import logo from './logo.png';`
+
+或者在 HTML/模板里：`<img src="/assets/logo.png" />`
+
+底层 Vite 会对这些图片进行处理，具体流程取决于 **文件大小** 和 **引用方式**。
+
+
+
+#### 图片打包流程
+
+Vite 底层使用的是 **Rollup** 进行打包，而 Rollup 本身对图片是通过 **Asset** 处理的。
+
+1. **解析资源引用**
+
+- 当你 `import logo from './logo.png'` 时，Vite 会解析这个导入路径，生成一个 **模块 ID**。
+- 如果是 HTML `<img src>`，Vite 会把它当作静态资源来处理。
+
+2. **根据文件大小处理**
+    Vite 默认使用 **base64 内联策略**：
+
+- 小于 `assetsInlineLimit`（默认 4kb）的图片会被 **转成 base64**，直接嵌入到打包后的 JS 或 CSS 文件中。
+- 大于这个大小的图片会被 **输出到 dist/assets**，并生成一个带 **hash** 的文件名（比如 `logo.abc123.png`），确保缓存安全。
+
+3. **生成打包后的路径**
+
+- 内联图片：`const logo = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."`
+- 外部图片：`const logo = "/assets/logo.abc123.png"`
+   这样 JS 或 CSS 引用时直接使用生成的路径。
+
+4. **输出资源文件**
+    Rollup 会把这些图片当作 **asset** 类型处理，拷贝到打包目录 `dist/assets`，并加上 hash。
+
+
+
+#### Vite 和 Rollup 底层逻辑
+
+如果你想看更底层：
+
+- **Vite 会先用 esbuild 或 vite-plugin-imagemin 等插件处理资源**。
+- **Rollup 在打包阶段会触发 `load` 和 `generateBundle` 钩子**：
+  - `load`：读取图片文件内容。
+  - `generateBundle`：决定如何输出（内联还是文件）。
+- 生成的图片路径会替换原来的 `import` 或 `src`。
+
+所以底层本质上就是：
+
+```bash
+源文件（logo.png） 
+    ─> Vite/Rollup 读取
+        ─> 小文件 base64 内联 / 大文件 hash 输出
+            ─> JS/CSS 文件中替换引用路径
+```
+
+
+
+#### 总结关键点
+
+1. **小文件内联，大文件输出**。
+2. **Vite 实际上是 Rollup + 插件处理资源**。
+3. **生成的文件名通常带 hash** 保证缓存安全。
+4. **JS/CSS 引用会被替换成最终路径**。
+
+
+
+
+
+## vite插件 rollupOptions
 
 ### 文件分类
 
@@ -103,8 +175,6 @@ build: {
 
 
 
-
-## vite插件
 
 ### 打包分析插件
 
