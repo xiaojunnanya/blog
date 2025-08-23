@@ -1,7 +1,7 @@
 ---
 id: typescript
 slug: /ts/typescript
-title: TypeScript
+title: TypeScript 学习笔记
 date: 2002-09-26
 authors: 鲸落
 tags: [TypeScript]
