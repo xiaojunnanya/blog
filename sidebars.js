@@ -32,13 +32,13 @@ const sidebars = {
       ],
     },
     {
-      label: 'Vue',
+      label: 'TypeScript',
       type: 'category',
       link: {
         type: 'generated-index',
       },
       items: [
-        'skill/Vue/vue2'
+        'skill/TypeScript/typescript'
       ],
     },
     {
@@ -93,60 +93,6 @@ const sidebars = {
       ],
     },
     {
-      label: '数据库',
-      type: 'category',
-      link: {
-        type: 'generated-index',
-      },
-      items: [
-        'skill/数据库/nodesql',
-        'skill/数据库/redis'
-      ],
-    },
-    {
-      label: 'TypeScript',
-      type: 'category',
-      link: {
-        type: 'generated-index',
-      },
-      items: [
-        'skill/TypeScript/typescript'
-      ],
-    },
-    {
-      label: '微信小程序',
-      type: 'category',
-      link: {
-        type: 'generated-index',
-      },
-      items: [
-        'skill/微信小程序/wechat1',
-        'skill/微信小程序/wechat2',
-        'skill/微信小程序/wechat3',
-      ],
-    },
-    {
-      label: 'Uniapp',
-      type: 'category',
-      link: {
-        type: 'generated-index',
-      },
-      items: [
-        'skill/Uniapp/uniapp'
-      ],
-    },
-    {
-      label: '数据结构与算法',
-      type: 'category',
-      link: {
-        type: 'generated-index',
-      },
-      items: [
-        'skill/数据结构与算法/build',
-        'skill/数据结构与算法/count',
-      ],
-    },
-    {
       label: '前端工程化',
       type: 'category',
       link: {
@@ -170,6 +116,70 @@ const sidebars = {
       items: [
         'skill/AI/aboutaiconcept',
         'skill/AI/mcpdev',
+      ],
+    },
+    {
+      label: 'React Native',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/ReactNative/reactnative'
+      ],
+    },
+    {
+      label: '数据结构与算法',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/数据结构与算法/build',
+        'skill/数据结构与算法/count',
+      ],
+    },
+    {
+      label: '数据库',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/数据库/nodesql',
+        'skill/数据库/redis'
+      ],
+    },
+    {
+      label: 'Vue',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/Vue/vue2'
+      ],
+    },
+    {
+      label: 'Uniapp',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/Uniapp/uniapp'
+      ],
+    },
+    {
+      label: '微信小程序',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'skill/微信小程序/wechat1',
+        'skill/微信小程序/wechat2',
+        'skill/微信小程序/wechat3',
       ],
     },
     {
