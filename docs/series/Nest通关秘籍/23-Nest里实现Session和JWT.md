@@ -3,7 +3,7 @@ id: nestseries23
 slug: /nestseries23
 title: 23-Nest里实现Session和JWT
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

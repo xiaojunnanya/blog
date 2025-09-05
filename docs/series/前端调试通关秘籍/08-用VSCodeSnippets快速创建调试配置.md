@@ -3,7 +3,7 @@ id: frontenddebug08
 slug: /frontenddebug08
 title: 08-用VSCode Snippets快速创建调试配置
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

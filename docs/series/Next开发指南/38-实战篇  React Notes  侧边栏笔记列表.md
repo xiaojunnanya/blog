@@ -3,7 +3,7 @@ id: nextseries38
 slug: /nextseries38
 title: 38-实战篇  React Notes  侧边栏笔记列表
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

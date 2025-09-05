@@ -3,7 +3,7 @@ id: node
 slug: /node
 title: NodeJs学习笔记
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Node]
 keywords: [Node]
 ---
@@ -350,7 +350,7 @@ emitter.on('jl',handleFn)
 
 setTimeout(()=>{
     // 1. 发送的时候携带参数
-    emitter.emit('jl','鲸落', 18, '前端')
+    emitter.emit('jl','酒辞.', 18, '前端')
 
    
     emitter.off('jl', handleFn)
@@ -374,7 +374,7 @@ setTimeout(()=>{
 const buf = Buffer.from("hhh")
 console.log(buf);
 
-const buf2 = Buffer.from("鲸落")
+const buf2 = Buffer.from("酒辞.")
 console.log(buf2);
 
 //buffer转为字符串

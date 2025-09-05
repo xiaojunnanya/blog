@@ -3,7 +3,7 @@ id: frontenddebug16
 slug: /frontenddebug16
 title: 16-如何用Performance工具分析并优化性能
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

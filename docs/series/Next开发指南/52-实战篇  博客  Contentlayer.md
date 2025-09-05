@@ -3,7 +3,7 @@ id: nextseries52
 slug: /nextseries52
 title: 52-实战篇  博客  Contentlayer
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

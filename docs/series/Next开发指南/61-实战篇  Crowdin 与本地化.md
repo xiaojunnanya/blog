@@ -3,7 +3,7 @@ id: nextseries61
 slug: /nextseries61
 title: 61-实战篇  Crowdin 与本地化
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

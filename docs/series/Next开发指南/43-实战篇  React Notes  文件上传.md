@@ -3,7 +3,7 @@ id: nextseries43
 slug: /nextseries43
 title: 43-实战篇  React Notes  文件上传
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

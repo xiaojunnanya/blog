@@ -3,7 +3,7 @@ id: nextseries39
 slug: /nextseries39
 title: 39-实战篇  React Notes  笔记预览界面
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

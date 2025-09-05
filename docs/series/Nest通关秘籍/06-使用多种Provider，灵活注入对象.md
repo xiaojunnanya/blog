@@ -3,7 +3,7 @@ id: nestseries06
 slug: /nestseries06
 title: 06-使用多种Provider，灵活注入对象
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

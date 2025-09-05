@@ -145,7 +145,7 @@ sidebars.js                    配置
 
 ```js
 {
-    title: '鲸落',  //标题
+    title: '酒辞.',  //标题
     description: '基于 Docusaurus 静态网站生成器实现个人博客',	//外面名称
     preview: '/img/project/blog.png',//图片
     website: 'https://xiaojunnan.cn',//展示地址

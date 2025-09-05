@@ -3,7 +3,7 @@ id: setTimeout
 slug: /javascript/setTimeout
 title: setTimeout不能准时执行？
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Javascript]
 keywords: [Javascript]
 ---
@@ -172,7 +172,7 @@ user.showName()
 
 ## 浏览器是怎么实现 `setTimeout` 的
 
-既然要探究这个，就很有必要知道浏览器的事件循环机制了，我在之前也写过的关于事件循环的一些文章，有兴趣的小伙伴可以去看一下：[了解宏任务和微任务谁先执行 - 鲸落 (xiaojunnan.cn)](http://www.xiaojunnan.cn/eventLoop)
+既然要探究这个，就很有必要知道浏览器的事件循环机制了，我在之前也写过的关于事件循环的一些文章，有兴趣的小伙伴可以去看一下：[了解宏任务和微任务谁先执行 - 酒辞. (xiaojunnan.cn)](http://www.xiaojunnan.cn/eventLoop)
 
 我们知道，浏览器是通过消息队列去维护任务的，要执行一段异步任务，需要先将任务添加到消息队列中。不过 **通过定时器设置回调函数有点特别，它们需要在指定的时间间隔内被调用，但消息队列中的任务是按照顺序执行的，所以为了保证回调函数能在指定时间内执行，不能将定时器的回调函数直接添加到消息队列中**。
 

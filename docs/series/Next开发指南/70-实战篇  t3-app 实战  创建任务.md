@@ -3,7 +3,7 @@ id: nextseries70
 slug: /nextseries70
 title: 70-实战篇  t3-app 实战  创建任务
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

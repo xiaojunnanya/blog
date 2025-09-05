@@ -3,7 +3,7 @@ id: threejs04
 slug: /threejs04
 title: 04-BufferGeometry顶点生成各种几何体
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

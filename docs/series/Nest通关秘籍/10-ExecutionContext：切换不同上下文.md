@@ -3,7 +3,7 @@ id: nestseries10
 slug: /nestseries10
 title: 10-ExecutionContext：切换不同上下文
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

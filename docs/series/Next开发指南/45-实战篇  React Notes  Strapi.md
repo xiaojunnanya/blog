@@ -3,7 +3,7 @@ id: nextseries45
 slug: /nextseries45
 title: 45-实战篇  React Notes  Strapi
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

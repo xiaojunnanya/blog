@@ -3,7 +3,7 @@ id: nextseries69
 slug: /nextseries69
 title: 69-实战篇  t3-app 实战  创建清单
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

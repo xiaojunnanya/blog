@@ -3,7 +3,7 @@ id: detailts
 slug: /detailts
 title: TS
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [抓住小细节]
 keywords: [抓住小细节]
 ---

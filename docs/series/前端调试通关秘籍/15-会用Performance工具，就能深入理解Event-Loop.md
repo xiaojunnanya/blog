@@ -3,7 +3,7 @@ id: frontenddebug15
 slug: /frontenddebug15
 title: 15-会用Performance工具，就能深入理解Event Loop
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

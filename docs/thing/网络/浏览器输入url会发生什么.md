@@ -3,7 +3,7 @@ id: inputUrlHappen
 slug: /network/inputUrlHappen
 title: 浏览器输入url会发生什么
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [网络]
 keywords: [网络]
 ---

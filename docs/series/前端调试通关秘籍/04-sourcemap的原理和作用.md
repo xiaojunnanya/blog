@@ -3,7 +3,7 @@ id: frontenddebug04
 slug: /frontenddebug04
 title: 04-sourcemap的原理和作用
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

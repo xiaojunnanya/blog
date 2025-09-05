@@ -4,8 +4,8 @@
  * @LastEditors: xiaojunnanya
  * @LastEditTime: 2024-01-26 17:51:46
  * @FilePath: \blog\data\friend.ts
- * @Description: 
- * @前端实习生：鲸落: 
+ * @Description:
+ * @前端实习生：酒辞.:
  */
 export const Friends: Friend[] = [
   {

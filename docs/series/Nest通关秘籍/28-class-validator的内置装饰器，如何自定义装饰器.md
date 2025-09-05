@@ -3,7 +3,7 @@ id: nestseries28
 slug: /nestseries28
 title: 28-class-validator的内置装饰器，如何自定义装饰器
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

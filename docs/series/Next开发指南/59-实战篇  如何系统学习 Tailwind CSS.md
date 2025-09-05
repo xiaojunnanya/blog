@@ -3,7 +3,7 @@ id: nextseries59
 slug: /nextseries59
 title: 59-实战篇  如何系统学习 Tailwind CSS
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

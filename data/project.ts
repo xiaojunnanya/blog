@@ -5,11 +5,11 @@
  * @LastEditTime: 2024-01-04 10:31:08
  * @FilePath: \blog\data\project.ts
  * @Description:
- * @前端实习生：鲸落:
+ * @前端实习生：酒辞.:
  */
 export const projects: Project[] = [
   {
-    title: '鲸落',
+    title: '酒辞.',
     description: '基于 Docusaurus 静态网站生成器实现个人博客',
     preview: '/img/project/blog.png',
     website: 'http://www.xiaojunnan.cn/',
@@ -18,7 +18,7 @@ export const projects: Project[] = [
     type: '博客',
   },
   {
-    title: '鲸落',
+    title: '酒辞.',
     description: 'Hexo + Github搭建个人静态博客',
     preview: '/img/project/hexoGithub.png',
     website: 'https://xiaojunnanya.github.io/',

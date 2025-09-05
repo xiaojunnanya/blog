@@ -3,7 +3,7 @@ id: nextseries63
 slug: /nextseries63
 title: 63-实战篇  Zod 与数据校验
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

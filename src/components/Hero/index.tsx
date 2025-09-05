@@ -52,8 +52,8 @@ function Hero() {
     setIsShow(false)
   }
 
-  
-  
+
+
   // useEffect(() => {
   //   const handleScroll = (event) => {
   //     // 在这里处理滚轮事件
@@ -69,7 +69,7 @@ function Hero() {
   //   };
   // }, []);
 
-  
+
 
   return (
     <animated.div className={styles.hero}>
@@ -77,7 +77,7 @@ function Hero() {
         <animated.div style={trails[0]} className={styles.hero_text}>
           <Translate id="homepage.hero.greet">你好! 我是</Translate>
           <span className={styles.intro__name}>
-            <Translate id="homepage.hero.name">鲸落</Translate>
+            <Translate id="homepage.hero.name">酒辞.</Translate>
           </span>
         </animated.div>
         <animated.p style={trails[1]}>

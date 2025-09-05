@@ -3,7 +3,7 @@ id: nextseries42
 slug: /nextseries42
 title: 42-实战篇  React Notes  国际化
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

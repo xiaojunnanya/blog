@@ -3,7 +3,7 @@ id: mcpdev
 slug: /mcpdev
 title: MCP开发
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [AI, MCP]
 keywords: [AI, MCP]
 ---

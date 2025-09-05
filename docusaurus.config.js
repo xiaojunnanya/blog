@@ -3,7 +3,7 @@ const path = require('path')
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   onBrokenLinks: 'ignore',
-  title: '鲸落',
+  title: '酒辞.',
   titleDelimiter: '-',
   url: 'http://xiaojunnan.cn',
   baseUrl: '/',
@@ -22,7 +22,7 @@ const config = {
     metadata: [
       {
         name: 'keywords',
-        content: '鲸落',
+        content: '酒辞.',
       },
       {
         name: 'keywords',
@@ -39,9 +39,9 @@ const config = {
       },
     },
     navbar: {
-      title: '鲸落',
+      title: '酒辞.',
       logo: {
-        alt: '鲸落',
+        alt: '酒辞.',
         src: 'img/logo.webp',
         srcDark: 'img/logo.webp',
       },
@@ -174,7 +174,7 @@ const config = {
           ],
         },
       ],
-      copyright:  `Copyright © ${new Date().getFullYear()} 鲸落<p><a href="https://beian.miit.gov.cn" class="footer_lin">皖ICP备2023012012号</a></p>`,
+      copyright:  `Copyright © ${new Date().getFullYear()} 酒辞.<p><a href="https://beian.miit.gov.cn" class="footer_lin">皖ICP备2023012012号</a></p>`,
     },
     prism: {
       theme: require('prism-react-renderer/themes/vsLight'),
@@ -295,8 +295,8 @@ const config = {
           defaultReadingTime({ content, options: { wordsPerMinute: 300 } }),
         feedOptions: {
           type: 'all',
-          title: '鲸落',
-          copyright: `Copyright © ${new Date().getFullYear()} 鲸落<p><a href="https://beian.miit.gov.cn" class="footer_lin">皖ICP备2023012012号</a></p>`,
+          title: '酒辞.',
+          copyright: `Copyright © ${new Date().getFullYear()} 酒辞.<p><a href="https://beian.miit.gov.cn" class="footer_lin">皖ICP备2023012012号</a></p>`,
         },
       },
     ],

@@ -3,7 +3,7 @@ id: nestseries20
 slug: /nestseries20
 title: 20-为什么Node里要用Winston打印日志？
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

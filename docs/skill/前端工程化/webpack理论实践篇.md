@@ -3,7 +3,7 @@ id: webpack
 slug: /webpack
 title: webpack理论实践
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端工程化, webpack]
 keywords: [前端工程化, webpack]
 ---

@@ -3,7 +3,7 @@ id: nestseries19
 slug: /nestseries19
 title: 19-Nest里如何打印日志？
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

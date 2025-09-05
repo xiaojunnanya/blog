@@ -3,7 +3,7 @@ id: nextseries21
 slug: /nextseries21
 title: 21-组件篇  Images
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

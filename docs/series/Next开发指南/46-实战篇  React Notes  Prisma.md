@@ -3,7 +3,7 @@ id: nextseries46
 slug: /nextseries46
 title: 46-实战篇  React Notes  Prisma
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

@@ -3,7 +3,7 @@ id: nextseries77
 slug: /nextseries77
 title: 77-源码篇  实现 Server Actions
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

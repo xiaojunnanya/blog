@@ -3,7 +3,7 @@ id: html
 slug: /htmlAndCss/html
 title: HTML
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [HTML, CSS]
 keywords: [HTML, CSS]
 ---

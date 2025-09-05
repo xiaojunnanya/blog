@@ -3,7 +3,7 @@ id: noconsole
 slug: /javascript/noconsole
 title: 你所不知道的console
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Javascript]
 keywords: [Javascript]
 ---

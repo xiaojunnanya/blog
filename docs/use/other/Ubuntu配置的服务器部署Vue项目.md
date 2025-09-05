@@ -3,7 +3,7 @@ id: ubuntusetvue
 slug: /other/ubuntusetvue
 title: Ubuntu配置的服务器部署Vue项目
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [tool, Ubuntu]
 keywords: [tool, Ubuntu]
 ---

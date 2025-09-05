@@ -3,7 +3,7 @@ id: frontenddebug10
 slug: /frontenddebug10
 title: 10-跑npm scripts有更香的方式
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

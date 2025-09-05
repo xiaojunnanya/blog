@@ -3,7 +3,7 @@ id: nextseries60
 slug: /nextseries60
 title: 60-实战篇  Clerk 与登录注册
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

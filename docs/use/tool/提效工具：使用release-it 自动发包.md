@@ -3,7 +3,7 @@ id: release-it
 slug: /tool/release-it
 title: 提效工具：使用release-it 自动发包
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [tool, release]
 keywords: [tool, release]
 ---

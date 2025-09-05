@@ -3,7 +3,7 @@ id: javascripttip
 slug: /javascripttip
 title: Javascript实用小方法
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [JavaScript]
 keywords: [JavaScript]
 ---

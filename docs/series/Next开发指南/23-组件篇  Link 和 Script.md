@@ -3,7 +3,7 @@ id: nextseries23
 slug: /nextseries23
 title: 23-组件篇  Link 和 Script
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

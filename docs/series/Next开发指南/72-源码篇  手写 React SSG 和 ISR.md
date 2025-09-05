@@ -3,7 +3,7 @@ id: nextseries72
 slug: /nextseries72
 title: 72-源码篇  手写 React SSG 和 ISR
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

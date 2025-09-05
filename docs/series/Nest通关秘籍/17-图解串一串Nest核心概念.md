@@ -3,7 +3,7 @@ id: nestseries17
 slug: /nestseries17
 title: 17-图解串一串Nest核心概念
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

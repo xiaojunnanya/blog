@@ -3,7 +3,7 @@ id: javascript2
 slug: /javascript/high
 title: Javascript高级
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [JavaScript]
 keywords: [JavaScript]
 ---
@@ -2228,7 +2228,7 @@ newFoo("jl",18)
   - 它表示保存的数据一旦被赋值，就不能被修改
 
     - ```js
-      const message = "鲸落"
+      const message = "酒辞."
       message = "a"//报错
       ```
 
@@ -2236,7 +2236,7 @@ newFoo("jl",18)
 
     - ```js
       const obj = {
-          name:"鲸落",
+          name:"酒辞.",
           age:18
       }
       obj = {}//报错
@@ -2308,14 +2308,14 @@ newFoo("jl",18)
 
 ```js
 //var定义的变量默认会添加到window上
-var name = "鲸落"
+var name = "酒辞."
 var age = 18
 
 console.log(window,window.name,window.age);
 
 
 // let/const变量不会添加到window
-let name = "鲸落"
+let name = "酒辞."
 const age = 18
 
 console.log(window,window.name,window.age);//报错
@@ -2404,7 +2404,7 @@ let address = "中国"
 #### 基本语法
 
 ```js
-let name = "鲸落"
+let name = "酒辞."
 let age = 18
 console.log(`我的名字是${name},${age}岁`)
 ```
@@ -2414,12 +2414,12 @@ console.log(`我的名字是${name},${age}岁`)
 #### 标签模板字符串
 
 ```js
-let name = "鲸落"
+let name = "酒辞."
 let age = 18
 function foo(...args){
     console.log(args);
     //数组0：['我的名字是', ',', '岁', raw: Array(3)]
-    //数组1：'鲸落'
+    //数组1：'酒辞.'
     //数组2：18
 }
 
@@ -2468,7 +2468,7 @@ foo(undefined,null)//我是默认参数1 null【会对undefined进行处理】
 
   - ```js
     var obj = {
-        name:"鲸落",
+        name:"酒辞.",
         age:18,
         height:1.8
     }
@@ -2478,11 +2478,11 @@ foo(undefined,null)//我是默认参数1 null【会对undefined进行处理】
     }
     
     obj1.name = "jl"
-    console.log(obj.name,obj1.name);//鲸落,jl
+    console.log(obj.name,obj1.name);//酒辞.,jl
     
     //目前到这，你可以觉得，这不是一个深拷贝吗，继续往下看
     var obj = {
-        name:"鲸落",
+        name:"酒辞.",
         age:18,
         height:1.8,
         obj2:{
@@ -2520,7 +2520,7 @@ let allName = [...names,'ee','ff']
 console.log(allName);//['aa', 'bb', 'cc', 'dd', 'ee', 'ff']
 
 var obj1 = {
-    name:"鲸落",
+    name:"酒辞.",
     age:19
 }
 
@@ -2558,7 +2558,7 @@ const name = Symbol()
 
 //基本使用：
 let obj = {
-    [name]:"鲸落",
+    [name]:"酒辞.",
     age:18
 }
 

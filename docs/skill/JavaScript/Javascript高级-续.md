@@ -3,7 +3,7 @@ id: javascript3
 slug: /javascript/highCon
 title: Javascript高级 - 续
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [JavaScript]
 keywords: [JavaScript]
 ---
@@ -38,7 +38,7 @@ for(const key of keys){
 }
 
 console.log(obj.name);
-obj.name = "鲸落"
+obj.name = "酒辞."
 console.log(obj.name);
 ```
 

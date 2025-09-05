@@ -3,7 +3,7 @@ id: console
 slug: /javascript/console
 title: console.log是异步还是同步？为什么console.log有时候不准？
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Javascript]
 keywords: [Javascript]
 ---

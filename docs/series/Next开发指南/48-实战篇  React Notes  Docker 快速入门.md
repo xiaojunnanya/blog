@@ -3,7 +3,7 @@ id: nextseries48
 slug: /nextseries48
 title: 48-实战篇  React Notes  Docker 快速入门
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

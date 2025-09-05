@@ -3,7 +3,7 @@ id: websocket
 slug: /network/websocket
 title: 了解Websocket
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [网络, websocket]
 keywords: [网络, websocket]
 ---

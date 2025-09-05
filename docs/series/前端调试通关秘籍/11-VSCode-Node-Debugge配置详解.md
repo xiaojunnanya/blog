@@ -3,7 +3,7 @@ id: frontenddebug11
 slug: /frontenddebug11
 title: 11-VSCode Node Debugge配置详解
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

@@ -3,7 +3,7 @@ id: frontenddebug05
 slug: /frontenddebug05
 title: 05-Webpack的sourcemap配置
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

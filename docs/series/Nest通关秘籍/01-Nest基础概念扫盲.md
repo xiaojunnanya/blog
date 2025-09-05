@@ -3,7 +3,7 @@ id: nestseries01
 slug: /nestseries01
 title: 01-Nest基础概念扫盲
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

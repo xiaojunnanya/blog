@@ -3,7 +3,7 @@ id: nextseries25
 slug: /nextseries25
 title: 25-Metadata 篇  基于文件
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

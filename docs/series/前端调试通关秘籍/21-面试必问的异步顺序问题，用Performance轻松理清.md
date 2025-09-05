@@ -3,7 +3,7 @@ id: frontenddebug21
 slug: /frontenddebug21
 title: 21-面试必问的异步顺序问题，用Performance轻松理清
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

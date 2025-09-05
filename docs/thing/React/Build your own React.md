@@ -3,7 +3,7 @@ id: build-your-own-react
 slug: /react/build-your-own-react
 title: Build your own React
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [React]
 keywords: [React]
 ---

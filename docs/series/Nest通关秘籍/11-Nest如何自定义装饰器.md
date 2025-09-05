@@ -3,7 +3,7 @@ id: nestseries11
 slug: /nestseries11
 title: 11-Nest如何自定义装饰器
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

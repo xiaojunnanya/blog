@@ -3,7 +3,7 @@ id: nextseries22
 slug: /nextseries22
 title: 22-组件篇  Font
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

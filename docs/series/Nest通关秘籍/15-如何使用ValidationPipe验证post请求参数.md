@@ -3,7 +3,7 @@ id: nestseries15
 slug: /nestseries15
 title: 15-如何使用ValidationPipe验证post请求参数
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

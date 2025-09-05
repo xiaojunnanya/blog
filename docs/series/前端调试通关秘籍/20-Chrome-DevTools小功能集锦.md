@@ -3,7 +3,7 @@ id: frontenddebug20
 slug: /frontenddebug20
 title: 20-Chrome DevTools小功能集锦
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

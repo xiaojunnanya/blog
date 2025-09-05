@@ -3,7 +3,7 @@ id: nestseries13
 slug: /nestseries13
 title: 13-Nest的Middleware
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

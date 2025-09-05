@@ -3,7 +3,7 @@ id: nestseries31
 slug: /nestseries31
 title: 31-Prisma的全部命令
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

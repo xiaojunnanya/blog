@@ -3,7 +3,7 @@ id: nestseries14
 slug: /nestseries14
 title: 14-内置Pipe和自定义Pipe
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

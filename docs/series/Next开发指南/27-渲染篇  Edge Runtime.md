@@ -3,7 +3,7 @@ id: nextseries27
 slug: /nextseries27
 title: 27-渲染篇  Edge Runtime
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

@@ -3,7 +3,7 @@ id: frontenddebug02
 slug: /frontenddebug02
 title: 02-如何调试网页的JS（以React为例）
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

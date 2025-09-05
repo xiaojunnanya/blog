@@ -3,7 +3,7 @@ id: canvas
 slug: /htmlAndCss/canvas
 title: Canvas
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Canvas]
 keywords: [Canvas]
 ---

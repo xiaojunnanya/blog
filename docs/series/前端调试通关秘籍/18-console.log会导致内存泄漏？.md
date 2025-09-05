@@ -3,7 +3,7 @@ id: frontenddebug18
 slug: /frontenddebug18
 title: 18-console.log会导致内存泄漏？
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

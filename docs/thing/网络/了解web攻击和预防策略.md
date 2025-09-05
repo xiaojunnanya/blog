@@ -3,7 +3,7 @@ id: websafe
 slug: /network/websafe
 title: 了解web攻击和预防策略
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [网络]
 keywords: [网络]
 ---

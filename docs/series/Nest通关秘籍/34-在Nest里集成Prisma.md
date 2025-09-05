@@ -3,7 +3,7 @@ id: nestseries34
 slug: /nestseries34
 title: 34-在Nest里集成Prisma
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

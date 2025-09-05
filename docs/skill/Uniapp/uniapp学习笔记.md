@@ -3,7 +3,7 @@ id: uniapp
 slug: /uniapp/uniappstudy
 title: uniapp
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [uniapp]
 keywords: [uniapp]
 ---

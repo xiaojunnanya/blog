@@ -3,7 +3,7 @@ id: typescript
 slug: /ts/typescript
 title: TypeScript 学习笔记
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [TypeScript]
 keywords: [TypeScript]
 ---

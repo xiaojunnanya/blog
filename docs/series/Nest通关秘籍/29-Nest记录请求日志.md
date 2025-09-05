@@ -3,7 +3,7 @@ id: nestseries29
 slug: /nestseries29
 title: 29-Nest记录请求日志
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

@@ -3,7 +3,7 @@ id: nestseries03
 slug: /nestseries03
 title: 03-5种HTTP数据传输方式
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

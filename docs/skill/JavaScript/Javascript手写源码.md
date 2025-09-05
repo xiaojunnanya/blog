@@ -3,7 +3,7 @@ id: javascript4
 slug: /javascript/write
 title: Javascript手写源码
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [JavaScript]
 keywords: [JavaScript]
 ---
@@ -1704,7 +1704,7 @@ animals.flat(-10);
 ### 用`forEach`实现`flat`
 
 ```js
-const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "鲸落" }];
+const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "酒辞." }];
 function flat(arr) {
   if( !Array.isArray(arr) ) return arr
   let arrResult = [];
@@ -1718,7 +1718,7 @@ function flat(arr) {
   return arrResult;
 }
 flat(arr)
-// [1, 2, 3, 4, 1, 2, 3, 1, 2, 3, 1, 2, 3, 5, "string", { name: "鲸落" }];
+// [1, 2, 3, 4, 1, 2, 3, 1, 2, 3, 1, 2, 3, 5, "string", { name: "酒辞." }];
 ```
 
 
@@ -1726,13 +1726,13 @@ flat(arr)
 ### 用 `reduce` 实现 `flat` 函数
 
 ```js
-const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "鲸落" }];
+const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "酒辞." }];
 console.log(arr.flat(Infinity));
 
 // 首先使用 reduce 展开一层
 let a = arr.reduce((pre, cur) => pre.concat(cur), []);
 console.log(a);
-// [1, 2, 3, 4, 1, 2, 3, [1, 2, 3, [1, 2, 3]], 5, "string", { name: "鲸落" }];
+// [1, 2, 3, 4, 1, 2, 3, [1, 2, 3, [1, 2, 3]], 5, "string", { name: "酒辞." }];
 
 // 用 reduce 展开一层 + 递归
 const flat = arr => {
@@ -1742,7 +1742,7 @@ const flat = arr => {
   }, []);
 };
 console.log(flat(arr));
-// [1, 2, 3, 4, 1, 2, 3, 1, 2, 3, 1, 2, 3, 5, "string", { name: "鲸落" }];
+// [1, 2, 3, 4, 1, 2, 3, 1, 2, 3, 1, 2, 3, 5, "string", { name: "酒辞." }];
 ```
 
 

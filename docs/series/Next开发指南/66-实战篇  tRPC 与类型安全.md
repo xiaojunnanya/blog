@@ -3,7 +3,7 @@ id: nextseries66
 slug: /nextseries66
 title: 66-实战篇  tRPC 与类型安全
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

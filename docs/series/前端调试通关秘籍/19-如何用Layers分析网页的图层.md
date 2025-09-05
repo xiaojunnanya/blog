@@ -3,7 +3,7 @@ id: frontenddebug19
 slug: /frontenddebug19
 title: 19-如何用Layers分析网页的图层
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端调试]
 keywords: [前端调试]
 ---

@@ -3,7 +3,7 @@ id: nestseries12
 slug: /nestseries12
 title: 12-Module和Provider的循环依赖怎么处理？
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

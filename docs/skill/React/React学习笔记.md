@@ -3,7 +3,7 @@ id: react
 slug: /react
 title: React
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [React]
 keywords: [React]
 ---

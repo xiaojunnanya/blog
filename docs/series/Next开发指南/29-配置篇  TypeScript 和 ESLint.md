@@ -3,7 +3,7 @@ id: nextseries29
 slug: /nextseries29
 title: 29-配置篇  TypeScript 和 ESLint
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

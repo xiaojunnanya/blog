@@ -3,7 +3,7 @@ id: nextseries30
 slug: /nextseries30
 title: 30-配置篇  MDX
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

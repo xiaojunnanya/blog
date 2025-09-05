@@ -3,7 +3,7 @@ id: nextjs02
 slug: /nextjs02
 title: NextJS学习笔记 - 渲染篇
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [React, NextJs]
 keywords: [React, NextJs]
 ---
@@ -1068,7 +1068,7 @@ import ClientComponent from './ClientComponent';
 
 export default async function Page() {
   const data = new Map([
-    ['name', '鲸落'],
+    ['name', '酒辞.'],
     ['age', '28']
   ]);
 

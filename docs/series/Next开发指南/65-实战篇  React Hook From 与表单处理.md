@@ -3,7 +3,7 @@ id: nextseries65
 slug: /nextseries65
 title: 65-实战篇  React Hook From 与表单处理
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

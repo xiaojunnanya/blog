@@ -3,7 +3,7 @@ id: removeeffect
 slug: /react/removeeffect
 title: 在React中移除不必要的 Effect
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [React]
 keywords: [React]
 ---

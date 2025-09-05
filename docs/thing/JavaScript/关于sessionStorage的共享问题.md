@@ -3,7 +3,7 @@ id: sessionStorage
 slug: /javascript/sessionStorage
 title: 关于sessionStorage的共享问题
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Javascript]
 keywords: [Javascript]
 ---

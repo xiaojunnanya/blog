@@ -3,7 +3,7 @@ id: nestjs
 slug: /nestjs
 title: Nestjs学习笔记
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Node, NestJs]
 keywords: [Node, NestJs]
 ---

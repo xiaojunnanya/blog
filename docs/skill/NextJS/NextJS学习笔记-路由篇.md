@@ -3,7 +3,7 @@ id: nextjs01
 slug: /nextjs01
 title: NextJS学习笔记 - 路由篇
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [React, NextJs]
 keywords: [Node, NextJs]
 ---

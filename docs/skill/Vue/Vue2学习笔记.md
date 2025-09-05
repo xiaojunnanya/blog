@@ -3,7 +3,7 @@ id: vue2
 slug: /vue/vue2
 title: Vue2
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Vue2]
 keywords: [Vue2]
 ---
@@ -37,7 +37,7 @@ keywords: [Vue2]
         const vm = new Vue({
             el:'#app',
             data:{
-                name:'鲸落',
+                name:'酒辞.',
                 age:21,
             }
         })
@@ -68,7 +68,7 @@ keywords: [Vue2]
 ```javascript
 <script type="text/javascript">
     let person = {
-        name:"鲸落",
+        name:"酒辞.",
         sex:'男',
         // age:18.
     }
@@ -528,7 +528,7 @@ v-for指令:
             el:'#app',
             data:{
                 persons:[
-                    {id:'001',name:'鲸落',age:18},
+                    {id:'001',name:'酒辞.',age:18},
                     {id:'002',name:'To fly',age:19},
                     {id:'003',name:'巴西世界杯冠军',age:20}
                 ],
@@ -711,7 +711,7 @@ key作用与原理
             el:'#app',
             data:{
                 person:{
-                    name:"鲸落",
+                    name:"酒辞.",
                     age:18,
                 }
             },
@@ -989,8 +989,8 @@ v-text指令：【v-text用的少】
         new Vue({
             el:'#app',
             data:{
-                name:'鲸落',
-                nameA:'<h1>鲸落</h1>'
+                name:'酒辞.',
+                nameA:'<h1>酒辞.</h1>'
             },
         })
     </script>
@@ -1171,7 +1171,7 @@ v-pre指令:
             `,
             data(){ //data数据要写函数返回的形式
                 return{
-                    StudentName:"鲸落",
+                    StudentName:"酒辞.",
                     age:18
                 }
             }
@@ -1190,7 +1190,7 @@ v-pre指令:
             // data:{
             //     SchoolName:"河北地质大学",
             //     address:"河北", 
-            //     StudentName:"鲸落",
+            //     StudentName:"酒辞.",
             //     age:18
             // }
         })
@@ -1250,7 +1250,7 @@ v-pre指令:
             `,
             data(){ 
                 return{
-                    StudentName:"鲸落",
+                    StudentName:"酒辞.",
                     age:18
                 }
             }
@@ -1444,7 +1444,7 @@ ref 与 `$refs`
 
 ```javascript
 //App.vue:这个:age加不加引号主要是看他是否涉及到js的运行，:age传的就是number18，不加传的是string18，当你是运行表达式的时候就要加冒号
-<school name="鲸落" :age="18"></school>
+<school name="酒辞." :age="18"></school>
 
 //school.vue:
 <template>
@@ -1459,7 +1459,7 @@ export default {
     name:'school',
     data(){
         return{
-            // name:'鲸落',
+            // name:'酒辞.',
             // age:18,
 
             // props是只读的，Vue底层会监测你对props的修改，
@@ -1510,7 +1510,7 @@ export default {
     name:"one",
     data(){
         return{
-           name:"鲸落"
+           name:"酒辞."
         }
     },
     methods:{
@@ -1649,7 +1649,7 @@ pubsub.subscribe("hello","hhhh")
 export const mixin = {
     methods:{
         show(){
-            console.log("鲸落")
+            console.log("酒辞.")
         }
     }
 }

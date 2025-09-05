@@ -3,7 +3,7 @@ id: lerna
 slug: /tool/lerna
 title: lerna 使用纪录
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [tool, lerna]
 keywords: [tool, lerna]
 ----

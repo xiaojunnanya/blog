@@ -3,7 +3,7 @@ id: nextseries35
 slug: /nextseries35
 title: 35-API 篇  常用函数与方法（上）
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

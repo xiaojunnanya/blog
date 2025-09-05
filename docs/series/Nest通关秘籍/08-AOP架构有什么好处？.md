@@ -3,7 +3,7 @@ id: nestseries08
 slug: /nestseries08
 title: 08-AOP架构有什么好处？
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

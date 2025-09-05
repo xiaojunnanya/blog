@@ -3,7 +3,7 @@ id: yalc
 slug: /tool/yalc
 title: 更好的本地package开发调试工具：yalc
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [tool, yalc]
 keywords: [tool, yalc]
 ---
@@ -13,9 +13,9 @@ keywords: [tool, yalc]
 
 
 
-> 作者：前端实习生鲸落
+> 作者：前端实习生酒辞.
 >
-> 博客：[鲸落 (xiaojunnan.cn)](http://www.xiaojunnan.cn/)
+> 博客：[酒辞. (xiaojunnan.cn)](http://www.xiaojunnan.cn/)
 >
 > Github：[github.com/xiaojunnanya](https://github.com/xiaojunnanya)
 

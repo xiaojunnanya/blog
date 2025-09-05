@@ -3,7 +3,7 @@ id: nextseries53
 slug: /nextseries53
 title: 53-实战篇  博客  SEO
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

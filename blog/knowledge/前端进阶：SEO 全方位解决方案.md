@@ -40,7 +40,7 @@ title标签相当于网站的名片，他会直接显示在搜索结果中。一
 注意：网站标题避免冗长
 
 ```html
-<title>鲸落的个人博客</title>
+<title>酒辞.的个人博客</title>
 ```
 
 
@@ -113,7 +113,7 @@ Open Graph 协议标签通过 OG Tags （OG 标签）实现的，它属于 Meta 
 
 ```html
 <meta property="og:title" content="设置Open Graph 标签！社交营销优化！">
-<meta property="og:site_name" content="鲸落">
+<meta property="og:site_name" content="酒辞.">
 <meta property="og:type" content="article">
 <meta property="og:description" content="Open Graph Protocol（开放图谱协议），简称 OG 协议或 OGP。">
 ```

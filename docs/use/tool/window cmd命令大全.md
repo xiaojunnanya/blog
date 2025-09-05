@@ -3,7 +3,7 @@ id: windowcmd
 slug: /tool/windowcmd
 title: window cmd命令大全
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [tool, cmd]
 keywords: [tool, cmd]
 ---

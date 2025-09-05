@@ -3,7 +3,7 @@ id: tsreact
 slug: /tsreact
 title: TS与React结合小细节
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [React, TypeScript]
 keywords: [React, TypeScript]
 ---

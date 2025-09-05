@@ -3,7 +3,7 @@ id: gitgithub
 slug: /gitgithub
 title: Git 如何与 Github 连接
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端工程化, git, github]
 keywords: [前端工程化, git, github]
 ---

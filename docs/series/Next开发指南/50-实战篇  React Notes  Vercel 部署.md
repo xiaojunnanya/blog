@@ -3,7 +3,7 @@ id: nextseries50
 slug: /nextseries50
 title: 50-实战篇  React Notes  Vercel 部署
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

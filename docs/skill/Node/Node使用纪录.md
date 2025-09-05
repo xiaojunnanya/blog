@@ -3,7 +3,7 @@ id: nodeuse
 slug: /nodeuse
 title: Node使用纪录
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Node]
 keywords: [Node]
 ---

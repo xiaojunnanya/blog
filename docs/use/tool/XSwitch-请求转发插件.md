@@ -3,7 +3,7 @@ id: xswitch
 slug: /tool/xswitch
 title: XSwitch-请求转发插件
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [tool, XSwitch]
 keywords: [tool, XSwitch]
 ---

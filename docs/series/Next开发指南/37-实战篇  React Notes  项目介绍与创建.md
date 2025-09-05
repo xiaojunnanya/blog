@@ -3,7 +3,7 @@ id: nextseries37
 slug: /nextseries37
 title: 37-实战篇  React Notes  项目介绍与创建
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

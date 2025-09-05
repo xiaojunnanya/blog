@@ -3,7 +3,7 @@ id: nextseries34
 slug: /nextseries34
 title: 34-API 篇  next.config.js（下）
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

@@ -3,7 +3,7 @@ id: nestseries02
 slug: /nestseries02
 title: 02-快速掌握NestCLI
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

@@ -3,7 +3,7 @@ id: nextseries68
 slug: /nextseries68
 title: 68-实战篇  t3-app 实战  身份认证与主题切换
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

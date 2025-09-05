@@ -3,7 +3,7 @@ id: dependencies
 slug: /engineering/dependencies
 title: 你真的理解 devDependencies 和 dependencies 的区别吗？
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [前端工程化, Webpack]
 keywords: [前端工程化, Webpack]
 ---

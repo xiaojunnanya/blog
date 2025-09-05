@@ -3,7 +3,7 @@ id: nestseries22
 slug: /nestseries22
 title: 22-两种登录状态保存方式：JWT和Session
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---

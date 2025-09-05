@@ -3,7 +3,7 @@ id: nextjs04
 slug: /nextjs04
 title: NextJS学习笔记 - 缓存篇
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [React, NextJs]
 keywords: [React, NextJs]
 ---

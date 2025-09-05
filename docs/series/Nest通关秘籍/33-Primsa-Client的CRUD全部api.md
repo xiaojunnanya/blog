@@ -3,7 +3,7 @@ id: nestseries33
 slug: /nestseries33
 title: 33-Primsa-Client的CRUD全部api
 date: 2002-09-26
-authors: 鲸落
+authors: 酒辞.
 tags: [Nest]
 keywords: [Nest]
 ---
