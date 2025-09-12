@@ -60,8 +60,8 @@ MySQL 数据库相关的设置如 name、Host、Port、Username 等，如果不�
 如果出现这种报错，打开电脑`~/.npmrc`这个文件，添加如下配置：
 
 ```javascript
-sharp_binary_host=https://npm.taobao.org/mirrors/sharp
-sharp_libvips_binary_host=https://npm.taobao.org/mirrors/sharp-libvips
+sharp_binary_host=https://registry.npmmirror.com/mirrors/sharp
+sharp_libvips_binary_host=https://registry.npmmirror.com/mirrors/sharp-libvips
 ```
 
 如果成功安装，会显示项目的可用脚本命令：
