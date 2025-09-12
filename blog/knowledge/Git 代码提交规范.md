@@ -1,13 +1,13 @@
 ---
 slug: /gitSpecification
-title: Git 代码提交规范
+title: Git 代码提交与分支命名规范
 date: 2024-09-10
 authors: jl
 tags: [知识点, Git ]
 keywords: [知识点, Git ]
 ---
 
-
+## Git 代码提交规范
 
 `commit message = subject + ：+ 空格 + message 主体`
 
@@ -52,3 +52,22 @@ keywords: [知识点, Git ]
 11. **revert**: 回滚
     - 用于提交回滚之前的提交
     - 例如：`revert: 回滚feat: 增加用户注册功能`
+
+
+## Git 分支命名规范
+
+常见的分支种类以及含义如下：
+
+1. **master/main**: 主分支，用于存放稳定的代码
+2. **develop**: 开发分支，用于存放最新的开发代码
+3. **feature/feat**: 功能分支，用于开发新功能
+4. **bugfix/fix**: 修复分支，用于修复 bug
+5. **hotfix**: 紧急修复分支，用于修复生产紧急 bug
+6. **release**: 发布分支，用于准备发布新版本
+7. **support**: 支持分支，用于维护旧版本
+8. **test**: 测试分支，用于测试代码
+
+补充：
+- `git branch -d dev`：删除本地dev分支
+
+- `git push origin --delete dev`：删除远程dev分支
