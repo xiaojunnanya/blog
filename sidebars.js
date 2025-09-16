@@ -282,6 +282,16 @@ const sidebars = {
         'thing/网络/websafe',
       ],
     },
+    {
+      label: '技术方案',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'thing/技术方案/problem1',
+      ],
+    }
   ],
   use: [
     'use/introduction',
