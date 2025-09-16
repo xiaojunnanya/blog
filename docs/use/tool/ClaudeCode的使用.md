@@ -74,7 +74,10 @@ PS: 对于日常任务，推荐使用 Claude 4 Sonnet，计费倍率仅为 Claud
 ### 其他命令
 - `/exit`: 退出交互模式
 - `/help`: 显示帮助信息
+<<<<<<< HEAD
 - `claude --dangerously-skip-permissions`: 跳过权限检查，基于最高权限
+=======
+>>>>>>> a0a8029 (feat: change)
 
 ### 更多
 输入`/` 可以看到很多的命令
