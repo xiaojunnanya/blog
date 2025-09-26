@@ -117,3 +117,70 @@ Note: Claude Code might not be available in your country, Check supported countr
 }
 ```
 
+
+## MCP
+### 安装
+```bash
+# 通过json安装
+claude mcp add-json ...
+
+# 示例 项目级别安装
+claude mcp add-json context7 '{ "command": "npx -y @upstash/context7-mcp", "env": {} }'
+
+# 示例 用户级别安装
+claude mcp add-json --scope user context7 '{ "command": "npx -y @upstash/context7-mcp", "env": {} }'
+```
+
+### 删除
+`claude mcp remove context7`
+
+### 修改
+先删除，再添加
+
+### 查看当前MCP
+`claude mcp list`
+
+### 常用的MCP
+```json
+{
+  "mcpServers": {
+    "hlj-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/mac/jiuci/code/technical-proposal-mcp/dist/index.js"
+      ],
+      "env": {}
+    },
+    "context7": {
+      "command": "npx -y @upstash/context7-mcp",
+      "env": {}
+    },
+    "ApifoxMCP": {
+      "command": "npx",
+      "args": ["-y", "apifox-mcp-server@latest", "--project=项目id"],
+      "env": {
+        "APIFOX_ACCESS_TOKEN": "你的账号的TOKEN"
+      }
+    },
+    "FigmaMCP": {
+      "type": "sse",
+      "url": "http://127.0.0.1:3845/sse"
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+GitHub - oraios/serena: A powerful coding agent toolkit providing semantic retrieval and editing cap",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant"
+      ]
+    }
+  }
+}
+```
+
+## 权限控制
+- `claude --dangerously-skip-permissions`：全自动模式 赋予最高的权限
+- `/premissions`: 添加权限
