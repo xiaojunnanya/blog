@@ -1,3 +1,13 @@
+---
+id: aiagent01
+slug: /aiagent01
+title: 01-AIAgent 开发要学什么？
+date: 2002-09-26
+authors: 酒辞.
+tags: [AI]
+keywords: [AI]
+---
+
 ## 前言
 
 我们每天都在用各种 AI Agent，比如用 Curosr 写代码，用 Manus 做各种自动化的事情。

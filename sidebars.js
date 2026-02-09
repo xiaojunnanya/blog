@@ -520,6 +520,18 @@ const sidebars = {
         'series/代码随想录/programmercarl99',
       ],
     },
+    {
+      label: 'AI Agent通关秘籍',
+      type: 'category',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'series/前端转AI_Agent全栈/aiagent01',
+        'series/前端转AI_Agent全栈/aiagent02',
+        'series/前端转AI_Agent全栈/aiagent03',
+      ],
+    },
   ],
   hobby: [
     'hobby/introduction',

@@ -1,3 +1,13 @@
+---
+id: aiagent02
+slug: /aiagent02
+title: 02-从Tool开始：让大模型自动调工具读文件
+date: 2002-09-26
+authors: 酒辞.
+tags: [AI]
+keywords: [AI]
+---
+
 ## 1
 
 我们和大模型聊天，可以问它一些问题，它告诉你怎么做。
