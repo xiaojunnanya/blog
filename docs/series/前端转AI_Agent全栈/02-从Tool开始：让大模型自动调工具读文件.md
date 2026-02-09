@@ -695,79 +695,86 @@ LangChain 的：
 底层都常用 Zod。
 
 
+## tool/tool call/tool_calls
+一句话总览
 
-## tool call / tool_calls
+- tool 是能力定义
+- tool call 是模型提出的“使用请求”
+- tool_calls 是这一轮回复里所有 tool call 的集合
 
-### 是什么
-
-**tool call / tool_calls** 指的是：
-
-> **模型“决定要用工具”，并把“要用哪个工具 + 参数”结构化地告诉你**
-
-注意：
- 👉 **模型并没有真的执行工具**
- 👉 它只是“提出调用请求”
-
-
-
-### tool 是什么
-
-```
+### tool
+tool = 你给模型提供的“可用能力说明 + 执行函数”
+在代码里：
+```js
 const readFileTool = tool(
   async ({ filePath }) => {...},
-  { name: "read_file", schema: ... }
-)
+  {
+    name: "read_file",
+    description: "...",
+    schema: z.object({
+      filePath: z.string(),
+    }),
+  }
+);
 ```
+包含三层含义：
+- 名字：read_file
+- 参数结构（Zod schema）
+- 真实执行逻辑（Node 函数）
 
-这是你 **提供给模型的能力声明**：
+模型能看到的只有：
+- name
+- description
+- schema
 
-> “我这儿有个叫 read_file 的工具，可以干这个，用这个参数”
+👉 模型看不到函数实现
 
+### tool call
+tool call = 模型提出的使用请求
+在代码里：
+```js
+const messages = [
+  new HumanMessage("请读取 src/tool-file-read.mjs 文件内容并解释代码"),
+];
 
-
-### tool call 是什么
-
-当模型看到这句话：
-
-> “请读取 src/a.js 文件”
-
-模型会在 **推理阶段** 得出结论：
-
-> 我需要调用 read_file 工具
-
-于是它不会直接回答，而是返回一个 **结构化指令**：
-
+let response = await modelWithTools.invoke(messages);
 ```
+当模型推理出：“用户要求读取文件”，会返回一个结构化指令
+第二个对象就叫 tool call：
+```js
 {
   "tool_calls": [
     {
-      "id": "call_xxx",
       "name": "read_file",
       "args": {
-        "filePath": "src/a.js"
+        "filePath": "src/tool-file-read.mjs"
       }
     }
   ]
 }
+
+{
+  "name": "read_file",
+  "args": {
+    "filePath": "src/tool-file-read.mjs"
+  }
+}
 ```
+关键点：
+- 由模型生成
+- 只描述要用什么 + 参数
+- 不会真正执行
 
-这就是 **tool call**。
+### tool_calls
+tool_calls = 一轮回复里所有 tool call 的集合，类型是数组
+为什么是数组？因为模型可能一次请求多个工具：
 
-
-
-### tool_calls 是什么
-
-```
-response.tool_calls
-```
-
-含义是：
-
-> 模型这一次回复里，包含了 **0 个或多个工具调用请求**
-
-- 没有 → 普通文本回答
-- 有 → 需要你执行工具，工具信息
-
+### 三者关系（核心流程）
+1. 模型推理出“用户要求读取文件”，返回一个 tool call
+2. Agent 执行 tool call，获取结果
+3. Agent 把结果（ToolMessage）返回给模型
+4. 模型继续推理，可能返回多个 tool call
+5. Agent 重复 2、3、4 步，直到模型不再提出 tool call，直接给出最终回答
 
 
 ## 解释完整的代码
