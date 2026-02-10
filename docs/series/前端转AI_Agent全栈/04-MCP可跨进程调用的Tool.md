@@ -77,7 +77,7 @@ USER ——————>
 LLM ———————————> 
 tools ——> 
 调用java写的某个工具 —————> 本地java服务进程
-				  http
+				           http
                   —————> 远程java服务进程 
 ```
 
@@ -473,6 +473,36 @@ mcp 本质上还是 tool，和之前的 tool 的区别只不过是可以跨进�
 
 当你不需要跨进程用的时候，还是之前那样写更好，还少了进程通信的成本。
 
+
+## stdio 和 http
+以下节我们将要使用的高德MCP为例：
+```json
+{
+  "amap-maps-streamableHTTP": {
+    "url": "https://mcp.amap.com/mcp?key="
+  },
+  "amap-maps": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@amap/amap-maps-mcp-server"
+    ],
+    "env": {
+      "AMAP_MAPS_API_KEY": "你的 api key"
+    }
+  },
+}
+```
+第一种方式就是通过 url 来调用，即http，第二种方式就是通过 stdio 来调用。
+这两种方式：工具能力完全一样
+只是：
+```nginx
+MCP 协议层
+   ↓
+传输层
+   ├─ stdio
+   └─ http
+```
 
 
 ## 总结
