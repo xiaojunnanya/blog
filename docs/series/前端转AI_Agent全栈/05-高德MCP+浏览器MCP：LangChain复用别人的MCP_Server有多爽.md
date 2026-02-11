@@ -3,7 +3,7 @@ id: aiagent04
 slug: /aiagent04
 title: 04-MCP可跨进程调用的Tool
 date: 2002-09-26
-authors: 酒辞.
+authors: 鲸落
 tags: [AI]
 keywords: [AI]
 ---

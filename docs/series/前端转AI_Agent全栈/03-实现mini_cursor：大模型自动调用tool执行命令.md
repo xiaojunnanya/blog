@@ -3,7 +3,7 @@ id: aiagent03
 slug: /aiagent03
 title: 03-实现mini_cursor：大模型自动调用tool执行命令
 date: 2002-09-26
-authors: 酒辞.
+authors: 鲸落
 tags: [AI]
 keywords: [AI]
 ---

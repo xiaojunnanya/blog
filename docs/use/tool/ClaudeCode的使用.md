@@ -3,7 +3,7 @@ id: ClaudeCode
 slug: /tool/ClaudeCode
 title: ClaudeCode的使用
 date: 2002-09-26
-authors: 酒辞.
+authors: 鲸落
 tags: [tool, ClaudeCode]
 keywords: [tool, ClaudeCode]
 ----

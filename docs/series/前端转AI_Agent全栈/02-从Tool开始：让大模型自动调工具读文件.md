@@ -3,7 +3,7 @@ id: aiagent02
 slug: /aiagent02
 title: 02-从Tool开始：让大模型自动调工具读文件
 date: 2002-09-26
-authors: 酒辞.
+authors: 鲸落
 tags: [AI]
 keywords: [AI]
 ---
