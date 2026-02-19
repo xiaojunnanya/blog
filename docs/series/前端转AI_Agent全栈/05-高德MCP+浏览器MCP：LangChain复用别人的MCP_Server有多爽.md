@@ -242,11 +242,15 @@ mcp 官方维护的一个 mcp server
 ```
 // 确保 content 是字符串类型
 let contentStr;
-if (typeof toolResult === 'string') {
-    contentStr = toolResult;
-} else if (toolResult && toolResult.text) {
-    // 如果返回对象有 text 字段，优先使用
-    contentStr = toolResult.text;
+let contentStr;
+if (typeof toolResult === "string") {
+  contentStr = toolResult;
+} else if (toolResult && typeof toolResult.text === "string") {
+  contentStr = toolResult.text;
+} else if (toolResult !== null && toolResult !== undefined) {
+  contentStr = JSON.stringify(toolResult);
+} else {
+  contentStr = "";
 }
 
 messages.push(new ToolMessage({
@@ -258,6 +262,168 @@ messages.push(new ToolMessage({
 改下提示词：
 
 ```
-await runAgentWithTools("北京南站附近的5个酒店，以及去的路线，路线规划生成文档保存到 /Users/guang/Desktop 的一个 md 文件");
+await runAgentWithTools(
+  "北京南站附近的5个酒店，以及去的路线，路线规划生成文档保存到 /Users/mac/jiuci/github/aiagent/src/5 的一个 md 文件"
+);
 ```
 跑跑试试：
+```
+
+✨ AI 最终回复:
+The markdown file has been successfully created at `/Users/mac/jiuci/github/aiagent/src/5/hotels_near_beijing_south_station.md`. 
+
+The document contains comprehensive information about 5 hotels near Beijing South Railway Station, including:
+- Hotel names, addresses, and coordinates
+- Ratings and walking distances/times
+- Detailed step-by-step walking directions to each hotel
+- Practical summary information
+
+The file is now ready for use and contains all the requested information in a well-structured markdown format.
+```
+
+目前下面可以看到，MD文件已经生成好了
+
+### Chrome Devtools MCP
+比如打开页面、点击元素、截图等。
+
+在 cursor 配置下：
+
+```
+"chrome-devtools": {
+  "command": "npx",
+  "args": [
+    "-y",
+    "chrome-devtools-mcp@latest"
+  ]
+}
+```
+
+改下提示词：
+
+```
+await runAgentWithTools("北京南站附近的酒店，最近的 3 个酒店，拿到酒店图片，打开浏览器，展示每个酒店的图片，每个 tab 一个 url 展示，并且在把那个页面标题改为酒店名");
+```
+
+运行后可以看到，搜到了北京南站最近的 3 个酒店，并且浏览器打开了酒店图片。
+
+只要配好 MCP，大模型就可以直接调用里面的 tools 了
+
+
+## 总结
+
+这节我们使用了高德、FileSystem、Chrome Devtools 的 MCP，用它们结合来实现了一些功能。
+
+这些 MCP Server 有的是 stdio 本地进程调用，有的是 http 远程进程调用。
+
+MCP 的一大好处就是别人开发好的，可以直接用。
+
+你全程不需要知道怎么用高德的 API 查询位置、路线，不需要知道怎么用 cdp 协议控制浏览器。
+
+你只需要把这些 MCP 给到 AI，让它自己去调用。
+
+你不需要知道这些 tool 里面的高德 API 怎么用、浏览器控制怎么用，大模型会自己读取 tool 描述来传入参数调用。是不是特别爽！
+
+## 完整代码
+```js
+import "dotenv/config";
+import { MultiServerMCPClient } from "@langchain/mcp-adapters";
+import { ChatOpenAI } from "@langchain/openai";
+import chalk from "chalk";
+import {
+  HumanMessage,
+  SystemMessage,
+  ToolMessage,
+} from "@langchain/core/messages";
+
+const model = new ChatOpenAI({
+  modelName: "qwen-plus",
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+});
+
+const mcpClient = new MultiServerMCPClient({
+  mcpServers: {
+    "my-mcp-server": {
+      command: "node",
+      args: ["/Users/mac/jiuci/github/aiagent/src/4/my-mcp-server.mjs"],
+    },
+    "amap-maps-streamableHTTP": {
+      url: "https://mcp.amap.com/mcp?key=" + process.env.AMAP_MAPS_API_KEY,
+    },
+    filesystem: {
+      command: "npx",
+      args: [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/mac/jiuci/github/aiagent",
+      ],
+    },
+    "chrome-devtools": {
+      command: "npx",
+      args: ["-y", "chrome-devtools-mcp@latest"],
+    },
+  },
+});
+
+const tools = await mcpClient.getTools();
+const modelWithTools = model.bindTools(tools);
+
+async function runAgentWithTools(query, maxIterations = 30) {
+  const messages = [new HumanMessage(query)];
+
+  for (let i = 0; i < maxIterations; i++) {
+    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`));
+    const response = await modelWithTools.invoke(messages);
+    messages.push(response);
+
+    // 检查是否有工具调用
+    if (!response.tool_calls || response.tool_calls.length === 0) {
+      console.log(`\n✨ AI 最终回复:\n${response.content}\n`);
+      return response.content;
+    }
+
+    console.log(
+      chalk.bgBlue(`🔍 检测到 ${response.tool_calls.length} 个工具调用`)
+    );
+    console.log(
+      chalk.bgBlue(
+        `🔍 工具调用: ${response.tool_calls.map((t) => t.name).join(", ")}`
+      )
+    );
+    // 执行工具调用
+    for (const toolCall of response.tool_calls) {
+      const foundTool = tools.find((t) => t.name === toolCall.name);
+      if (foundTool) {
+        const toolResult = await foundTool.invoke(toolCall.args);
+
+        // LangChain 要求 content 必须是 string，对象会导致 message.content.map is not a function
+        let contentStr;
+        if (typeof toolResult === "string") {
+          contentStr = toolResult;
+        } else if (toolResult && typeof toolResult.text === "string") {
+          contentStr = toolResult.text;
+        } else if (toolResult !== null && toolResult !== undefined) {
+          contentStr = JSON.stringify(toolResult);
+        } else {
+          contentStr = "";
+        }
+
+        messages.push(
+          new ToolMessage({
+            content: contentStr,
+            tool_call_id: toolCall.id,
+          })
+        );
+      }
+    }
+  }
+
+  return messages[messages.length - 1].content;
+}
+
+await runAgentWithTools("北京南站附近的酒店，最近的 3 个酒店，拿到酒店图片，打开浏览器，展示每个酒店的图片，每个 tab 一个 url 展示，并且在把那个页面标题改为酒店名");
+
+await mcpClient.close();
+```
