@@ -1,6 +1,6 @@
 ---
-id: aiagent04
-slug: /aiagent04
+id: aiagent05
+slug: /aiagent05
 title: 04-MCP可跨进程调用的Tool
 date: 2002-09-26
 authors: 鲸落
