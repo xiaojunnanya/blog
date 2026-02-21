@@ -1,7 +1,7 @@
 ---
 id: aiagent01
 slug: /aiagent01
-title: 01-AIAgent 开发要学什么？
+title: 01-AI Agent 开发要学什么？
 date: 2002-09-26
 authors: 鲸落
 tags: [AI]
