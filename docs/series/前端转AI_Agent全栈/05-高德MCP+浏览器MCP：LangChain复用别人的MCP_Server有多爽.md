@@ -1,7 +1,7 @@
 ---
 id: aiagent05
 slug: /aiagent05
-title: 04-MCP可跨进程调用的Tool
+title: 05-高德MCP+浏览器MCP：LangChain复用别人的MCP_Server有多爽
 date: 2002-09-26
 authors: 鲸落
 tags: [AI]
