@@ -1,14 +1,14 @@
 ---
 id: aiagent05
 slug: /aiagent05
-title: 05-高德MCP+浏览器MCP：LangChain复用别人的MCP_Server有多爽
+title: 05-高德 MCP + 浏览器 MCP：LangChain 复用别人的 MCP_Server 有多爽
 date: 2002-09-26
 authors: 鲸落
 tags: [AI]
 keywords: [AI]
 ---
 
-## 1
+## 前言
 上节我们学了 MCP。
 
 自己实现了一个 MCP Server，然后在 Cursor 或者 LangChain 里连上这个 server，就可以用里面的 tools 了。
@@ -31,7 +31,7 @@ keywords: [AI]
 
 * FileSystem MCP：读写文件、创建目录等
 
-## 2
+## 使用别的 MCP
 ### 高德 MCP
 首先是高德 MCP，我们需要先获取一个 apikey：
 
@@ -237,9 +237,10 @@ mcp 官方维护的一个 mcp server
 这样，配上这个 mcp，大模型就有文件读写能力了。
 
 不过这里还有个坑注意下：
+
 一般我们写 tool 都是直接返回字符串，但是 FileSystem MCP 封装的这些 tool 返回的是对象，有 text 属性，所以要处理下：
 
-```
+```js
 // 确保 content 是字符串类型
 let contentStr;
 let contentStr;
@@ -268,7 +269,6 @@ await runAgentWithTools(
 ```
 跑跑试试：
 ```
-
 ✨ AI 最终回复:
 The markdown file has been successfully created at `/Users/mac/jiuci/github/aiagent/src/5/hotels_near_beijing_south_station.md`. 
 

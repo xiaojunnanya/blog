@@ -1,7 +1,7 @@
 ---
 id: aiagent02
 slug: /aiagent02
-title: 02-从Tool开始：让大模型自动调工具读文件
+title: 02-从 Tool 开始：让大模型自动调工具读文件
 date: 2002-09-26
 authors: 鲸落
 tags: [AI]
@@ -273,9 +273,18 @@ AIMessage {
 
 ![image-20260206215939387](./02-从Tool开始：让大模型自动调工具读文件.assets/image-20260206215939387.png)
 
-:::info AIMessage 返回的是 additional_kwargs.tool_calls，为什么可以直接调用 response.tool_calls
+:::info 思考
+AIMessage 返回的是 additional_kwargs.tool_calls，为什么可以直接调用 response.tool_calls ？
 
-123
+因为：
+
+> ✅ response.tool_calls 是 LangChain 帮你“标准化解析后”的结果
+> 
+> ❗ additional_kwargs.tool_calls 是 模型原始返回结构
+
+实际开发中用`response.tool_calls`，不要手动去解析，因为不同模型结构可能不同，arguments 可能是字符串，LangChain 已经帮你统一好了。
+
+补充：finish_reason: "tool_calls"，表示模型已经完成，并且需要调用工具
 
 :::
 
@@ -385,7 +394,6 @@ PS C:\X\program\study\ai> node .\src\tool-file-read.mjs
 ```
 
 
-
 ## 总结
 
 我们用 tool 创建了一个工具，写一下函数，以及加下名字、描述、参数的格式（用 zod 声明）就可以了。
@@ -397,8 +405,6 @@ message 分为 SystemMessage、HumanMessage、AIMessage、ToolMessage 四种
 之后，直接问大模型某个代码的信息，它就会调用工具读取文件，然后来解答了。
 
 实现了第一个 tool 之后，你可以想一下 cursor 怎么实现，后面我们实现一个简易版 cursor！
-
-
 
 
 
@@ -506,9 +512,6 @@ while (response.tool_calls && response.tool_calls.length > 0) {
 console.log("\n[最终回复]");
 console.log(response.content);
 ```
-
-
-
 
 
 ## langchainjs
@@ -906,44 +909,3 @@ console.log(response.content);
 // 这使得我们可以在外部捕获模型的工具调用请求，执行相应的工具，并将结果反馈给模型，形成一个交互式的 Agent loop。
 // 返回的是 AIMessage 对象，包含 content（模型回复内容）和 tool_calls（模型提出的工具调用信息）。如果模型没有提出工具调用，tool_calls 将是 undefined 或空数组。（所以判断：response.tool_calls && response.tool_calls.length > 0）
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
