@@ -8,7 +8,7 @@ tags: [AI]
 keywords: [AI]
 ---
 
-## 1
+## 前言
 
 我们和大模型聊天，可以问它一些问题，它告诉你怎么做。
 
@@ -37,8 +37,6 @@ keywords: [AI]
 登录一下：https://bailian.console.aliyun.com/?tab=api#/api，然后获取APIkey
 
 然后找一个和编码有关的模型，这里我们用`qwen-coder-turbo`
-
-
 
 ### 准备
 
@@ -123,7 +121,7 @@ const readFileTool = tool(
   async ({ filePath }) => {
     const content = await fs.readFile(filePath, "utf-8");
     console.log(
-      `  [工具调用] read_file("${filePath}") - 成功读取 ${content.length} 字节`
+      `[工具调用] read_file("${filePath}") - 成功读取 ${content.length} 字节`
     );
     return `文件内容:\n${content}`;
   },
@@ -166,8 +164,6 @@ console.log(response);
 
 我们没有调用 dotenv.configure，引入了这个模块就行：`import 'dotenv/config'`
 
-
-
 然后创建一个 tool，调用 tool 的 api
 
 ```js
@@ -196,19 +192,16 @@ const readFileTool = tool(
 
 之后把这个 tool 传给大模型：`const modelWithTools = model.bindTools(tools);`
 
-
-
 具体的消息有四种：SystemMessage、HumanMessage、AIMessage、ToolMessage
 
-* **SystemMessage**：设置 AI 是谁，可以干什么，有什么能力，以及一些回答、行为的规范等
+- **SystemMessage**：设置 AI 是谁，可以干什么，有什么能力，以及一些回答、行为的规范等
 
-* **HumanMessage**：用户输入的信息
+- **HumanMessage**：用户输入的信息
 
-* **AIMessage**：AI 的回复信息
+- **AIMessage**：AI 的回复信息
 
-* **ToolMessage**：调用工具的结果返回
-
-
+- **ToolMessage**：调用工具的结果返回
+  - 一般我们会将ToolMessage添加到数组中作为上下文再次传递给 AI
 
 我们用 system message 告诉 ai，它是一个代码助手，可以读取文件并解释代码内容，给出建议
 
@@ -276,13 +269,17 @@ AIMessage {
   ],
 ```
 
-
-
 接下来我们基于这个参数调用下工具不就行了？
 
 ![image-20260206215939387](./02-从Tool开始：让大模型自动调工具读文件.assets/image-20260206215939387.png)
 
-根据 tool\_calls 的数组，分别从 tools 数组里找到对应的工具，取出来 invoke，传入大模型解析出的参数，最后把工具调用结果作为 ToolMessage 传给大模型，让它继续回答：
+:::info AIMessage 返回的是 additional_kwargs.tool_calls，为什么可以直接调用 response.tool_calls
+
+123
+
+:::
+
+根据 tool_calls 的数组，分别从 tools 数组里找到对应的工具，取出来 invoke，传入大模型解析出的参数，最后把工具调用结果作为 ToolMessage 传给大模型，让它继续回答：
 
 ![image-20260206220304217](./02-从Tool开始：让大模型自动调工具读文件.assets/image-20260206220304217.png)
 

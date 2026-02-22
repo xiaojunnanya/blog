@@ -88,7 +88,7 @@ keywords: [AI]
 
 最常用的就是 LangChain，它对这些能力封装好了各种 api，可以直接用。
 
-我在公司做 AI Agent 产品，就是基于 langchain 来开发。
+在公司做 AI Agent 产品，就是基于 langchain 来开发。
 
 它有 python 和 node 版，我们学的是 node 版。
 
@@ -165,6 +165,7 @@ LangChain 是用来开发单个 Agent 的，每个 Agent 做一件事情。
 你会明白：
 
 > Agent ≠ 一次 Prompt
+>
 >  Agent = 多轮 Prompt + 状态控制
 
 ------
@@ -314,34 +315,3 @@ LangChain 是用来开发单个 Agent 的，每个 Agent 做一件事情。
 - 自动化：CI / 审核 / 内容生成
 
 你做出来的东西会**比纯 AI 博主更值钱**。
-
-------
-
-### 十、下一步我可以继续帮你做的事
-
-你可以直接选一个 👇
- 1️⃣ 给你 **3 个月 AI Agent 学习计划**
- 2️⃣ 给你 **一个适合你简历的 Agent 项目方案**
- 3️⃣ 手把手：**从 0 写一个 Agent（Node / NestJS）**
- 4️⃣ 帮你判断：**Agent 方向是否值得 All in**
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
