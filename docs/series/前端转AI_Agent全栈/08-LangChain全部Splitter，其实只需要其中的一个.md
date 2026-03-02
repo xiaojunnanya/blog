@@ -21,7 +21,7 @@ keywords: [AI]
 
 上节跑通了这个流程，这节我们把所有的 Splitter 都过一遍
 
-## 2
+## overlap
 首先要区分 sperator 和 chunk size 的概念：
 
 比如上节我们这样分割的 Document：
@@ -42,11 +42,72 @@ const textSplitter = new RecursiveCharacterTextSplitter({
 
 注意，**overloap 只有文本超过 chunk size，文本被打断了才会加**，不是所有的块都会有 overlap
 
+:::info 解释上述的注意
+
+一、正常情况（不需要 overlap）
+
+如果原文本：
+```
+第一段300字。
+第二段200字。
+```
+总共 500 字。正好不超过 chunkSize，不需要强行截断，直接合成一个chunk。
+
+这种情况下：`chunk1 = 第一段 + 第二段`
+
+没有 overlap，因为根本没有被切断
+
+二、什么时候才会加 overlap？
+
+当出现：
+
+- 按照分隔符切完
+
+- 某一段还是 > 500
+
+- 或者多个段拼在一起超过 500，不得不“硬切一刀”
+
+这时候才会加 overlap。
+
+三、举个例子
+
+假设有一段 800 字的超长段落，而且里面没有 。！？，那就没法按句子分了，只能：
+```
+chunk1 = 前 500 字
+chunk2 = 后 500 字
+```
+这时候：`chunk2 = chunk1 的后 50 字 + 新内容`
+
+也就是：
+
+```
+chunk1: 0 - 500
+chunk2: 450 - 950
+```
+
+这里：450-500 那 50 字，就是 overlap，也就是 chunk1 的后 50 字。
+
+四、为什么不是所有块都有 overlap？
+
+很多人误解成这样：
+```
+chunk1
+chunk2 (前50字重复)
+chunk3 (前50字重复)
+```
+好像每一块都必须有 50 重叠。其实不是。只有在“被强制截断”时才会有 overlap。
+
+五、总结一句话
+
+overlap 是为了解决“硬切文本”带来的语义断裂问题，如果文本自然分割后就小于 chunkSize，就不会加 overlap
+
+:::
+
 比如上面那段话超过了 chunk size，分割到两个 chunk 里，第二个 chunk 就会按照设置重复一部分内容，保证语义的连贯性，通常设置为 chunkSize 的 10% - 20%，牺牲了一点存储空间（因为数据重复了），换取了模型对上下文理解的完整性。
 
 ![img](./08-LangChain全部Splitter，其实只需要其中的一个.assets/image-03.png)
 
-## 3
+## splitter
 
 那 langchain 都有哪些 splitter 呢？
 
@@ -54,7 +115,7 @@ const textSplitter = new RecursiveCharacterTextSplitter({
 
 ![img](./08-LangChain全部Splitter，其实只需要其中的一个.assets/image-04.png)
 
-### 3.1
+### TextSplitter
 所有的 Splitter 都继承自 TextSplitter，包括 RecursiveCharacterTextSplitter 等。
 
 而 MarkdownTextSplitter、LatexTextSplitter 又继承自 RecursiveCharacterTextSplitter。
@@ -84,7 +145,7 @@ pineapple 是 2 个 token
 
 ```js
 import { getEncodingNameForModel } from "js-tiktoken"; 
-
+// 模型名称
 const modelName = "gpt-4"; 
 const encodingName = getEncodingNameForModel(modelName);
 console.log(encodingName);
@@ -266,36 +327,6 @@ Document {
 }
 charater length: 50
 token length: 18
-mac@macdeMacBook-Air-3 aiagent % pnpm run CharacterTextSplitter-test
-
-> ai@1.0.0 CharacterTextSplitter-test /Users/mac/jiuci/github/aiagent
-> node src/8/CharacterTextSplitter-test.mjs
-
-Document {
-  pageContent: '[2024-01-15 10:00:00] INFO: Application started\n' +
-    '[2024-01-15 10:00:05] DEBUG: Loading configuration file\n' +
-    '[2024-01-15 10:00:10] INFO: Database connection established',
-  metadata: { loc: { lines: [Object] } },
-  id: undefined
-}
-charater length: 163
-token length: 58
-Document {
-  pageContent: '[2024-01-15 10:00:15] WARNING: Rate limit approaching\n' +
-    '[2024-01-15 10:00:20] ERROR: Failed to process request\n' +
-    '[2024-01-15 10:00:25] INFO: Retrying operation',
-  metadata: { loc: { lines: [Object] } },
-  id: undefined
-}
-charater length: 155
-token length: 60
-Document {
-  pageContent: '[2024-01-15 10:00:30] SUCCESS: Operation completed',
-  metadata: { loc: { lines: [Object] } },
-  id: undefined
-}
-charater length: 50
-token length: 18
 Document {
   pageContent: '[2026-01-10 14:30:00] INFO: 系统开始执行大规模数据迁移任务，本次迁移涉及核心业务数据库中的用户表、订单表、商品库存表、物流信息表、支付记录表、评论数据表等共计十二个关键业务表，预计处理数据量约500万条记录，数据总大小预估为280GB，迁移过程将采用分批次增量更新策略以减少对生产环境的影响，同时启用双写机制确保数据一致性，任务预计总耗时约3小时15分钟，迁移完成后将自动触发全面的数据一致性校验流程以及性能基准测试，请相关运维人员和DBA团队密切关注系统资源使用情况、网络带宽占用率以及任务执行进度，如遇异常情况请立即启动应急预案并通知技术负责人',
   metadata: { loc: { lines: [Object] } },
@@ -310,6 +341,167 @@ token length: 265
 CharacterTextSplitter 非常死板，你告诉它按照换行符分割，它就会严格按照这个，就算超过了 chunk size 也不拆分。
 
 所以一般还是用 RecursiveCharacterTextSplitter
+
+
+### TokenTextSplitter
+然后我们再来试一下 TokenTextSplitter：
+
+创建 src/TokenTextSplitter-test.mjs
+
+```js
+import "dotenv/config";
+import "cheerio";
+import { TokenTextSplitter } from "@langchain/textsplitters";
+import { Document } from "@langchain/core/documents";
+import { getEncoding } from "js-tiktoken";
+
+const logDocument = new Document({
+  pageContent: `[2024-01-15 10:00:00] INFO: Application started
+[2024-01-15 10:00:05] DEBUG: Loading configuration file
+[2024-01-15 10:00:10] INFO: Database connection established
+[2024-01-15 10:00:15] WARNING: Rate limit approaching
+[2024-01-15 10:00:20] ERROR: Failed to process request
+[2024-01-15 10:00:25] INFO: Retrying operation
+[2024-01-15 10:00:30] SUCCESS: Operation completed`,
+});
+
+const logTextSplitter = new TokenTextSplitter({
+  chunkSize: 50, // 每个块最多 50 个 Token
+  chunkOverlap: 10, // 块之间重叠 10 个 Token
+  encodingName: "cl100k_base", // OpenAI 使用的编码方式
+});
+
+const splitDocuments = await logTextSplitter.splitDocuments([logDocument]);
+
+// console.log(splitDocuments);
+
+const enc = getEncoding("cl100k_base");
+splitDocuments.forEach((document) => {
+  console.log(document);
+  console.log("charater length:", document.pageContent.length);
+  console.log("token length:", enc.encode(document.pageContent).length);
+});
+```
+
+用这个 splitter，然后指定下编码：`encodingName: "cl100k_base"`
+
+跑一下：
+
+```
+mac@macdeMacBook-Air-3 aiagent % pnpm run TokenTextSplitter-test             
+
+> ai@1.0.0 TokenTextSplitter-test /Users/mac/jiuci/github/aiagent
+> node src/8/TokenTextSplitter-test.mjs
+
+Document {
+  pageContent: '[2024-01-15 10:00:00] INFO: Application started\n' +
+    '[2024-01-15 10:00:05] DEBUG: Loading configuration file\n' +
+    '[2024-01-15 10:00',
+  metadata: { loc: { lines: [Object] } },
+  id: undefined
+}
+charater length: 121
+token length: 50
+Document {
+  pageContent: '2024-01-15 10:00:10] INFO: Database connection established\n' +
+    '[2024-01-15 10:00:15] WARNING: Rate limit approaching\n' +
+    '[2024-01-15 10:00',
+  metadata: { loc: { lines: [Object] } },
+  id: undefined
+}
+charater length: 130
+token length: 50
+Document {
+  pageContent: '2024-01-15 10:00:20] ERROR: Failed to process request\n' +
+    '[2024-01-15 10:00:25] INFO: Retrying operation\n' +
+    '[2024-01-15 10:',
+  metadata: { loc: { lines: [Object] } },
+  id: undefined
+}
+charater length: 116
+token length: 50
+Document {
+  pageContent: '[2024-01-15 10:00:30] SUCCESS: Operation completed',
+  metadata: { loc: { lines: [Object] } },
+  id: undefined
+}
+charater length: 50
+token length: 18
+```
+
+可以看到，它优先保证 token 正好是 50，为了这个不惜强行打断文本。当然，打断后也加了 overlap
+
+RecursiveCharacterTextSplitter 分出的 chunk 可能大于 chunk size，也可以小，优先保证语义完整，是按照分割符来分割。
+
+但是 TokenTextSplitter 不是，它会只会保证 token 数量
+
+这种不管不顾的分割显然不靠谱，不一定在什么地方就断开了。
+
+还是 RecursiveCharacterTextSplitter 那种更科学。
+
+那能不能用 RecursiveCharacterTextSplitter 的分割方式，然后按照 token 长度来设置 chunk size 呢？
+
+可以的。重写一下它的长度计算函数就可以了：
+
+```
+const enc = getEncoding("cl100k_base");
+
+const logTextSplitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 150,
+    chunkOverlap: 20,
+    separators: ['\n', '。', '，'],
+    lengthFunction: (text) => enc.encode(text).length,
+});
+```
+
+:::info 解释
+
+**lengthFunction**
+
+如果你不传 lengthFunction，RecursiveCharacterTextSplitter 默认用的是：`(text) => text.length`，按“字符个数”来计算长度
+
+现在传递了`lengthFunction: (text) => enc.encode(text).length`，算的是，这个文本会被分成多少个 token，这个时候chunkSize就变成了最后 150token，chunkOverlap 重叠 20token，而不是字符了
+
+:::
+
+现在就是按照现在的 token 数量作为分割依据了：
+```
+mac@macdeMacBook-Air-3 aiagent % pnpm run RecursiveCharacterTextSplitter-test
+
+> ai@1.0.0 RecursiveCharacterTextSplitter-test /Users/mac/jiuci/github/aiagent
+> node src/8/RecursiveCharacterTextSplitter-test.mjs
+
+Document {
+  pageContent: '[2024-01-15 10:00:00] INFO: Application started\n' +
+    '[2024-01-15 10:00:05] DEBUG: Loading configuration file\n' +
+    '[2024-01-15 10:00:10] INFO: Database connection established\n' +
+    '[2024-01-15 10:00:15] WARNING: Rate limit approaching\n' +
+    '[2024-01-15 10:00:20] ERROR: Failed to process request\n' +
+    '[2024-01-15 10:00:25] INFO: Retrying operation\n' +
+    '[2024-01-15 10:00:30] SUCCESS: Operation completed',
+  metadata: { loc: { lines: [Object] } },
+  id: undefined
+}
+charater length: 370
+token length: 138
+Document {
+  pageContent: '[2026-01-10 14:30:00] INFO: 系统开始执行大规模数据迁移任务，本次迁移涉及核心业务数据库中的用户表、订单表、商品库存表、物流信息表、支付记录表、评论数据表等共计十二个关键业务表，预计处理数据量约500万条记录，数据总大小预估为280GB，迁移过程将采用分批次增量更新策略以减少对生产环境的影响',
+  metadata: { loc: { lines: [Object] } },
+  id: undefined
+}
+charater length: 159
+token length: 135
+Document {
+  pageContent: '，同时启用双写机制确保数据一致性，任务预计总耗时约3小时15分钟，迁移完成后将自动触发全面的数据一致性校验流程以及性能基准测试，请相关运维人员和DBA团队密切关注系统资源使用情况、网络带宽占用率以及任务执行进度，如遇异常情况请立即启动应急预案并通知技术负责人',
+  metadata: { loc: { lines: [Object] } },
+  id: undefined
+}
+charater length: 129
+token length: 130
+```
+
+这样就完全不需要用 TokenTextSplitter。
+
 
 ### RecursiveCharacterTextSplitter
 
@@ -426,157 +618,7 @@ token length: 28
 
 绝大多数情况下，用这个就可以了。
 
-### TokenTextSplitter
-然后我们再来试一下 TokenTextSplitter：
-
-创建 src/TokenTextSplitter-test.mjs
-
-```js
-import "dotenv/config";
-import "cheerio";
-import { TokenTextSplitter } from "@langchain/textsplitters";
-import { Document } from "@langchain/core/documents";
-import { getEncoding } from "js-tiktoken";
-
-const logDocument = new Document({
-  pageContent: `[2024-01-15 10:00:00] INFO: Application started
-[2024-01-15 10:00:05] DEBUG: Loading configuration file
-[2024-01-15 10:00:10] INFO: Database connection established
-[2024-01-15 10:00:15] WARNING: Rate limit approaching
-[2024-01-15 10:00:20] ERROR: Failed to process request
-[2024-01-15 10:00:25] INFO: Retrying operation
-[2024-01-15 10:00:30] SUCCESS: Operation completed`,
-});
-
-const logTextSplitter = new TokenTextSplitter({
-  chunkSize: 50, // 每个块最多 50 个 Token
-  chunkOverlap: 10, // 块之间重叠 10 个 Token
-  encodingName: "cl100k_base", // OpenAI 使用的编码方式
-});
-
-const splitDocuments = await logTextSplitter.splitDocuments([logDocument]);
-
-// console.log(splitDocuments);
-
-const enc = getEncoding("cl100k_base");
-splitDocuments.forEach((document) => {
-  console.log(document);
-  console.log("charater length:", document.pageContent.length);
-  console.log("token length:", enc.encode(document.pageContent).length);
-});
-```
-
-用这个 splitter，然后指定下编码：`encodingName: "cl100k_base"`
-
-跑一下：
-
-```
-mac@macdeMacBook-Air-3 aiagent % pnpm run TokenTextSplitter-test             
-
-> ai@1.0.0 TokenTextSplitter-test /Users/mac/jiuci/github/aiagent
-> node src/8/TokenTextSplitter-test.mjs
-
-Document {
-  pageContent: '[2024-01-15 10:00:00] INFO: Application started\n' +
-    '[2024-01-15 10:00:05] DEBUG: Loading configuration file\n' +
-    '[2024-01-15 10:00',
-  metadata: { loc: { lines: [Object] } },
-  id: undefined
-}
-charater length: 121
-token length: 50
-Document {
-  pageContent: '2024-01-15 10:00:10] INFO: Database connection established\n' +
-    '[2024-01-15 10:00:15] WARNING: Rate limit approaching\n' +
-    '[2024-01-15 10:00',
-  metadata: { loc: { lines: [Object] } },
-  id: undefined
-}
-charater length: 130
-token length: 50
-Document {
-  pageContent: '2024-01-15 10:00:20] ERROR: Failed to process request\n' +
-    '[2024-01-15 10:00:25] INFO: Retrying operation\n' +
-    '[2024-01-15 10:',
-  metadata: { loc: { lines: [Object] } },
-  id: undefined
-}
-charater length: 116
-token length: 50
-Document {
-  pageContent: '[2024-01-15 10:00:30] SUCCESS: Operation completed',
-  metadata: { loc: { lines: [Object] } },
-  id: undefined
-}
-charater length: 50
-token length: 18
-```
-
-可以看到，它优先保证 token 正好是 50，为了这个不惜强行打断文本。当然，打断后也加了 overlap
-
-RecursiveCharacterTextSplitter 分出的 chunk 可能大于 chunk size，也可以小，优先保证语义完整，是按照分割符来分割。
-
-但是 TokenTextSplitter 不是，它会只会保证 token 数量
-
-这种不管不顾的分割显然不靠谱，不一定在什么地方就断开了。
-
-还是 RecursiveCharacterTextSplitter 那种更科学。
-
-那能不能用 RecursiveCharacterTextSplitter 的分割方式，然后按照 token 长度来设置 chunk size 呢？
-
-可以的。重写一下它的长度计算函数就可以了：
-
-```
-const enc = getEncoding("cl100k_base");
-
-const logTextSplitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 150,
-    chunkOverlap: 20,
-    separators: ['\n', '。', '，'],
-    lengthFunction: (text) => enc.encode(text).length,
-});
-```
-
-现在就是按照现在的 token 数量作为分割依据了：
-```
-mac@macdeMacBook-Air-3 aiagent % pnpm run RecursiveCharacterTextSplitter-test
-
-> ai@1.0.0 RecursiveCharacterTextSplitter-test /Users/mac/jiuci/github/aiagent
-> node src/8/RecursiveCharacterTextSplitter-test.mjs
-
-Document {
-  pageContent: '[2024-01-15 10:00:00] INFO: Application started\n' +
-    '[2024-01-15 10:00:05] DEBUG: Loading configuration file\n' +
-    '[2024-01-15 10:00:10] INFO: Database connection established\n' +
-    '[2024-01-15 10:00:15] WARNING: Rate limit approaching\n' +
-    '[2024-01-15 10:00:20] ERROR: Failed to process request\n' +
-    '[2024-01-15 10:00:25] INFO: Retrying operation\n' +
-    '[2024-01-15 10:00:30] SUCCESS: Operation completed',
-  metadata: { loc: { lines: [Object] } },
-  id: undefined
-}
-charater length: 370
-token length: 138
-Document {
-  pageContent: '[2026-01-10 14:30:00] INFO: 系统开始执行大规模数据迁移任务，本次迁移涉及核心业务数据库中的用户表、订单表、商品库存表、物流信息表、支付记录表、评论数据表等共计十二个关键业务表，预计处理数据量约500万条记录，数据总大小预估为280GB，迁移过程将采用分批次增量更新策略以减少对生产环境的影响',
-  metadata: { loc: { lines: [Object] } },
-  id: undefined
-}
-charater length: 159
-token length: 135
-Document {
-  pageContent: '，同时启用双写机制确保数据一致性，任务预计总耗时约3小时15分钟，迁移完成后将自动触发全面的数据一致性校验流程以及性能基准测试，请相关运维人员和DBA团队密切关注系统资源使用情况、网络带宽占用率以及任务执行进度，如遇异常情况请立即启动应急预案并通知技术负责人',
-  metadata: { loc: { lines: [Object] } },
-  id: undefined
-}
-charater length: 129
-token length: 130
-```
-
-这样就完全不需要用 TokenTextSplitter。
-
-### 1
-这样就完全不需要用 TokenTextSplitter。
+### MarkdownTextSplitter/LatexTextSplitter
 
 最后再来看一下 markdown、latex、代码的分割。
 
@@ -927,3 +969,91 @@ chunk 的实际大小可能小于 chunk size 也可以大于。
 RecursiveCharacterTextSplitter 还支持代码分割，用 fromLanguage 的静态方法，这个在处理代码文档的时候很有用。
 
 虽然这节讲了很多，但是结论很简单，就是用 RecursiveCharacterTextSplitter 就好了。
+
+## 对比
+
+- CharacterTextSplitter → 单分隔符切割
+
+- RecursiveCharacterTextSplitter → 多分隔符递归切割（智能版 Character）
+
+- TokenTextSplitter → 按 token 数量硬切
+
+### 逐个讲清楚
+#### CharacterTextSplitter
+怎么切：只认一个：`separator: "\n"`
+
+流程：
+1. 按`\n`分
+2. 拼成 `<= chunkSize`
+3. 超了就强制截断
+
+优点：
+
+- 简单
+- 可预测
+- 适合规则文本
+
+缺点
+
+- 只认一个分隔符
+- 容易破坏语义
+- 中文效果一般
+
+本质定位：单规则字符分割器
+
+#### RecursiveCharacterTextSplitter
+它是对 Character 的升级。区别就在：`separators: ["\n\n", "\n", "。", "，", " ", ""]`
+
+流程：
+1. 先按大结构分（段落）
+2. 不行按句子
+3. 不行按词
+4. 最后按字符
+
+只有最后强制切割才加 overlap。
+
+优点
+
+- 最大程度保留语义
+- 很少破坏句子
+- RAG 最优解
+
+缺点
+
+- 稍微复杂
+- 切割结果不如 Token 那么“长度绝对精准”
+
+本质定位：智能语义优先分割器
+
+#### TokenTextSplitter
+它完全不关心字符。直接：`按 token 数量切`
+
+流程：
+
+1. 编码成 token
+2. 每 chunkSize 个 token 一刀
+3. overlap 也是 token 数量
+
+优点
+
+- 精准控制上下文长度
+- 永远不会超 token 限制
+
+缺点
+
+- 完全不考虑语义边界
+- 句子可能被腰斩
+- embedding 效果差一些
+
+本质定位：长度绝对优先分割器
+
+### 核心对比表
+| 对比点          | Character    | RecursiveCharacter | Token        |
+| ------------ | ------------ | ------------------ | ------------ |
+| 继承           | TextSplitter | TextSplitter       | TextSplitter |
+| 分割单位         | 字符           | 字符（多级）             | token        |
+| 分隔符数量        | 一个           | 多个（递归）             | 不需要          |
+| 是否智能         | ❌            | ✅                  | ❌            |
+| 是否精准控制 token | ❌            | 可配 lengthFunction  | ✅            |
+| 是否保留语义       | 一般           | 很好                 | 差            |
+| 适合做 RAG      | ⭐⭐           | ⭐⭐⭐⭐⭐              | ⭐⭐⭐          |
