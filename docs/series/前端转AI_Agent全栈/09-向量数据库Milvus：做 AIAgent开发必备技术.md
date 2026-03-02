@@ -47,7 +47,7 @@ keywords: [AI]
 
 ### docker 下载
 
-本地跑 Milvus 需要安装 docker：https://www.docker.com/。
+本地跑 Milvus 需要安装 docker：https://www.docker.com/
 
 点击 do'wnload docker desktop，选择电脑的系统下载
 
@@ -69,7 +69,7 @@ mkdir milvus
 cd milvus
 ```
 
-从这里下载 milvus 的 docker compose 配置文件：https://github.com/milvus-io/milvus/releases，点击Assets，找到[milvus-standalone-docker-compose.yml](https://github.com/milvus-io/milvus/releases/download/v2.6.11/milvus-standalone-docker-compose.yml) 点击下载
+从这里下载 milvus 的 docker compose 配置文件：https://github.com/milvus-io/milvus/releases，点击Assets，找到milvus-standalone-docker-compose.yml点击下载
 
 把配置文件拿到刚才这个目录，跑一下 docker compose：`docker compose -f ./milvus-standalone-docker-compose.yml up -d`
 
