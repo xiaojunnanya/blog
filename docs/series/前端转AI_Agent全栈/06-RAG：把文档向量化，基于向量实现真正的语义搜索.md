@@ -106,10 +106,10 @@ Retriever = 检索器
 在 RAG 里的完整流程：
 
 1. 用户输入问题（prompt）
-2. 用 embedding 模型转成向量
-3. retriever 拿着这个向量
+2. 用 embedding 模型（嵌入模型）转成向量
+3. retriever（检索器） 拿着这个向量
 4. 去向量数据库做相似度搜索
-5. 找到 TopK 相似文档
+5. 找到 Top K 相似文档 （在向量数据库里，和你“问题向量”最相似的前 K 条文档/文档片段）
 6. 把这些文档拼接进 prompt
 7. 再交给 LLM 生成回答
 :::
@@ -123,6 +123,7 @@ Retriever = 检索器
 RAG 要实现语义查询，需要基于向量来做，把文档向量化存储到向量数据，查询的时候也把 Prompt 向量化，去数据库中做相似度检索，这样就可以找到语义相近的文档块。
 
 知道了什么是 RAG，安装一下用到的包：`pnpm install @langchain/classic`
+
 我们来写代码试一下：
 ```js
 import "dotenv/config";
@@ -347,13 +348,13 @@ RAG 是检索、增强、生成，会基于用户的 query 去检索知识库，
 
 我们基于 LangChain 写了 RAG 的代码：
 
-* fromDocuments api 基于 embeddings 模型把文档向量化存入数据库。
+- fromDocuments api 基于 embeddings 模型把文档向量化存入数据库。
 
-* asRetriever 指定查询相似度最大的几个文档。
+- asRetriever 指定查询相似度最大的几个文档。
 
-* similaritySearchWithScore 相似度评分
+- similaritySearchWithScore 相似度评分
 
-* retriever.invoke 来查询文档。
+- retriever.invoke 来查询文档。
 
 只要你理解了 RAG 的流程，这些 api 自然也就会用了。
 
@@ -389,7 +390,9 @@ const embeddings = new OpenAIEmbeddings({
 // 构建文档集合
 const documents = [
   new Document({
+    // pageContent：文章内容
     pageContent: `光光是一个活泼开朗的小男孩，他有一双明亮的大眼睛，总是带着灿烂的笑容。光光最喜欢的事情就是和朋友们一起玩耍，他特别擅长踢足球，每次在球场上奔跑时，就像一道阳光一样充满活力。`,
+    // 对pageContent文本的结构化信息说明，key-value形式，用户自定义
     metadata: {
       chapter: 1,
       character: "光光",
@@ -453,17 +456,15 @@ const documents = [
   }),
 ];
 
-// 构建向量数据库
-/**
- * 内部做了什么：
+/** 
+ * 构建向量数据库，内部做了什么：
  * 1. 遍历 documents
  * 2. 调用 embeddings.embedDocuments()
  * 3. 得到每个文档的向量
  * 4. 存入内存数组
+ * 
+ * 补充：MemoryVectorStore 是纯内存存储，不持久化，进程结束就消失，真实项目会用：Pinecone、Milvus、Weaviate、pgvector
  */
-
-// MemoryVectorStore 是纯内存存储，不持久化，进程结束就消失
-// 真实项目会用：Pinecone、Milvus、Weaviate、pgvector
 const vectorStore = await MemoryVectorStore.fromDocuments(
   documents,
   embeddings
