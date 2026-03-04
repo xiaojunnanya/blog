@@ -1252,30 +1252,358 @@ main();
 ### query-milvus.mjs
 
 ```js
+import "dotenv/config";
+import { MilvusClient, MetricType } from "@zilliz/milvus2-sdk-node";
+import { OpenAIEmbeddings } from "@langchain/openai";
+
+const COLLECTION_NAME = "ai_diary";
+const VECTOR_DIM = 1024;
+
+const embeddings = new OpenAIEmbeddings({
+  apiKey: process.env.OPENAI_API_KEY,
+  model: process.env.EMBEDDINGS_MODEL_NAME,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+  dimensions: VECTOR_DIM,
+});
+
+const client = new MilvusClient({
+  address: "localhost:19530",
+});
+
+async function getEmbedding(text) {
+  const result = await embeddings.embedQuery(text);
+  return result;
+}
+
+async function main() {
+  try {
+    console.log("Connecting to Milvus...");
+    await client.connectPromise;
+    console.log("✓ Connected\n");
+
+    // 向量搜索
+    console.log("Searching for similar diary entries...");
+    const query = "我想看看关于户外活动的日记";
+    console.log(`Query: "${query}"\n`);
+
+    const queryVector = await getEmbedding(query);
+    // 搜索
+    const searchResult = await client.search({
+      collection_name: COLLECTION_NAME, // 集合名
+      vector: queryVector, // 向量
+      limit: 2, // 取前 2 条最相似的
+      metric_type: MetricType.COSINE, // 相似度计算方式，这里的 type 需要和创建索引时候的 type 一致否则会报错
+      output_fields: ["id", "content", "date", "mood", "tags"], // 返回哪些字段
+    });
+    
+    console.log(`Found ${searchResult.results.length} results:\n`);
+    searchResult.results.forEach((item, index) => {
+      console.log(`${index + 1}. [Score: ${item.score.toFixed(4)}]`);
+      console.log(`   ID: ${item.id}`);
+      console.log(`   Date: ${item.date}`);
+      console.log(`   Mood: ${item.mood}`);
+      console.log(`   Tags: ${item.tags?.join(", ")}`);
+      console.log(`   Content: ${item.content}\n`);
+    });
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
+
+main();
 ```
 
 
 
 ### rag.mjs
 
+目前看是不需要解释的，都能看懂
+
 ```js
+import "dotenv/config";
+import { MilvusClient, MetricType } from "@zilliz/milvus2-sdk-node";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+
+const COLLECTION_NAME = "ai_diary";
+const VECTOR_DIM = 1024;
+
+// 初始化 OpenAI Chat 模型
+const model = new ChatOpenAI({
+  temperature: 0.7,
+  model: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+});
+
+// 初始化 Embeddings 模型
+const embeddings = new OpenAIEmbeddings({
+  apiKey: process.env.OPENAI_API_KEY,
+  model: process.env.EMBEDDINGS_MODEL_NAME,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+  dimensions: VECTOR_DIM,
+});
+
+// 初始化 Milvus 客户端
+const client = new MilvusClient({
+  address: "localhost:19530",
+});
+
+/**
+ * 获取文本的向量嵌入
+ */
+async function getEmbedding(text) {
+  const result = await embeddings.embedQuery(text);
+  return result;
+}
+
+/**
+ * 从 Milvus 中检索相关的日记条目
+ */
+async function retrieveRelevantDiaries(question, k = 2) {
+  try {
+    // 生成问题的向量
+    const queryVector = await getEmbedding(question);
+
+    // 在 Milvus 中搜索相似的日记
+    const searchResult = await client.search({
+      collection_name: COLLECTION_NAME,
+      vector: queryVector,
+      limit: k,
+      metric_type: MetricType.COSINE,
+      output_fields: ["id", "content", "date", "mood", "tags"],
+    });
+
+    return searchResult.results;
+  } catch (error) {
+    console.error("检索日记时出错:", error.message);
+    return [];
+  }
+}
+
+/**
+ * 使用 RAG 回答关于日记的问题
+ */
+async function answerDiaryQuestion(question, k = 2) {
+  try {
+    console.log("=".repeat(80));
+    console.log(`问题: ${question}`);
+    console.log("=".repeat(80));
+
+    // 1. 检索相关日记
+    console.log("\n【检索相关日记】");
+    const retrievedDiaries = await retrieveRelevantDiaries(question, k);
+
+    if (retrievedDiaries.length === 0) {
+      console.log("未找到相关日记");
+      return "抱歉，我没有找到相关的日记内容。";
+    }
+
+    // 2. 打印检索到的日记及相似度
+    retrievedDiaries.forEach((diary, i) => {
+      console.log(`\n[日记 ${i + 1}] 相似度: ${diary.score.toFixed(4)}`);
+      console.log(`日期: ${diary.date}`);
+      console.log(`心情: ${diary.mood}`);
+      console.log(`标签: ${diary.tags?.join(", ")}`);
+      console.log(`内容: ${diary.content}`);
+    });
+
+    // 3. 构建上下文
+    const context = retrievedDiaries
+      .map((diary, i) => {
+        return `[日记 ${i + 1}]
+日期: ${diary.date}
+心情: ${diary.mood}
+标签: ${diary.tags?.join(", ")}
+内容: ${diary.content}`;
+      })
+      .join("\n\n━━━━━\n\n");
+
+    // 4. 构建 prompt
+    const prompt = `你是一个温暖贴心的 AI 日记助手。基于用户的日记内容回答问题，用亲切自然的语言。
+
+请根据以下日记内容回答问题：
+${context}
+
+用户问题: ${question}
+
+回答要求：
+1. 如果日记中有相关信息，请结合日记内容给出详细、温暖的回答
+2. 可以总结多篇日记的内容，找出共同点或趋势
+3. 如果日记中没有相关信息，请温和地告知用户
+4. 用第一人称"你"来称呼日记的作者
+5. 回答要有同理心，让用户感到被理解和关心
+
+AI 助手的回答:`;
+
+    // 5. 调用 LLM 生成回答
+    console.log("\n【AI 回答】");
+    const response = await model.invoke(prompt);
+    console.log(response.content);
+    console.log("\n");
+
+    return response.content;
+  } catch (error) {
+    console.error("回答问题时出错:", error.message);
+    return "抱歉，处理您的问题时出现了错误。";
+  }
+}
+
+async function main() {
+  try {
+    console.log("连接到 Milvus...");
+    await client.connectPromise;
+    console.log("✓ 已连接\n");
+
+    await answerDiaryQuestion("几个人去爬山了", 2);
+  } catch (error) {
+    console.error("错误:", error.message);
+  }
+}
+
+main();
 ```
 
 
 
 ### update-milvus.mjs
 
+不解释
+
 ```js
+import "dotenv/config";
+import { MilvusClient } from "@zilliz/milvus2-sdk-node";
+import { OpenAIEmbeddings } from "@langchain/openai";
+
+const COLLECTION_NAME = "ai_diary";
+const VECTOR_DIM = 1024;
+
+const embeddings = new OpenAIEmbeddings({
+  apiKey: process.env.OPENAI_API_KEY,
+  model: process.env.EMBEDDINGS_MODEL_NAME,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+  dimensions: VECTOR_DIM,
+});
+
+const client = new MilvusClient({
+  address: "localhost:19530",
+});
+
+async function getEmbedding(text) {
+  const result = await embeddings.embedQuery(text);
+  return result;
+}
+
+async function main() {
+  try {
+    console.log("Connecting to Milvus...");
+    await client.connectPromise;
+    console.log("✓ Connected\n");
+
+    // 更新数据（Milvus 通过 upsert 实现更新）
+    console.log("Updating diary entry...");
+    const updateId = "diary_001";
+    const updatedContent = {
+      id: updateId,
+      content:
+        "今天下了一整天的雨，心情很糟糕。工作上遇到了很多困难，感觉压力很大。一个人在家，感觉特别孤独。",
+      date: "2026-01-10",
+      mood: "sad",
+      tags: ["生活", "散步", "朋友"],
+    };
+
+    console.log("Generating new embedding...");
+    const vector = await getEmbedding(updatedContent.content);
+    const updateData = { ...updatedContent, vector };
+
+    const result = await client.upsert({
+      collection_name: COLLECTION_NAME,
+      data: [updateData],
+    });
+
+    console.log(`✓ Updated diary entry: ${updateId}`);
+    console.log(`  New content: ${updatedContent.content}`);
+    console.log(`  New mood: ${updatedContent.mood}`);
+    console.log(`  New tags: ${updatedContent.tags.join(", ")}\n`);
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
+
+main();
 ```
 
 
 
 ### delete-milvus.mjs
 
+不解释
+
 ```js
+import "dotenv/config";
+import { MilvusClient } from "@zilliz/milvus2-sdk-node";
+
+const COLLECTION_NAME = "ai_diary";
+
+const client = new MilvusClient({
+  address: "localhost:19530",
+});
+
+async function main() {
+  try {
+    console.log("Connecting to Milvus...");
+    await client.connectPromise;
+    console.log("✓ Connected\n");
+
+    // 删除单条数据
+    console.log("Deleting diary entry...");
+    const deleteId = "diary_005";
+
+    const result = await client.delete({
+      collection_name: COLLECTION_NAME,
+      filter: `id == "${deleteId}"`,
+    });
+
+    console.log(`✓ Deleted ${result.delete_cnt} record(s)`);
+    console.log(`  ID: ${deleteId}\n`);
+
+    // 批量删除
+    console.log("Batch deleting diary entries...");
+    const deleteIds = ["diary_002", "diary_003"];
+    const idsStr = deleteIds.map((id) => `"${id}"`).join(", ");
+
+    const batchResult = await client.delete({
+      collection_name: COLLECTION_NAME,
+      filter: `id in [${idsStr}]`,
+    });
+
+    console.log(`✓ Batch deleted ${batchResult.delete_cnt} record(s)`);
+    console.log(`  IDs: ${deleteIds.join(", ")}\n`);
+
+    // 条件删除
+    console.log("Deleting by condition...");
+    const conditionResult = await client.delete({
+      collection_name: COLLECTION_NAME,
+      filter: `mood == "sad"`,
+    });
+
+    console.log(
+      `✓ Deleted ${conditionResult.delete_cnt} record(s) with mood="sad"\n`
+    );
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
+
+main();
 ```
-
-
 
 
 
@@ -1348,16 +1676,6 @@ await client.flushSync({
 - 新插入的数据会慢慢被索引
 - 或触发自动 rebuild
 - 性能没那么好
-
-
-
-### client.createIndex
-
-#### index_type
-
-#### params
-
-
 
 
 
