@@ -1513,9 +1513,1049 @@ memory 有三种管理策略：截断、总结、检索
 
 
 
+## 代码解释
+
+### history-test.mjs
+
+```js
+import "dotenv/config";
+import { ChatOpenAI } from "@langchain/openai";
+import { InMemoryChatMessageHistory } from "@langchain/core/chat_history";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+
+const model = new ChatOpenAI({
+  modelName: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  temperature: 0,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+});
+
+// 演示 LangChain 如何用内存保存对话历史，实现多轮对话
+async function inMemoryDemo() {
+  // 创建一个内存中的对话历史记录器，即把对话历史存在内存里
+  const history = new InMemoryChatMessageHistory();
+
+  // 系统提示词
+  const systemMessage = new SystemMessage(
+    "你是一个友好、幽默的做菜助手，喜欢分享美食和烹饪技巧。"
+  );
+
+  // 第一轮对话
+  console.log("[第一轮对话]");
+  const userMessage1 = new HumanMessage("你今天吃的什么？");
+  await history.addMessage(userMessage1);
+
+  const messages1 = [systemMessage, ...(await history.getMessages())];
+  const response1 = await model.invoke(messages1);
+  await history.addMessage(response1);
+
+  console.log(`用户: ${userMessage1.content}`);
+  console.log(`助手: ${response1.content}\n`);
+
+  // 第二轮对话（基于历史记录）
+  console.log("[第二轮对话 - 基于历史记录]");
+  const userMessage2 = new HumanMessage("好吃吗？");
+  await history.addMessage(userMessage2);
+
+  const messages2 = [systemMessage, ...(await history.getMessages())];
+  const response2 = await model.invoke(messages2);
+  await history.addMessage(response2);
+
+  console.log(`用户: ${userMessage2.content}`);
+  console.log(`助手: ${response2.content}\n`);
+
+  // 展示所有历史消息
+  console.log("[历史消息记录]");
+  const allMessages = await history.getMessages();
+  console.log(`共保存了 ${allMessages.length} 条消息：`);
+  allMessages.forEach((msg, index) => {
+    const type = msg.type;
+    const prefix = type === "human" ? "用户" : "助手";
+    console.log(
+      `  ${index + 1}. [${prefix}]: ${msg.content.substring(0, 50)}...`
+    );
+  });
+}
+
+// 运行，如果报错打印
+inMemoryDemo().catch(console.error);
+```
 
 
 
+### history-test2.mjs
+
+```js
+import "dotenv/config";
+import { ChatOpenAI } from "@langchain/openai";
+import { FileSystemChatMessageHistory } from "@langchain/community/stores/message/file_system";
+import {
+  HumanMessage,
+  AIMessage,
+  SystemMessage,
+} from "@langchain/core/messages";
+import path from "node:path";
+
+const model = new ChatOpenAI({
+  modelName: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  temperature: 0,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+});
+
+async function fileHistoryDemo() {
+  // 指定存储文件的路径
+  const filePath = path.join(process.cwd(), "chat_history.json");
+  // 会话ID，每个用户一个会话
+  const sessionId = "user_session_001";
+
+  // 系统提示词
+  const systemMessage = new SystemMessage(
+    "你是一个友好的做菜助手，喜欢分享美食和烹饪技巧。"
+  );
+
+  console.log("[第一轮对话]");
+  // 创建文件系统对话历史记录器，存在文件里，InMemoryChatMessageHistory是存在内存里
+  const history = new FileSystemChatMessageHistory({
+    filePath: filePath,
+    sessionId: sessionId,
+  });
+
+  const userMessage1 = new HumanMessage("红烧肉怎么做");
+  await history.addMessage(userMessage1);
+
+  const messages1 = [systemMessage, ...(await history.getMessages())];
+  const response1 = await model.invoke(messages1);
+  await history.addMessage(response1);
+
+  console.log(`用户: ${userMessage1.content}`);
+  console.log(`助手: ${response1.content}`);
+  console.log(`✓ 对话已保存到文件: ${filePath}\n`);
+
+  console.log("[第二轮对话]");
+  const userMessage2 = new HumanMessage("好吃吗？");
+  await history.addMessage(userMessage2);
+
+  const messages2 = [systemMessage, ...(await history.getMessages())];
+  const response2 = await model.invoke(messages2);
+  await history.addMessage(response2);
+
+  console.log(`用户: ${userMessage2.content}`);
+  console.log(`助手: ${response2.content}`);
+  console.log(`✓ 对话已更新到文件\n`);
+}
+
+fileHistoryDemo().catch(console.error);
+```
+
+
+
+### history-test3.mjs
+
+```js
+import "dotenv/config";
+import { ChatOpenAI } from "@langchain/openai";
+import { FileSystemChatMessageHistory } from "@langchain/community/stores/message/file_system";
+import {
+  HumanMessage,
+  AIMessage,
+  SystemMessage,
+} from "@langchain/core/messages";
+import path from "node:path";
+
+const model = new ChatOpenAI({
+  modelName: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  temperature: 0,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+});
+
+async function fileHistoryDemo() {
+  // 指定存储文件的路径
+  const filePath = path.join(process.cwd(), "chat_history.json");
+  const sessionId = "user_session_001";
+
+  // 系统提示词
+  const systemMessage = new SystemMessage(
+    "你是一个友好、幽默的做菜助手，喜欢分享美食和烹饪技巧。"
+  );
+
+  const restoredHistory = new FileSystemChatMessageHistory({
+    filePath: filePath,
+    sessionId: sessionId,
+  });
+
+  // 从文件中恢复历史消息，添加是 addMessage
+  const restoredMessages = await restoredHistory.getMessages();
+  console.log(`从文件恢复了 ${restoredMessages.length} 条历史消息：`);
+  restoredMessages.forEach((msg, index) => {
+    const type = msg.type;
+    const prefix = type === "human" ? "用户" : "助手";
+    console.log(
+      `  ${index + 1}. [${prefix}]: ${msg.content.substring(0, 50)}...`
+    );
+  });
+
+  console.log("[第三轮对话]");
+  const userMessage3 = new HumanMessage("需要哪些食材？");
+  await restoredHistory.addMessage(userMessage3);
+
+  const messages3 = [systemMessage, ...(await restoredHistory.getMessages())];
+  const response3 = await model.invoke(messages3);
+  await restoredHistory.addMessage(response3);
+
+  console.log(`用户: ${userMessage3.content}`);
+  console.log(`助手: ${response3.content}`);
+  console.log(`✓ 对话已保存到文件\n`);
+}
+
+fileHistoryDemo().catch(console.error);
+```
+
+
+
+### truncation-memory.mjs
+
+```js
+import { InMemoryChatMessageHistory } from "@langchain/core/chat_history";
+import {
+  HumanMessage,
+  AIMessage,
+  trimMessages,
+} from "@langchain/core/messages";
+import { getEncoding } from "js-tiktoken";
+
+// ========== 1. 按消息数量截断 ==========
+async function messageCountTruncation() {
+  const history = new InMemoryChatMessageHistory();
+  const maxMessages = 4;
+
+  const messages = [
+    { type: "human", content: "我叫张三" },
+    { type: "ai", content: "你好张三，很高兴认识你！" },
+    { type: "human", content: "我今年25岁" },
+    { type: "ai", content: "25岁正是青春年华，有什么我可以帮助你的吗？" },
+    { type: "human", content: "我喜欢编程" },
+    { type: "ai", content: "编程很有趣！你主要用什么语言？" },
+    { type: "human", content: "我住在北京" },
+    { type: "ai", content: "北京是个很棒的城市！" },
+    { type: "human", content: "我的职业是软件工程师" },
+    { type: "ai", content: "软件工程师是个很有前景的职业！" },
+  ];
+
+  // 添加所有消息
+  for (const msg of messages) {
+    if (msg.type === "human") {
+      await history.addMessage(new HumanMessage(msg.content));
+    } else {
+      await history.addMessage(new AIMessage(msg.content));
+    }
+  }
+
+  let allMessages = await history.getMessages();
+
+  // 按消息数量截断：保留最近 maxMessages 条消息
+  const trimmedMessages = allMessages.slice(-maxMessages);
+
+  console.log(`保留消息数量: ${trimmedMessages.length}`);
+  console.log(
+    "保留的消息:",
+    trimmedMessages
+      .map((m) => `${m.constructor.name}: ${m.content}`)
+      .join("\n  ")
+  );
+}
+
+// 计算消息数组的总 token 数量
+function countTokens(messages, encoder) {
+  let total = 0;
+  for (const msg of messages) {
+    const content =
+      typeof msg.content === "string"
+        ? msg.content
+        : JSON.stringify(msg.content);
+        // encoder 相等于 etEncoding("cl100k_base");
+    total += encoder.encode(content).length;
+  }
+  return total;
+}
+
+// ========== 2. 按 token 数量截断（使用 js-tiktoken 计数） ==========
+async function tokenCountTruncation() {
+  const history = new InMemoryChatMessageHistory();
+  const maxTokens = 100; // 限制最多 100 个 token
+
+  const enc = getEncoding("cl100k_base");
+
+  const messages = [
+    { type: "human", content: "我叫李四" },
+    { type: "ai", content: "你好李四，很高兴认识你！" },
+    { type: "human", content: "我是一名设计师" },
+    {
+      type: "ai",
+      content: "设计师是个很有创造力的职业！你主要做什么类型的设计？",
+    },
+    { type: "human", content: "我喜欢艺术和音乐" },
+    { type: "ai", content: "艺术和音乐都是很好的爱好，它们能激发创作灵感。" },
+    { type: "human", content: "我擅长 UI/UX 设计" },
+    { type: "ai", content: "UI/UX 设计非常重要，好的用户体验能让产品更成功！" },
+  ];
+
+  // 添加所有消息
+  for (const msg of messages) {
+    if (msg.type === "human") {
+      await history.addMessage(new HumanMessage(msg.content));
+    } else {
+      await history.addMessage(new AIMessage(msg.content));
+    }
+  }
+
+  let allMessages = await history.getMessages();
+
+  // trimMessages 是 LangChain 的工具，可以灵活截断消息数组
+  const trimmedMessages = await trimMessages(allMessages, {
+    maxTokens: maxTokens,
+    tokenCounter: async (msgs) => countTokens(msgs, enc),
+    strategy: "last", // 保留最近的消息
+  });
+
+  // 计算实际 token 数用于显示，trimmedMessages就是按照maxTokens计算后的消息数据
+  const totalTokens = countTokens(trimmedMessages, enc);
+
+  console.log(`总 token 数: ${totalTokens}/${maxTokens}`);
+  console.log(`保留消息数量: ${trimmedMessages.length}`);
+  console.log(
+    "保留的消息:",
+    trimmedMessages
+      .map((m) => {
+        const content =
+          typeof m.content === "string" ? m.content : JSON.stringify(m.content);
+        const tokens = enc.encode(content).length;
+        return `${m.constructor.name} (${tokens} tokens): ${content}`;
+      })
+      .join("\n  ")
+  );
+}
+
+async function runAll() {
+  await messageCountTruncation();
+  await tokenCountTruncation();
+}
+
+runAll().catch(console.error);
+```
+
+
+
+### summarization-memory.mjs
+
+```js
+import "dotenv/config";
+import { ChatOpenAI } from "@langchain/openai";
+import { InMemoryChatMessageHistory } from "@langchain/core/chat_history";
+import {
+  HumanMessage,
+  SystemMessage,
+  AIMessage,
+  getBufferString,
+} from "@langchain/core/messages";
+
+const model = new ChatOpenAI({
+  modelName: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  temperature: 0,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+});
+
+// ========== 总结策略演示 ==========
+async function summarizationMemoryDemo() {
+  // 内存中存储历史消息
+  const history = new InMemoryChatMessageHistory();
+  const maxMessages = 6; // 超过 6 条消息时触发总结
+
+  const messages = [
+    { type: "human", content: "我想学做红烧肉，你能教我吗？" },
+    {
+      type: "ai",
+      content:
+        "当然可以！红烧肉是一道经典的中式菜肴。首先需要准备五花肉、冰糖、生抽、老抽、料酒等材料。",
+    },
+    { type: "human", content: "五花肉需要切多大块？" },
+    {
+      type: "ai",
+      content:
+        "建议切成3-4厘米见方的块，这样既容易入味，口感也更好。切好后可以用开水焯一下去除血沫。",
+    },
+    { type: "human", content: "炒糖色的时候有什么技巧吗？" },
+    {
+      type: "ai",
+      content:
+        "炒糖色是关键步骤。用小火慢慢炒，等冰糖完全融化变成焦糖色，冒小泡时就可以下肉了。注意不要炒过头，否则会发苦。",
+    },
+    { type: "human", content: "需要炖多长时间？" },
+    {
+      type: "ai",
+      content:
+        "一般需要炖40-60分钟，用小火慢炖，直到肉变得软糯入味。可以用筷子戳一下，能轻松戳透就说明好了。",
+    },
+    { type: "human", content: "最后收汁的时候要注意什么？" },
+    {
+      type: "ai",
+      content:
+        "收汁时要用大火，不断翻动，让汤汁均匀包裹在肉块上。看到汤汁变得浓稠，颜色红亮就可以出锅了。",
+    },
+  ];
+
+  // 添加所有消息
+  for (const msg of messages) {
+    if (msg.type === "human") {
+      await history.addMessage(new HumanMessage(msg.content));
+    } else {
+      await history.addMessage(new AIMessage(msg.content));
+    }
+  }
+
+  let allMessages = await history.getMessages();
+
+  console.log(`原始消息数量: ${allMessages.length}`);
+  console.log(
+    "原始消息:",
+    allMessages.map((m) => `${m.constructor.name}: ${m.content}`).join("\n  ")
+  );
+
+  // 如果消息过多，触发总结
+  if (allMessages.length >= maxMessages) {
+    const keepRecent = 2; // 保留最近 2 条消息
+
+    // 分离要保留的消息和要总结的消息
+    const recentMessages = allMessages.slice(-keepRecent);
+    const messagesToSummarize = allMessages.slice(0, -keepRecent);
+
+    console.log("\n💡 历史消息过多，开始总结...");
+    console.log(`📝 将被总结的消息数量: ${messagesToSummarize.length}`);
+    console.log(`📝 将被保留的消息数量: ${recentMessages.length}`);
+
+    // 总结将被丢弃的旧消息
+    const summary = await summarizeHistory(messagesToSummarize);
+
+    // 清空历史消息，只保留最近的消息
+    await history.clear();
+    for (const msg of recentMessages) {
+      await history.addMessage(msg);
+    }
+
+    console.log(`\n保留消息数量: ${recentMessages.length}`);
+    console.log(
+      "保留的消息:",
+      recentMessages
+        .map((m) => `${m.constructor.name}: ${m.content}`)
+        .join("\n  ")
+    );
+    console.log(`\n总结内容（不包含保留的消息）: ${summary}`);
+  } else {
+    console.log("\n消息数量未超过阈值，无需总结");
+  }
+}
+
+summarizationMemoryDemo().catch(console.error);
+
+// 总结历史对话的函数
+async function summarizeHistory(messages) {
+  if (messages.length === 0) return "";
+
+  const conversationText = getBufferString(messages, {
+    humanPrefix: "用户",
+    aiPrefix: "助手",
+  });
+
+  const summaryPrompt = `请总结以下对话的核心内容，保留重要信息：
+
+${conversationText}
+
+总结：`;
+
+  // API 要求消息列表不能只有 system 消息，必须至少包含一条 user 或 assistant 消息
+  const summaryResponse = await model.invoke([
+    new SystemMessage(
+      "你是一个对话总结助手，请根据用户提供的对话内容进行简洁总结。"
+    ),
+    new HumanMessage(summaryPrompt),
+  ]);
+  return summaryResponse.content;
+}
+```
+
+
+
+:::info 解释 `getBufferString`
+
+```js
+const conversationText = getBufferString(messages, {
+  humanPrefix: "用户", // 给用户消息加的前缀，这里是 "用户"。
+  aiPrefix: "助手", // 给 AI 消息加的前缀，这里是 "助手"。
+});
+```
+
+这一行代码是对**多条消息数组**进行处理，把它拼成一个**连续可读的文本块**，通常用于生成摘要或作为 prompt 输入给模型
+
+
+
+**举例**
+
+假设 message 内容如下：
+
+```json
+[
+  new HumanMessage("我想学做红烧肉"),
+  new AIMessage("当然可以！红烧肉是一道经典菜肴。"),
+  new HumanMessage("需要切多大块？"),
+  new AIMessage("建议切3-4厘米见方...")
+]
+```
+
+调用`getBufferString`后
+
+```js
+用户: 我想学做红烧肉
+助手: 当然可以！红烧肉是一道经典菜肴。
+用户: 需要切多大块？
+助手: 建议切3-4厘米见方...
+```
+
+- 每条消息前面都加了角色前缀。
+- 消息按时间顺序排列。
+- 生成的字符串可以直接用于 **prompt 提示模型**，比如总结或生成回复。
+
+
+
+**使用场景**
+
+1. **对话总结**：将历史消息拼成文本，交给模型生成 summary。
+2. **上下文拼接**：给模型提供完整上下文，生成连续回复。
+3. **日志/导出**：保存为可读文本，方便分析用户行为或调试
+
+
+
+总结一句话：`getBufferString` 就是把“消息数组 → 角色标注 + 连续文本”，为模型生成摘要或回复提供干净、可读的上下文。
+
+:::
+
+
+
+### summarization-memory2.mjs
+
+```js
+import "dotenv/config";
+import { ChatOpenAI } from "@langchain/openai";
+import { InMemoryChatMessageHistory } from "@langchain/core/chat_history";
+import {
+  HumanMessage,
+  SystemMessage,
+  AIMessage,
+  getBufferString,
+} from "@langchain/core/messages";
+import { getEncoding } from "js-tiktoken";
+
+const model = new ChatOpenAI({
+  modelName: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  temperature: 0,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+});
+
+// 计算消息数组的总 token 数量
+function countTokens(messages, encoder) {
+  let total = 0;
+  for (const msg of messages) {
+    const content =
+      typeof msg.content === "string"
+        ? msg.content
+        : JSON.stringify(msg.content);
+    total += encoder.encode(content).length;
+  }
+  return total;
+}
+
+// ========== 总结策略演示（基于 token 计数） ==========
+async function summarizationMemoryDemo() {
+  const history = new InMemoryChatMessageHistory();
+  const maxTokens = 200; // 超过 200 个 token 时触发总结
+  const keepRecentTokens = 80; // 保留最近消息的 token 数量（约占总数的 40%）
+
+  const enc = getEncoding("cl100k_base");
+
+  const messages = [
+    { type: "human", content: "我想学做红烧肉，你能教我吗？" },
+    {
+      type: "ai",
+      content:
+        "当然可以！红烧肉是一道经典的中式菜肴。首先需要准备五花肉、冰糖、生抽、老抽、料酒等材料。",
+    },
+    { type: "human", content: "五花肉需要切多大块？" },
+    {
+      type: "ai",
+      content:
+        "建议切成3-4厘米见方的块，这样既容易入味，口感也更好。切好后可以用开水焯一下去除血沫。",
+    },
+    { type: "human", content: "炒糖色的时候有什么技巧吗？" },
+    {
+      type: "ai",
+      content:
+        "炒糖色是关键步骤。用小火慢慢炒，等冰糖完全融化变成焦糖色，冒小泡时就可以下肉了。注意不要炒过头，否则会发苦。",
+    },
+    { type: "human", content: "需要炖多长时间？" },
+    {
+      type: "ai",
+      content:
+        "一般需要炖40-60分钟，用小火慢炖，直到肉变得软糯入味。可以用筷子戳一下，能轻松戳透就说明好了。",
+    },
+    { type: "human", content: "最后收汁的时候要注意什么？" },
+    {
+      type: "ai",
+      content:
+        "收汁时要用大火，不断翻动，让汤汁均匀包裹在肉块上。看到汤汁变得浓稠，颜色红亮就可以出锅了。",
+    },
+  ];
+
+  // 添加所有消息
+  for (const msg of messages) {
+    if (msg.type === "human") {
+      await history.addMessage(new HumanMessage(msg.content));
+    } else {
+      await history.addMessage(new AIMessage(msg.content));
+    }
+  }
+
+  let allMessages = await history.getMessages();
+
+  const totalTokens = countTokens(allMessages, enc);
+
+  // 如果 token 数超过阈值，触发总结
+  if (totalTokens >= maxTokens) {
+    // 从后往前累加消息，保留最近的消息直到达到 keepRecentTokens
+    const recentMessages = [];
+    let recentTokens = 0;
+
+    for (let i = allMessages.length - 1; i >= 0; i--) {
+      const msg = allMessages[i];
+      const content =
+        typeof msg.content === "string"
+          ? msg.content
+          : JSON.stringify(msg.content);
+      const msgTokens = enc.encode(content).length;
+
+      if (recentTokens + msgTokens <= keepRecentTokens) {
+        recentMessages.unshift(msg);
+        recentTokens += msgTokens;
+      } else {
+        break;
+      }
+    }
+
+    const messagesToSummarize = allMessages.slice(
+      0,
+      allMessages.length - recentMessages.length
+    );
+    const summarizeTokens = countTokens(messagesToSummarize, enc);
+
+    console.log("\n💡 Token 数量超过阈值，开始总结...");
+    console.log(
+      `📝 将被总结的消息数量: ${messagesToSummarize.length} (${summarizeTokens} tokens)`
+    );
+    console.log(
+      `📝 将被保留的消息数量: ${recentMessages.length} (${recentTokens} tokens)`
+    );
+
+    // 总结将被丢弃的旧消息
+    const summary = await summarizeHistory(messagesToSummarize);
+
+    // 清空历史消息，只保留最近的消息
+    await history.clear();
+    for (const msg of recentMessages) {
+      await history.addMessage(msg);
+    }
+
+    console.log(`\n保留消息数量: ${recentMessages.length}`);
+    console.log(
+      "保留的消息:",
+      recentMessages
+        .map((m) => {
+          const content =
+            typeof m.content === "string"
+              ? m.content
+              : JSON.stringify(m.content);
+          const tokens = enc.encode(content).length;
+          return `${m.constructor.name} (${tokens} tokens): ${m.content}`;
+        })
+        .join("\n  ")
+    );
+    console.log(`\n总结内容（不包含保留的消息）: ${summary}`);
+  } else {
+    console.log(
+      `\nToken 数量 (${totalTokens}) 未超过阈值 (${maxTokens})，无需总结`
+    );
+  }
+}
+
+summarizationMemoryDemo().catch(console.error);
+
+// 总结历史对话的函数
+async function summarizeHistory(messages) {
+  if (messages.length === 0) return "";
+
+  const conversationText = getBufferString(messages, {
+    humanPrefix: "用户",
+    aiPrefix: "助手",
+  });
+
+  const summaryPrompt = `请总结以下对话的核心内容，保留重要信息：
+
+${conversationText}
+
+总结：`;
+
+  // API 要求消息列表不能只有 system 消息，必须至少包含一条 user 或 assistant 消息
+  const summaryResponse = await model.invoke([
+    new SystemMessage(
+      "你是一个对话总结助手，请根据用户提供的对话内容进行简洁总结。"
+    ),
+    new HumanMessage(summaryPrompt),
+  ]);
+  return summaryResponse.content;
+}
+```
+
+
+
+### insert-conversations.mjs
+
+```js
+import "dotenv/config";
+import {
+  MilvusClient,
+  DataType,
+  MetricType,
+  IndexType,
+} from "@zilliz/milvus2-sdk-node";
+import { OpenAIEmbeddings } from "@langchain/openai";
+
+const COLLECTION_NAME = "conversations";
+const VECTOR_DIM = 1024;
+
+const embeddings = new OpenAIEmbeddings({
+  apiKey: process.env.OPENAI_API_KEY,
+  model: "text-embedding-v3",
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+  dimensions: VECTOR_DIM,
+});
+
+const client = new MilvusClient({
+  address: "localhost:19530",
+});
+
+/**
+ * 获取文本的向量嵌入
+ */
+async function getEmbedding(text) {
+  const result = await embeddings.embedQuery(text);
+  return result;
+}
+
+async function main() {
+  try {
+    console.log("连接到 Milvus...");
+    await client.connectPromise;
+    console.log("✓ 已连接\n");
+
+    // 创建集合
+    console.log("创建集合...");
+    await client.createCollection({
+      collection_name: COLLECTION_NAME,
+      fields: [
+        {
+          name: "id",
+          data_type: DataType.VarChar,
+          max_length: 50,
+          is_primary_key: true,
+        },
+        { name: "vector", data_type: DataType.FloatVector, dim: VECTOR_DIM },
+        { name: "content", data_type: DataType.VarChar, max_length: 5000 },
+        { name: "round", data_type: DataType.Int64 },
+        { name: "timestamp", data_type: DataType.VarChar, max_length: 100 },
+      ],
+    });
+    console.log("✓ 集合已创建");
+
+    // 创建索引
+    console.log("\n创建索引...");
+    await client.createIndex({
+      collection_name: COLLECTION_NAME,
+      field_name: "vector",
+      index_type: IndexType.IVF_FLAT,
+      metric_type: MetricType.COSINE,
+    });
+    console.log("✓ 索引已创建");
+
+    // 加载集合
+    console.log("\n加载集合...");
+    await client.loadCollection({ collection_name: COLLECTION_NAME });
+    console.log("✓ 集合已加载");
+
+    // 插入对话数据
+    console.log("\n插入对话数据...");
+    const conversations = [
+      {
+        id: "conv_001",
+        content:
+          "用户: 我叫赵六，是一名数据科学家\n助手: 很高兴认识你，赵六！数据科学是一个很有趣的领域。",
+        round: 1,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "conv_002",
+        content:
+          "用户: 我最近在研究机器学习算法\n助手: 机器学习确实很有意思，你在研究哪些算法呢？",
+        round: 2,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "conv_003",
+        content:
+          "用户: 我喜欢打篮球和看电影\n助手: 运动和文化娱乐都是很好的爱好！",
+        round: 3,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "conv_004",
+        content: "用户: 我周末经常去电影院\n助手: 看电影是很好的放松方式。",
+        round: 4,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "conv_005",
+        content:
+          "用户: 我的职业是软件工程师\n助手: 软件工程师是个很有前景的职业！",
+        round: 5,
+        timestamp: new Date().toISOString(),
+      },
+    ];
+
+    console.log("生成向量嵌入...");
+    const conversationData = await Promise.all(
+      conversations.map(async (conv) => ({
+        ...conv,
+        vector: await getEmbedding(conv.content),
+      }))
+    );
+
+    const insertResult = await client.insert({
+      collection_name: COLLECTION_NAME,
+      data: conversationData,
+    });
+    console.log(`✓ 已插入 ${insertResult.insert_cnt} 条记录\n`);
+
+    console.log("=".repeat(60));
+    console.log("说明：已成功将对话数据插入到 Milvus 向量数据库");
+    console.log("这些对话数据将用于后续的 RAG 检索");
+    console.log("=".repeat(60) + "\n");
+  } catch (error) {
+    console.error("错误:", error.message);
+  }
+}
+
+main();
+```
+
+
+
+### retrieval-memory.mjs
+
+```js
+import "dotenv/config";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { InMemoryChatMessageHistory } from "@langchain/core/chat_history";
+import { MilvusClient, MetricType } from "@zilliz/milvus2-sdk-node";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+
+const COLLECTION_NAME = "conversations";
+const VECTOR_DIM = 1024;
+
+// 初始化 OpenAI Chat 模型
+const model = new ChatOpenAI({
+  modelName: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  temperature: 0,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+});
+
+// 初始化 Embeddings 模型
+const embeddings = new OpenAIEmbeddings({
+  apiKey: process.env.OPENAI_API_KEY,
+  model: "text-embedding-v3",
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+  dimensions: VECTOR_DIM,
+});
+
+// 初始化 Milvus 客户端
+const client = new MilvusClient({
+  address: "localhost:19530",
+});
+
+/**
+ * 获取文本的向量嵌入
+ */
+async function getEmbedding(text) {
+  const result = await embeddings.embedQuery(text);
+  return result;
+}
+
+/**
+ * 从 Milvus 中检索相关的历史对话
+ */
+async function retrieveRelevantConversations(query, k = 2) {
+  try {
+    // 生成查询的向量
+    const queryVector = await getEmbedding(query);
+
+    // 在 Milvus 中搜索相似的对话
+    const searchResult = await client.search({
+      collection_name: COLLECTION_NAME,
+      vector: queryVector,
+      limit: k,
+      metric_type: MetricType.COSINE,
+      output_fields: ["id", "content", "round", "timestamp"],
+    });
+
+    return searchResult.results;
+  } catch (error) {
+    console.error("检索对话时出错:", error.message);
+    return [];
+  }
+}
+
+/**
+ * 策略3: 检索（Retrieval）
+ * 使用 Milvus 向量数据库存储历史对话，根据当前输入检索语义相关的历史
+ * 实现 RAG（Retrieval-Augmented Generation）流程
+ */
+
+async function retrievalMemoryDemo() {
+  try {
+    console.log("连接到 Milvus...");
+    await client.connectPromise;
+    console.log("✓ 已连接\n");
+  } catch (error) {
+    console.error("❌ 无法连接到 Milvus:", error.message);
+    console.log("请确保 Milvus 服务正在运行（localhost:19530）");
+    return;
+  }
+
+  // 创建历史消息存储
+  const history = new InMemoryChatMessageHistory();
+
+  const conversations = [
+    { input: "我之前提到的机器学习项目进展如何？" },
+    { input: "我周末经常做什么？" },
+    { input: "我的职业是什么？" },
+  ];
+
+  for (let i = 0; i < conversations.length; i++) {
+    const { input } = conversations[i];
+    const userMessage = new HumanMessage(input);
+
+    console.log(`\n[第 ${i + 1} 轮对话]`);
+    console.log(`用户: ${input}`);
+
+    // 1. 检索相关的历史对话
+    console.log("\n【检索相关历史对话】");
+    const retrievedConversations = await retrieveRelevantConversations(
+      input,
+      2
+    );
+
+    let relevantHistory = "";
+    if (retrievedConversations.length > 0) {
+      // 显示检索到的相关历史及相似度
+      retrievedConversations.forEach((conv, idx) => {
+        console.log(`\n[历史对话 ${idx + 1}] 相似度: ${conv.score.toFixed(4)}`);
+        console.log(`轮次: ${conv.round}`);
+        console.log(`内容: ${conv.content}`);
+      });
+
+      // 构建上下文
+      relevantHistory = retrievedConversations
+        .map((conv, idx) => {
+          return `[历史对话 ${idx + 1}]
+轮次: ${conv.round}
+${conv.content}`;
+        })
+        .join("\n\n━━━━━\n\n");
+    } else {
+      console.log("未找到相关历史对话");
+    }
+
+    // 2. 构建 prompt（使用检索到的历史作为上下文）
+    const contextMessages = relevantHistory
+      ? [
+          new HumanMessage(
+            `相关历史对话：\n${relevantHistory}\n\n用户问题: ${input}`
+          ),
+        ]
+      : [userMessage];
+
+    // 3. 调用模型生成回答
+    console.log("\n【AI 回答】");
+    const response = await model.invoke(contextMessages);
+
+    // 保存当前对话到历史消息
+    await history.addMessage(userMessage);
+    await history.addMessage(response);
+
+    // 4. 将对话保存到 Milvus 向量数据库
+    const conversationText = `用户: ${input}\n助手: ${response.content}`;
+    const convId = `conv_${Date.now()}_${i + 1}`;
+    const convVector = await getEmbedding(conversationText);
+
+    try {
+      await client.insert({
+        collection_name: COLLECTION_NAME,
+        data: [
+          {
+            id: convId,
+            vector: convVector,
+            content: conversationText,
+            round: i + 1,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      });
+      console.log(`💾 已保存到 Milvus 向量数据库`);
+    } catch (error) {
+      console.warn("保存到向量数据库时出错:", error.message);
+    }
+
+    console.log(`助手: ${response.content}`);
+  }
+}
+
+retrievalMemoryDemo().catch(console.error);
+```
 
 
 
