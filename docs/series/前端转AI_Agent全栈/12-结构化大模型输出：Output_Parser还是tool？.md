@@ -337,6 +337,22 @@ Here is the JSON Schema instance your output must adhere to. Include the enclosi
 
 StructuredOutputParser 也可以用 zod 来描述复杂的对象格式。
 
+:::info 对比`JsonOutputParser` 和 `StructuredOutputParser`
+
+| 对比         | JsonOutputParser | StructuredOutputParser |
+| ------------ | ---------------- | ---------------------- |
+| 是否定义字段 | ❌ 不需要         | ✅ 必须定义             |
+| 输出格式     | JSON             | JSON                   |
+| 字段校验     | ❌ 没有           | ✅ 有                   |
+| Prompt 约束  | 弱               | 强                     |
+| 适用场景     | 简单 JSON        | 严格结构化输出         |
+
+`JsonOutputParser = 只要 JSON 就行`
+
+`StructuredOutputParser = JSON + 字段规范`
+
+:::
+
 
 
 ### StructuredOutputParser 使用 zod 描述
@@ -670,7 +686,31 @@ console.log(`国籍: ${result.nationality}`);
 console.log(`研究领域: ${result.fields.join(", ")}`);
 ```
 
-这里没定义 tool 的实现逻辑，因为我们只是告诉大模型有这个 tool、参数是什么格式，不需要执行
+这里没定义 tool 的实现逻辑，因为我们只是告诉大模型有这个 tool、参数是什么格式，不需要执行（这里忘记了可以看第二节）
+
+```js
+const readFileTool = tool(
+  async ({ filePath }) => {
+    const content = await fs.readFile(filePath, "utf-8");
+    console.log(
+      `[工具调用] read_file("${filePath}") - 成功读取 ${content.length} 字节`
+    );
+    return `文件内容:\n${content}`;
+  },
+  {
+    name: "read_file",
+    description:
+      "用此工具来读取文件内容。当用户要求读取文件、查看代码、分析文件内容时，调用此工具。输入文件路径（可以是相对路径或绝对路径）。",
+    schema: z.object({
+      filePath: z.string().describe("要读取的文件路径"),
+    }),
+  }
+);
+```
+
+
+
+
 
 跑一下：
 
@@ -721,7 +761,7 @@ response.tool_calls: [
 
 确实，如果只是要求结构化返回数据，用 tool 就行了。
 
-所以，现在获取结构化数据一般会用 withStructuredOutput 这个 api
+所以，现在获取结构化数据一般会用 **withStructuredOutput** 这个 api
 
 它会判断模型是否支持 tool calls，支持的话就用 tool 的方式获取结构化数据，否则用 output parser 的方式，不用我们自己去处理。
 
@@ -842,9 +882,9 @@ BadRequestError: 400 <400> InternalError.Algo.InvalidParameter: 'messages' must 
 
 
 
-### 流式
+## 流式
 
-#### stream 方法
+### stream 方法
 
 创建 src/stream-normal.mjs
 
@@ -890,58 +930,11 @@ try {
 
 把 invoke 换成 stream 方法就可以了，用 for await 打印异步返回的 chunk
 
-跑一下：
-
-```
-mac@macdeMacBook-Air-3 aiagent % pnpm run stream-normal
-
-> ai@1.0.0 stream-normal /Users/mac/jiuci/github/aiagent
-> node src/12/stream-normal.mjs
-
-🌊 普通流式输出演示（无结构化）
-
-📡 接收流式数据:
-
-沃尔夫冈·阿马多斯·莫扎特（Wolfgang Amadeus Mozart，1756年1月27日—1791年12月5日），是欧洲古典音乐的代表人物之一，被誉为“音乐神童”。他出生于奥地利萨尔茨堡，一生短暂但成就卓著，被誉为“音乐天才”。
-
-### 生平
-
-1. **童年时期**：莫扎特在出生后不久便展现出了惊人的音乐天赋。3岁时开始学习钢琴，4岁就能创作简单的旋律和和声，5岁开始作曲。他的父亲菲利普·莫扎特是一位宫廷乐师，对儿子的音乐才能非常重视。
-
-2. **早期职业生涯**：莫扎特从8岁起就随父母亲赴意大利、法国、德国等地演出，展现了他在音乐上的非凡才华。这段旅行极大地开阔了他的视野，也为他积累了丰富的音乐素材。
-
-3. **成熟期**：大约在10岁左右，莫扎特开始独立创作作品，并逐渐形成了自己独特的音乐风格。他的作品包括歌剧、交响曲、室内乐、钢琴协奏曲等，涵盖了音乐的所有主要领域。
-
-4. **最后几年**：尽管莫扎特在音乐上取得了巨大的成功，但他个人的生活却充满了波折。他与妻子康斯坦丁娜的爱情生活并不幸福，还因债务问题而苦恼。这些因素最终导致了莫扎特的健康状况急剧恶化，他在病痛中度过最后的日子。
-
-### 主要作品
-
-莫扎特的作品数量庞大，风格多样，主要包括：
-
-- **歌剧**：如《费加罗的婚礼》、《唐吉诃德》、《魔笛》等。
-- **交响曲**：共41部，其中最著名的是第40号和第41号交响曲。
-- **室内乐**：如小夜曲、弦乐四重奏、钢琴三重奏等。
-- **钢琴协奏曲**：共27首，如《A大调钢琴协奏曲》、《K. 488钢琴协奏曲》等。
-- **键盘作品**：包括钢琴奏鸣曲、钢琴变奏曲、钢琴前奏曲等。
-
-### 影响
-
-莫扎特的音乐风格清新脱俗，旋律优美动听，结构严谨，深受世界各地听众的喜爱。他的作品不仅对古典音乐的发展产生了深远的影响，而且对后来的浪漫主义音乐家也产生了重要启示。
-
-### 死亡
-
-莫扎特于1791年12月5日在维也纳去世，当时只有35岁。尽管他的生命如此短暂，但他的音乐遗产却跨越了时空，继续影响着世界音乐界。莫扎特的逝世被认为是古典音乐史上的一个巨大损失，但也标志着他音乐生涯的辉煌结束。
-
-总的来说，莫扎特不仅是音乐史上的一位巨匠，也是人类文化宝库中的瑰宝。
-
-✅ 共接收 162 个数据块
-
-📝 完整内容长度: 962 字符
-```
+跑一下，可以观察是流式输出
 
 
 
-#### withStructuredOutput
+### withStructuredOutput
 
 我们再用 withStructuredOutput 做一下流式的结构化输出：
 
@@ -1024,7 +1017,7 @@ try {
 
 
 
-#### Structured output parser
+### Structured output parser
 
 我们换 output parser 试试：
 
@@ -1113,7 +1106,7 @@ try {
 
 
 
-#### tool\_call\_chunks
+### tool\_call\_chunks
 
 tool\_call\_chunks 里保存了 tool 参数的部分内容，我们可以用这个来实现流式打印效果
 
@@ -1194,7 +1187,7 @@ try {
 
 
 
-#### JsonOutputToolsParser
+### JsonOutputToolsParser
 
 试一下：
 
@@ -1293,7 +1286,7 @@ JsonOutputToolsParser 会试试解析 tool\_call\_chunks 生成完整的 tool\_c
 
 
 
-#### XML 的 output parser
+### XML 的 output parser
 
 创建 src/xml-output-parser.mjs
 
@@ -1423,28 +1416,3 @@ Here are the output tags:
 
 
 
-## 解释代码
-
-### normal.mjs
-
-### json-output-parser.mjs
-
-### structured-output-parser.mjs
-
-### structured-output-parser2.mjs
-
-### tool-call-args.mjs
-
-### with-structured-output.mjs
-
-### stream-normal.mjs
-
-### stream-with-structured-output.mjs
-
-### stream-structured-partial.mjs
-
-### stream-tool-calls-raw.mjs
-
-### stream-tool-calls-parser.mjs
-
-### xml-output-parser.mjs
