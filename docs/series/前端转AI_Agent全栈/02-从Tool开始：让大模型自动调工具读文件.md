@@ -308,7 +308,7 @@ while (response.tool_calls && response.tool_calls.length > 0) {
 console.log(`\n[检测到 ${response.tool_calls.length} 个工具调用]`);
 
 // 执行所有工具调用
-const toolResults = awaitPromise.all(
+const toolResults = await Promise.all(
     response.tool_calls.map(async (toolCall) => {
       const tool = tools.find(t => t.name === toolCall.name);
       if (!tool) {
