@@ -14,7 +14,7 @@ const sidebars = {
         'skill/HTML与CSS/css',
         'skill/HTML与CSS/screen',
         'skill/HTML与CSS/skill',
-        'skill/HTML与CSS/canvas'
+        'skill/HTML与CSS/canvas',
       ],
     },
     {
@@ -28,7 +28,7 @@ const sidebars = {
         'skill/JavaScript/javascript2',
         'skill/JavaScript/javascript3',
         'skill/JavaScript/javascript4',
-        'skill/JavaScript/javascripttip'
+        'skill/JavaScript/javascripttip',
       ],
     },
     {
@@ -37,9 +37,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'skill/TypeScript/typescript'
-      ],
+      items: ['skill/TypeScript/typescript'],
     },
     {
       label: 'React',
@@ -67,7 +65,7 @@ const sidebars = {
         'skill/NextJS/nextjs03',
         'skill/NextJS/nextjs04',
         'skill/NextJS/nextjs05',
-        'skill/NextJS/nextjs06'
+        'skill/NextJS/nextjs06',
       ],
     },
     {
@@ -76,10 +74,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'skill/Node/node',
-        'skill/Node/nodeuse',
-      ],
+      items: ['skill/Node/node', 'skill/Node/nodeuse'],
     },
     {
       label: 'NestJS',
@@ -87,10 +82,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'skill/NestJS/nestjs',
-        'skill/NestJS/nestuse'
-      ],
+      items: ['skill/NestJS/nestjs', 'skill/NestJS/nestuse'],
     },
     {
       label: '前端工程化',
@@ -113,10 +105,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'skill/AI/aboutaiconcept',
-        'skill/AI/mcpdev',
-      ],
+      items: ['skill/AI/aboutaiconcept', 'skill/AI/mcpdev'],
     },
     {
       label: 'React Native',
@@ -124,9 +113,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'skill/ReactNative/reactnative'
-      ],
+      items: ['skill/ReactNative/reactnative'],
     },
     {
       label: '数据结构与算法',
@@ -134,10 +121,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'skill/数据结构与算法/build',
-        'skill/数据结构与算法/count',
-      ],
+      items: ['skill/数据结构与算法/build', 'skill/数据结构与算法/count'],
     },
     {
       label: '数据库',
@@ -145,10 +129,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'skill/数据库/nodesql',
-        'skill/数据库/redis'
-      ],
+      items: ['skill/数据库/nodesql', 'skill/数据库/redis'],
     },
     {
       label: 'Vue',
@@ -156,9 +137,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'skill/Vue/vue2'
-      ],
+      items: ['skill/Vue/vue2'],
     },
     {
       label: 'Uniapp',
@@ -166,9 +145,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'skill/Uniapp/uniapp'
-      ],
+      items: ['skill/Uniapp/uniapp'],
     },
     {
       label: '微信小程序',
@@ -201,7 +178,7 @@ const sidebars = {
         'skill/抓住小细节/detailwl',
         'skill/抓住小细节/detailbc',
       ],
-    }
+    },
   ],
   thing: [
     'thing/introduction',
@@ -211,9 +188,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'thing/HTML与CSS/threecolumn',
-      ],
+      items: ['thing/HTML与CSS/threecolumn'],
     },
     {
       label: 'JavaScript',
@@ -253,9 +228,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'thing/Node/commonjsnode',
-      ],
+      items: ['thing/Node/commonjsnode'],
     },
     {
       label: '前端工程化',
@@ -263,9 +236,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'thing/前端工程化/dependencies',
-      ],
+      items: ['thing/前端工程化/dependencies'],
     },
     {
       label: '网络',
@@ -288,10 +259,8 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'thing/技术方案/problem1',
-      ],
-    }
+      items: ['thing/技术方案/problem1'],
+    },
   ],
   use: [
     'use/introduction',
@@ -547,6 +516,9 @@ const sidebars = {
         'series/前端转AI_Agent全栈/aiagent18',
         'series/前端转AI_Agent全栈/aiagent19',
         'series/前端转AI_Agent全栈/aiagent20',
+        'series/前端转AI_Agent全栈/aiagent21',
+        'series/前端转AI_Agent全栈/aiagent22',
+        'series/前端转AI_Agent全栈/aiagent23',
         'series/前端转AI_Agent全栈/aiagent99',
       ],
     },
@@ -559,10 +531,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'hobby/摄影/studyphotography',
-        'hobby/摄影/studyphoto',
-      ],
+      items: ['hobby/摄影/studyphotography', 'hobby/摄影/studyphoto'],
     },
     {
       label: '旅行',
@@ -570,10 +539,7 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'hobby/旅行/travelsummary',
-        'hobby/旅行/traveltips',
-      ],
+      items: ['hobby/旅行/travelsummary', 'hobby/旅行/traveltips'],
     },
   ],
   summarize: [
@@ -584,11 +550,9 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: [
-        'summarize/2023/frondstudy21',
-      ],
+      items: ['summarize/2023/frondstudy21'],
     },
-  ]
+  ],
 }
 
 module.exports = sidebars
