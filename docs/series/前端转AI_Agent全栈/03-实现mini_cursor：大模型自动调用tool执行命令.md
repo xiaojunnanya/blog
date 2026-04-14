@@ -9,6 +9,7 @@ keywords: [AI]
 ---
 
 ## 前言
+
 上节我们给大模型扩展了读文件的 tool，你说一个文件路径让它解释，它就可以自动调工具读文件内容给出解释了。
 
 那继续思考：
@@ -20,50 +21,53 @@ keywords: [AI]
 这节我们就来实现下大模型根据 prompt 生成项目代码，自动读写文件、通过命令安装依赖、自动把项目跑起来，全程自己调用 tool 的功能。
 
 ## 使用
+
 ### ls -la
+
 创建 src/node-exec.mjs
 
 ```js
-import { spawn } from "node:child_process";
+import { spawn } from 'node:child_process'
 // ls -la 命令的意思：以详细格式列出当前目录 所有文件（包括隐藏文件）
 // 平常我们直接 ls 是看不到隐藏文件的
-const command = "ls -la";
-const cwd = process.cwd();
+const command = 'ls -la'
+const cwd = process.cwd()
 
 // 解析命令和参数
-const [cmd, ...args] = command.split(" ");
+const [cmd, ...args] = command.split(' ')
 
 const child = spawn(cmd, args, {
   cwd,
-  stdio: "inherit", // 实时输出到控制台
+  stdio: 'inherit', // 实时输出到控制台
   shell: true,
-});
+})
 
-let errorMsg = "";
+let errorMsg = ''
 
-child.on("error", (error) => {
-  errorMsg = error.message;
-});
+child.on('error', error => {
+  errorMsg = error.message
+})
 
-child.on("close", (code) => {
+child.on('close', code => {
   if (code === 0) {
-    process.exit(0);
+    process.exit(0)
   } else {
     if (errorMsg) {
-      console.error(`错误: ${errorMsg}`);
+      console.error(`错误: ${errorMsg}`)
     }
-    process.exit(code || 1);
+    process.exit(code || 1)
   }
-});
+})
 ```
 
-spawn 可以指定在 cwd 这个目录下执行命令，会创建一个子进程来跑，这也是为啥这个模块叫 child\_process。
+spawn 可以指定在 cwd 这个目录下执行命令，会创建一个子进程来跑，这也是为啥这个模块叫 child_process。
 
 用空格分割出命令和参数部分，分别作为 cmd、args
 
 inherit 就是这个子进程的 stdout 也输出到父进程的 stdout，也就是控制台。
 
 跑一下：
+
 ```
 mac@macdeMacBook-Air-3 aiagent % pnpm run node-exec
 
@@ -87,18 +91,20 @@ drwxr-xr-x   5 mac  staff   160 Feb  9 16:20 src
 含义：先模拟输入两次 n，再把这些输入“喂给” create-vite 命令
 
 因为：`pnpm create vite ...`，通常会出现交互：
+
 ```
 Need to install the following packages? (y/n)
 Overwrite existing directory? (y/n)
 ```
+
 需要你手动输入，这条命令就是自动回答
 
 echo 两个 n 是有时候 vite 会让你选择两个选项：用不用 rolldown、安不安装依赖
 
 echo n 然后通过管道操作符输出给那个进程就和我们键盘输入 n 一样的效果。
 
-
 ### 封装 tool
+
 测试完之后，接下来就是封装 tools 了。
 
 我们单独一个文件来放所有的 tools：
@@ -106,189 +112,190 @@ echo n 然后通过管道操作符输出给那个进程就和我们键盘输入 
 src/all-tools.mjs
 
 ```js
-import { tool } from "@langchain/core/tools";
-import fs from "node:fs/promises";
-import path from "node:path";
-import { spawn } from "node:child_process";
-import { z } from "zod";
+import { tool } from '@langchain/core/tools'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { spawn } from 'node:child_process'
+import { z } from 'zod'
 
 // 1. 读取文件工具
 const readFileTool = tool(
   async ({ filePath }) => {
     try {
-      const content = await fs.readFile(filePath, "utf-8");
+      const content = await fs.readFile(filePath, 'utf-8')
       console.log(
-        `  [工具调用] read_file("${filePath}") - 成功读取 ${content.length} 字节`
-      );
-      return `文件内容:\n${content}`;
+        `  [工具调用] read_file("${filePath}") - 成功读取 ${content.length} 字节`,
+      )
+      return `文件内容:\n${content}`
     } catch (error) {
       console.log(
-        `  [工具调用] read_file("${filePath}") - 错误: ${error.message}`
-      );
-      return `读取文件失败: ${error.message}`;
+        `  [工具调用] read_file("${filePath}") - 错误: ${error.message}`,
+      )
+      return `读取文件失败: ${error.message}`
     }
   },
   {
-    name: "read_file",
-    description: "读取指定路径的文件内容",
+    name: 'read_file',
+    description: '读取指定路径的文件内容',
     schema: z.object({
-      filePath: z.string().describe("文件路径"),
+      filePath: z.string().describe('文件路径'),
     }),
-  }
-);
+  },
+)
 
 // 2. 写入文件工具
 const writeFileTool = tool(
   async ({ filePath, content }) => {
     try {
-      const dir = path.dirname(filePath);
-      await fs.mkdir(dir, { recursive: true });
-      await fs.writeFile(filePath, content, "utf-8");
+      const dir = path.dirname(filePath)
+      await fs.mkdir(dir, { recursive: true })
+      await fs.writeFile(filePath, content, 'utf-8')
       console.log(
-        `  [工具调用] write_file("${filePath}") - 成功写入 ${content.length} 字节`
-      );
-      return `文件写入成功: ${filePath}`;
+        `  [工具调用] write_file("${filePath}") - 成功写入 ${content.length} 字节`,
+      )
+      return `文件写入成功: ${filePath}`
     } catch (error) {
       console.log(
-        `  [工具调用] write_file("${filePath}") - 错误: ${error.message}`
-      );
-      return `写入文件失败: ${error.message}`;
+        `  [工具调用] write_file("${filePath}") - 错误: ${error.message}`,
+      )
+      return `写入文件失败: ${error.message}`
     }
   },
   {
-    name: "write_file",
-    description: "向指定路径写入文件内容，自动创建目录",
+    name: 'write_file',
+    description: '向指定路径写入文件内容，自动创建目录',
     schema: z.object({
-      filePath: z.string().describe("文件路径"),
-      content: z.string().describe("要写入的文件内容"),
+      filePath: z.string().describe('文件路径'),
+      content: z.string().describe('要写入的文件内容'),
     }),
-  }
-);
+  },
+)
 
 // 3. 执行命令工具（带实时输出）
 const executeCommandTool = tool(
   async ({ command, workingDirectory }) => {
-    const cwd = workingDirectory || process.cwd();
+    const cwd = workingDirectory || process.cwd()
     console.log(
       `  [工具调用] execute_command("${command}")${
-        workingDirectory ? ` - 工作目录: ${workingDirectory}` : ""
-      }`
-    );
+        workingDirectory ? ` - 工作目录: ${workingDirectory}` : ''
+      }`,
+    )
 
     return new Promise((resolve, reject) => {
       // 解析命令和参数
-      const [cmd, ...args] = command.split(" ");
+      const [cmd, ...args] = command.split(' ')
 
       const child = spawn(cmd, args, {
         cwd,
-        stdio: "inherit", // 实时输出到控制台
+        stdio: 'inherit', // 实时输出到控制台
         shell: true,
-      });
+      })
 
-      let errorMsg = "";
+      let errorMsg = ''
 
-      child.on("error", (error) => {
-        errorMsg = error.message;
-      });
+      child.on('error', error => {
+        errorMsg = error.message
+      })
 
-      child.on("close", (code) => {
+      child.on('close', code => {
         if (code === 0) {
-          console.log(`  [工具调用] execute_command("${command}") - 执行成功`);
+          console.log(`  [工具调用] execute_command("${command}") - 执行成功`)
           const cwdInfo = workingDirectory
             ? `\n\n重要提示：命令在目录 "${workingDirectory}" 中执行成功。如果需要在这个项目目录中继续执行命令，请使用 workingDirectory: "${workingDirectory}" 参数，不要使用 cd 命令。`
-            : "";
-          resolve(`命令执行成功: ${command}${cwdInfo}`);
+            : ''
+          resolve(`命令执行成功: ${command}${cwdInfo}`)
         } else {
           console.log(
-            `  [工具调用] execute_command("${command}") - 执行失败，退出码: ${code}`
-          );
+            `  [工具调用] execute_command("${command}") - 执行失败，退出码: ${code}`,
+          )
           resolve(
             `命令执行失败，退出码: ${code}${
-              errorMsg ? "\n错误: " + errorMsg : ""
-            }`
-          );
+              errorMsg ? '\n错误: ' + errorMsg : ''
+            }`,
+          )
         }
-      });
-    });
+      })
+    })
   },
   {
-    name: "execute_command",
-    description: "执行系统命令，支持指定工作目录，实时显示输出",
+    name: 'execute_command',
+    description: '执行系统命令，支持指定工作目录，实时显示输出',
     schema: z.object({
-      command: z.string().describe("要执行的命令"),
-      workingDirectory: z.string().optional().describe("工作目录（推荐指定）"),
+      command: z.string().describe('要执行的命令'),
+      workingDirectory: z.string().optional().describe('工作目录（推荐指定）'),
     }),
-  }
-);
+  },
+)
 
 // 4. 列出目录内容工具
 const listDirectoryTool = tool(
   async ({ directoryPath }) => {
     try {
-      const files = await fs.readdir(directoryPath);
+      const files = await fs.readdir(directoryPath)
       console.log(
-        `  [工具调用] list_directory("${directoryPath}") - 找到 ${files.length} 个项目`
-      );
-      return `目录内容:\n${files.map((f) => `- ${f}`).join("\n")}`;
+        `  [工具调用] list_directory("${directoryPath}") - 找到 ${files.length} 个项目`,
+      )
+      return `目录内容:\n${files.map(f => `- ${f}`).join('\n')}`
     } catch (error) {
       console.log(
-        `  [工具调用] list_directory("${directoryPath}") - 错误: ${error.message}`
-      );
-      return `列出目录失败: ${error.message}`;
+        `  [工具调用] list_directory("${directoryPath}") - 错误: ${error.message}`,
+      )
+      return `列出目录失败: ${error.message}`
     }
   },
   {
-    name: "list_directory",
-    description: "列出指定目录下的所有文件和文件夹",
+    name: 'list_directory',
+    description: '列出指定目录下的所有文件和文件夹',
     schema: z.object({
-      directoryPath: z.string().describe("目录路径"),
+      directoryPath: z.string().describe('目录路径'),
     }),
-  }
-);
+  },
+)
 
-export { readFileTool, writeFileTool, executeCommandTool, listDirectoryTool };
+export { readFileTool, writeFileTool, executeCommandTool, listDirectoryTool }
 ```
 
 每个 tool 都是 name、description 以及基于 zod 声明的参数格式。
 
 ### 调用工具
+
 接下来就可以调用了：
 
 创建 src/mini-cursor.mjs
 
 ```js
-import "dotenv/config";
-import { ChatOpenAI } from "@langchain/openai";
+import 'dotenv/config'
+import { ChatOpenAI } from '@langchain/openai'
 import {
   HumanMessage,
   SystemMessage,
   ToolMessage,
-} from "@langchain/core/messages";
+} from '@langchain/core/messages'
 import {
   executeCommandTool,
   listDirectoryTool,
   readFileTool,
   writeFileTool,
-} from "./all-tools.mjs";
+} from './all-tools.mjs'
 
 const model = new ChatOpenAI({
-  modelName: "qwen-plus",
+  modelName: 'qwen-plus',
   apiKey: process.env.OPENAI_API_KEY,
   temperature: 0,
   configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-});
+})
 
 const tools = [
   readFileTool,
   writeFileTool,
   executeCommandTool,
   listDirectoryTool,
-];
+]
 
 // 绑定工具到模型
-const modelWithTools = model.bindTools(tools);
+const modelWithTools = model.bindTools(tools)
 
 // Agent 执行函数
 async function runAgentWithTools(query, maxIterations = 30) {
@@ -313,35 +320,35 @@ async function runAgentWithTools(query, maxIterations = 30) {
 
 回复要简洁，只说做了什么`),
     new HumanMessage(query),
-  ];
+  ]
 
   for (let i = 0; i < maxIterations; i++) {
-    console.log(`⏳ 正在等待 AI 思考...`);
-    const response = await modelWithTools.invoke(messages);
-    messages.push(response);
+    console.log(`⏳ 正在等待 AI 思考...`)
+    const response = await modelWithTools.invoke(messages)
+    messages.push(response)
 
     // 检查是否有工具调用
     if (!response.tool_calls || response.tool_calls.length === 0) {
-      console.log(`\n✨ AI 最终回复:\n${response.content}\n`);
-      return response.content;
+      console.log(`\n✨ AI 最终回复:\n${response.content}\n`)
+      return response.content
     }
 
     // 执行工具调用
     for (const toolCall of response.tool_calls) {
-      const foundTool = tools.find((t) => t.name === toolCall.name);
+      const foundTool = tools.find(t => t.name === toolCall.name)
       if (foundTool) {
-        const toolResult = await foundTool.invoke(toolCall.args);
+        const toolResult = await foundTool.invoke(toolCall.args)
         messages.push(
           new ToolMessage({
             content: toolResult,
             tool_call_id: toolCall.id,
           }),
-        );
+        )
       }
     }
   }
 
-  return messages[messages.length - 1].content;
+  return messages[messages.length - 1].content
 }
 ```
 
@@ -387,8 +394,6 @@ try {
 }
 ```
 
-
-
 告诉它创建一个 todo app，然后安装依赖，跑起来。
 
 你是不是在 cursor 里经常做这种事情？
@@ -396,39 +401,39 @@ try {
 今天用自己写的工具来做：`node ./src/mini-cursor.mjs`
 
 ```js
-import "dotenv/config";
-import { ChatOpenAI } from "@langchain/openai";
+import 'dotenv/config'
+import { ChatOpenAI } from '@langchain/openai'
 import {
   HumanMessage,
   SystemMessage,
   ToolMessage,
-} from "@langchain/core/messages";
+} from '@langchain/core/messages'
 import {
   executeCommandTool,
   listDirectoryTool,
   readFileTool,
   writeFileTool,
-} from "./all-tools.mjs";
-import chalk from 'chalk';
+} from './all-tools.mjs'
+import chalk from 'chalk'
 
 const model = new ChatOpenAI({
-  modelName: "qwen-plus",
+  modelName: 'qwen-plus',
   apiKey: process.env.OPENAI_API_KEY,
   temperature: 0,
   configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-});
+})
 
 const tools = [
   readFileTool,
   writeFileTool,
   executeCommandTool,
   listDirectoryTool,
-];
+]
 
 // 绑定工具到模型
-const modelWithTools = model.bindTools(tools);
+const modelWithTools = model.bindTools(tools)
 
 // Agent 执行函数
 async function runAgentWithTools(query, maxIterations = 30) {
@@ -453,35 +458,35 @@ async function runAgentWithTools(query, maxIterations = 30) {
 
 回复要简洁，只说做了什么`),
     new HumanMessage(query),
-  ];
+  ]
 
   for (let i = 0; i < maxIterations; i++) {
-    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`));
-    const response = await modelWithTools.invoke(messages);
-    messages.push(response);
+    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`))
+    const response = await modelWithTools.invoke(messages)
+    messages.push(response)
 
     // 检查是否有工具调用
     if (!response.tool_calls || response.tool_calls.length === 0) {
-      console.log(`\n✨ AI 最终回复:\n${response.content}\n`);
-      return response.content;
+      console.log(`\n✨ AI 最终回复:\n${response.content}\n`)
+      return response.content
     }
 
     // 执行工具调用
     for (const toolCall of response.tool_calls) {
-      const foundTool = tools.find((t) => t.name === toolCall.name);
+      const foundTool = tools.find(t => t.name === toolCall.name)
       if (foundTool) {
-        const toolResult = await foundTool.invoke(toolCall.args);
+        const toolResult = await foundTool.invoke(toolCall.args)
         messages.push(
           new ToolMessage({
             content: toolResult,
             tool_call_id: toolCall.id,
           }),
-        );
+        )
       }
     }
   }
 
-  return messages[messages.length - 1].content;
+  return messages[messages.length - 1].content
 }
 
 const case1 = `创建一个功能丰富的 React TodoList 应用：
@@ -506,12 +511,12 @@ const case1 = `创建一个功能丰富的 React TodoList 应用：
 之后在 react-todo-app 项目中：
 1. 使用 pnpm install 安装依赖
 2. 使用 pnpm run dev 启动服务器
-`;
+`
 
 try {
-  await runAgentWithTools(case1);
+  await runAgentWithTools(case1)
 } catch (error) {
-  console.error(`\n❌ 错误: ${error.message}\n`);
+  console.error(`\n❌ 错误: ${error.message}\n`)
 }
 ```
 
@@ -530,12 +535,11 @@ try {
   [工具调用] write_file("react-todo-app/src/App.css") - 成功写入 5127 字节
 ⏳ 正在等待 AI 思考...
   [工具调用] execute_command("pnpm install") - 工作目录: react-todo-app
-  
+
    [工具调用] execute_command("pnpm install") - 执行成功
 ⏳ 正在等待 AI 思考...
   [工具调用] execute_command("pnpm run dev") - 工作目录: react-todo-app
 ```
-
 
 我们写的 tool 都用上了。
 
@@ -549,8 +553,6 @@ try {
 
 我们不是想真的实现 cursor，只是要知道它的实现原理。
 
-
-
 ## 总结
 
 这节我们创建了更多的 tool，比如目录、文件的读写，还有用 spawn 执行命令。
@@ -562,194 +564,197 @@ try {
 你也可以基于 tool + llm 来做一些自己想做的功能，边学边练，AI 学起来还是很有趣的！
 
 ## 代码解释
+
 ### all-tools
+
 ```js
-import { tool } from "@langchain/core/tools";
-import fs from "node:fs/promises";
-import path from "node:path";
-import { spawn } from "node:child_process";
-import { z } from "zod";
+import { tool } from '@langchain/core/tools'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { spawn } from 'node:child_process'
+import { z } from 'zod'
 
 // 1. 读取文件工具
 const readFileTool = tool(
   async ({ filePath }) => {
     try {
-      const content = await fs.readFile(filePath, "utf-8");
+      const content = await fs.readFile(filePath, 'utf-8')
       console.log(
-        `[工具调用] read_file("${filePath}") - 成功读取 ${content.length} 字节`
-      );
-      return `文件内容:\n${content}`;
+        `[工具调用] read_file("${filePath}") - 成功读取 ${content.length} 字节`,
+      )
+      return `文件内容:\n${content}`
     } catch (error) {
       console.log(
-        `[工具调用] read_file("${filePath}") - 错误: ${error.message}`
-      );
-      return `读取文件失败: ${error.message}`;
+        `[工具调用] read_file("${filePath}") - 错误: ${error.message}`,
+      )
+      return `读取文件失败: ${error.message}`
     }
   },
   {
-    name: "read_file",
-    description: "读取指定路径的文件内容",
+    name: 'read_file',
+    description: '读取指定路径的文件内容',
     schema: z.object({
-      filePath: z.string().describe("文件路径"),
+      filePath: z.string().describe('文件路径'),
     }),
-  }
-);
+  },
+)
 
 // 2. 写入文件工具
 const writeFileTool = tool(
   async ({ filePath, content }) => {
     try {
-      const dir = path.dirname(filePath);
+      const dir = path.dirname(filePath)
       // 确保这个目录存在，不存在就创建（连父目录一起）。
       // recursive 表示如果父目录不存在也一并创建，这样就不需要担心多层目录了。
-      await fs.mkdir(dir, { recursive: true });
-      await fs.writeFile(filePath, content, "utf-8");
+      await fs.mkdir(dir, { recursive: true })
+      await fs.writeFile(filePath, content, 'utf-8')
       console.log(
-        `[工具调用] write_file("${filePath}") - 成功写入 ${content.length} 字节`
-      );
-      return `文件写入成功: ${filePath}`;
+        `[工具调用] write_file("${filePath}") - 成功写入 ${content.length} 字节`,
+      )
+      return `文件写入成功: ${filePath}`
     } catch (error) {
       console.log(
-        `[工具调用] write_file("${filePath}") - 错误: ${error.message}`
-      );
-      return `写入文件失败: ${error.message}`;
+        `[工具调用] write_file("${filePath}") - 错误: ${error.message}`,
+      )
+      return `写入文件失败: ${error.message}`
     }
   },
   {
-    name: "write_file",
-    description: "向指定路径写入文件内容，自动创建目录",
+    name: 'write_file',
+    description: '向指定路径写入文件内容，自动创建目录',
     schema: z.object({
-      filePath: z.string().describe("文件路径"),
-      content: z.string().describe("要写入的文件内容"),
+      filePath: z.string().describe('文件路径'),
+      content: z.string().describe('要写入的文件内容'),
     }),
-  }
-);
+  },
+)
 
 // 3. 执行命令工具（带实时输出）
 // 传入举例：{ "command": "pnpm install", "workingDirectory": "./my-project" }
 const executeCommandTool = tool(
   async ({ command, workingDirectory }) => {
-    const cwd = workingDirectory || process.cwd(); // 工作目录，如果没传就使用当前工作目录
+    const cwd = workingDirectory || process.cwd() // 工作目录，如果没传就使用当前工作目录
     console.log(
       `[工具调用] execute_command("${command}")${
-        workingDirectory ? ` - 工作目录: ${workingDirectory}` : ""
-      }`
-    );
+        workingDirectory ? ` - 工作目录: ${workingDirectory}` : ''
+      }`,
+    )
 
     return new Promise((resolve, reject) => {
       // 解析命令和参数
-      const [cmd, ...args] = command.split(" ");
+      const [cmd, ...args] = command.split(' ')
 
       const child = spawn(cmd, args, {
         cwd,
-        stdio: "inherit", // 实时输出到控制台
+        stdio: 'inherit', // 实时输出到控制台
         shell: true,
-      });
+      })
 
-      let errorMsg = "";
+      let errorMsg = ''
 
-      child.on("error", (error) => {
-        errorMsg = error.message;
-      });
+      child.on('error', error => {
+        errorMsg = error.message
+      })
 
-      child.on("close", (code) => {
+      child.on('close', code => {
         // 0 是成功
         if (code === 0) {
-          console.log(`[工具调用] execute_command("${command}") - 执行成功`);
+          console.log(`[工具调用] execute_command("${command}") - 执行成功`)
           // 重要提示设计：因为 LLM 容易 cd ,但每次 tool 调用都是独立的进程，所以 cd 不会持久生效。
           const cwdInfo = workingDirectory
             ? `\n\n重要提示：命令在目录 "${workingDirectory}" 中执行成功。如果需要在这个项目目录中继续执行命令，请使用 workingDirectory: "${workingDirectory}" 参数，不要使用 cd 命令。`
-            : "";
-          resolve(`命令执行成功: ${command}${cwdInfo}`);
+            : ''
+          resolve(`命令执行成功: ${command}${cwdInfo}`)
         } else {
           console.log(
-            `  [工具调用] execute_command("${command}") - 执行失败，退出码: ${code}`
-          );
+            `  [工具调用] execute_command("${command}") - 执行失败，退出码: ${code}`,
+          )
           // 失败分支，没有reject，因为在 Agent 体系里，工具执行失败不是程序错误，而是“模型可以根据错误继续推理”
           // 所以如果 reject，整个 Agent 会崩
           resolve(
             `命令执行失败，退出码: ${code}${
-              errorMsg ? "\n错误: " + errorMsg : ""
-            }`
-          );
+              errorMsg ? '\n错误: ' + errorMsg : ''
+            }`,
+          )
         }
-      });
-    });
+      })
+    })
   },
   {
-    name: "execute_command",
-    description: "执行系统命令，支持指定工作目录，实时显示输出",
+    name: 'execute_command',
+    description: '执行系统命令，支持指定工作目录，实时显示输出',
     schema: z.object({
-      command: z.string().describe("要执行的命令"),
+      command: z.string().describe('要执行的命令'),
       // optional代表可选参数，推荐指定
-      workingDirectory: z.string().optional().describe("工作目录（推荐指定）"),
+      workingDirectory: z.string().optional().describe('工作目录（推荐指定）'),
     }),
-  }
-);
+  },
+)
 
 // 4. 列出目录内容工具
 const listDirectoryTool = tool(
   async ({ directoryPath }) => {
     try {
-      const files = await fs.readdir(directoryPath);
+      const files = await fs.readdir(directoryPath)
       console.log(
-        `  [工具调用] list_directory("${directoryPath}") - 找到 ${files.length} 个项目`
-      );
-      return `目录内容:\n${files.map((f) => `- ${f}`).join("\n")}`;
+        `  [工具调用] list_directory("${directoryPath}") - 找到 ${files.length} 个项目`,
+      )
+      return `目录内容:\n${files.map(f => `- ${f}`).join('\n')}`
     } catch (error) {
       console.log(
-        `  [工具调用] list_directory("${directoryPath}") - 错误: ${error.message}`
-      );
-      return `列出目录失败: ${error.message}`;
+        `  [工具调用] list_directory("${directoryPath}") - 错误: ${error.message}`,
+      )
+      return `列出目录失败: ${error.message}`
     }
   },
   {
-    name: "list_directory",
-    description: "列出指定目录下的所有文件和文件夹",
+    name: 'list_directory',
+    description: '列出指定目录下的所有文件和文件夹',
     schema: z.object({
-      directoryPath: z.string().describe("目录路径"),
+      directoryPath: z.string().describe('目录路径'),
     }),
-  }
-);
+  },
+)
 
-export { readFileTool, writeFileTool, executeCommandTool, listDirectoryTool };
+export { readFileTool, writeFileTool, executeCommandTool, listDirectoryTool }
 ```
 
 ### mini-cursor
+
 ```js
-import "dotenv/config";
-import { ChatOpenAI } from "@langchain/openai";
+import 'dotenv/config'
+import { ChatOpenAI } from '@langchain/openai'
 import {
   HumanMessage,
   SystemMessage,
   ToolMessage,
-} from "@langchain/core/messages";
+} from '@langchain/core/messages'
 import {
   executeCommandTool,
   listDirectoryTool,
   readFileTool,
   writeFileTool,
-} from "./all-tools.mjs";
-import chalk from 'chalk';
+} from './all-tools.mjs'
+import chalk from 'chalk'
 
 const model = new ChatOpenAI({
-  modelName: "qwen-plus",
+  modelName: 'qwen-plus',
   apiKey: process.env.OPENAI_API_KEY,
   temperature: 0,
   configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-});
+})
 
 const tools = [
   readFileTool,
   writeFileTool,
   executeCommandTool,
   listDirectoryTool,
-];
+]
 
 // 绑定工具到模型
-const modelWithTools = model.bindTools(tools);
+const modelWithTools = model.bindTools(tools)
 
 // Agent 执行函数
 async function runAgentWithTools(query, maxIterations = 30) {
@@ -774,13 +779,13 @@ async function runAgentWithTools(query, maxIterations = 30) {
 
 回复要简洁，只说做了什么`),
     new HumanMessage(query),
-  ];
+  ]
 
   // Agent loop，最多执行 30 轮，超过就停止
   for (let i = 0; i < maxIterations; i++) {
-    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`));
-    const response = await modelWithTools.invoke(messages);
-    messages.push(response);
+    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`))
+    const response = await modelWithTools.invoke(messages)
+    messages.push(response)
 
     // response 是模型返回的响应，包括：
     // - content: 模型返回的文本内容
@@ -788,26 +793,26 @@ async function runAgentWithTools(query, maxIterations = 30) {
 
     // 检查是否有工具调用
     if (!response.tool_calls || response.tool_calls.length === 0) {
-      console.log(`\n✨ AI 最终回复:\n${response.content}\n`);
-      return response.content;
+      console.log(`\n✨ AI 最终回复:\n${response.content}\n`)
+      return response.content
     }
 
     // 执行工具调用
     for (const toolCall of response.tool_calls) {
-      const foundTool = tools.find((t) => t.name === toolCall.name);
+      const foundTool = tools.find(t => t.name === toolCall.name)
       if (foundTool) {
-        const toolResult = await foundTool.invoke(toolCall.args);
+        const toolResult = await foundTool.invoke(toolCall.args)
         messages.push(
           new ToolMessage({
             content: toolResult,
             tool_call_id: toolCall.id,
           }),
-        );
+        )
       }
     }
   }
 
-  return messages[messages.length - 1].content;
+  return messages[messages.length - 1].content
 }
 
 const case1 = `创建一个功能丰富的 React TodoList 应用：
@@ -832,11 +837,11 @@ const case1 = `创建一个功能丰富的 React TodoList 应用：
 之后在 react-todo-app 项目中：
 1. 使用 pnpm install 安装依赖
 2. 使用 pnpm run dev 启动服务器
-`;
+`
 
 try {
-  await runAgentWithTools(case1);
+  await runAgentWithTools(case1)
 } catch (error) {
-  console.error(`\n❌ 错误: ${error.message}\n`);
+  console.error(`\n❌ 错误: ${error.message}\n`)
 }
 ```
