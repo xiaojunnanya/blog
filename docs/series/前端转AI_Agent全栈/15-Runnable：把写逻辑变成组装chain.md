@@ -8,8 +8,6 @@ tags: [AI]
 keywords: [AI]
 ---
 
-
-
 ## 前言
 
 LangChain 很多 api 都实现了 Runnable 接口，比如 PromptTemplate、OutputParser、ChatOpenAI 等。
@@ -18,13 +16,9 @@ LangChain 很多 api 都实现了 Runnable 接口，比如 PromptTemplate、Outp
 
 ![img](./15-Runnable：把写逻辑变成组装chain.assets/image-1.png)
 
-
-
 那 Runnable 都是干什么的呢？
 
 它可以**让我们声明式的写代码，从写逻辑变成组装 chain。**
-
-
 
 ## Runnable
 
@@ -35,11 +29,11 @@ LangChain 很多 api 都实现了 Runnable 接口，比如 PromptTemplate、Outp
 src/before.mjs
 
 ```js
-import "dotenv/config";
-import { StructuredOutputParser } from "@langchain/core/output_parsers";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { ChatOpenAI } from "@langchain/openai";
-import { z } from "zod";
+import 'dotenv/config'
+import { StructuredOutputParser } from '@langchain/core/output_parsers'
+import { PromptTemplate } from '@langchain/core/prompts'
+import { ChatOpenAI } from '@langchain/openai'
+import { z } from 'zod'
 
 const model = new ChatOpenAI({
   modelName: process.env.MODEL_NAME,
@@ -48,36 +42,34 @@ const model = new ChatOpenAI({
   configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-});
+})
 
 // 定义输出结构 schema
 const schema = z.object({
-  translation: z.string().describe("翻译后的英文文本"),
-  keywords: z.array(z.string()).length(3).describe("3个关键词"),
-});
+  translation: z.string().describe('翻译后的英文文本'),
+  keywords: z.array(z.string()).length(3).describe('3个关键词'),
+})
 
-const outputParser = StructuredOutputParser.fromZodSchema(schema);
+const outputParser = StructuredOutputParser.fromZodSchema(schema)
 
 const promptTemplate = PromptTemplate.fromTemplate(
-  "将以下文本翻译成英文，然后总结为3个关键词。\n\n文本：{text}\n\n{format_instructions}"
-);
+  '将以下文本翻译成英文，然后总结为3个关键词。\n\n文本：{text}\n\n{format_instructions}',
+)
 
 const input = {
-  text: "LangChain 是一个强大的 AI 应用开发框架",
+  text: 'LangChain 是一个强大的 AI 应用开发框架',
   format_instructions: outputParser.getFormatInstructions(),
-};
+}
 
 // 步骤 1: 格式化 prompt
-const formattedPrompt = await promptTemplate.format(input);
+const formattedPrompt = await promptTemplate.format(input)
 // 步骤 2: 调用模型
-const response = await model.invoke(formattedPrompt);
+const response = await model.invoke(formattedPrompt)
 // 步骤 3: 解析输出
-const result = await outputParser.invoke(response);
-console.log("✅ 最终结果:");
-console.log(result);
+const result = await outputParser.invoke(response)
+console.log('✅ 最终结果:')
+console.log(result)
 ```
-
-
 
 用 PromptTemplate 管理 prompt，调用 format 传入占位符的值。
 
@@ -90,12 +82,12 @@ console.log(result);
 src/runnable.mjs
 
 ```js
-import "dotenv/config";
-import { StructuredOutputParser } from "@langchain/core/output_parsers";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { ChatOpenAI } from "@langchain/openai";
-import { RunnableSequence } from "@langchain/core/runnables";
-import { z } from "zod";
+import 'dotenv/config'
+import { StructuredOutputParser } from '@langchain/core/output_parsers'
+import { PromptTemplate } from '@langchain/core/prompts'
+import { ChatOpenAI } from '@langchain/openai'
+import { RunnableSequence } from '@langchain/core/runnables'
+import { z } from 'zod'
 
 const model = new ChatOpenAI({
   modelName: process.env.MODEL_NAME,
@@ -104,31 +96,31 @@ const model = new ChatOpenAI({
   configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-});
+})
 
 // 定义输出结构 schema
 const schema = z.object({
-  translation: z.string().describe("翻译后的英文文本"),
-  keywords: z.array(z.string()).length(3).describe("3个关键词"),
-});
+  translation: z.string().describe('翻译后的英文文本'),
+  keywords: z.array(z.string()).length(3).describe('3个关键词'),
+})
 
-const outputParser = StructuredOutputParser.fromZodSchema(schema);
+const outputParser = StructuredOutputParser.fromZodSchema(schema)
 
 const promptTemplate = PromptTemplate.fromTemplate(
-  "将以下文本翻译成英文，然后总结为3个关键词。\n\n文本：{text}\n\n{format_instructions}"
-);
+  '将以下文本翻译成英文，然后总结为3个关键词。\n\n文本：{text}\n\n{format_instructions}',
+)
 
-const chain = RunnableSequence.from([promptTemplate, model, outputParser]);
+const chain = RunnableSequence.from([promptTemplate, model, outputParser])
 
 const input = {
-  text: "LangChain 是一个强大的 AI 应用开发框架",
+  text: 'LangChain 是一个强大的 AI 应用开发框架',
   format_instructions: outputParser.getFormatInstructions(),
-};
+}
 
-const result = await chain.invoke(input);
+const result = await chain.invoke(input)
 
-console.log("✅ 最终结果:");
-console.log(result);
+console.log('✅ 最终结果:')
+console.log(result)
 ```
 
 用 RunnableSequence 声明这三个顺序执行，然后直接执行这条 chain 就好了。
@@ -136,8 +128,6 @@ console.log(result);
 了 RunnableSequence 声明，还可以直接 pipe：`const chain = promptTemplate.pipe(model).pipe(outputParser)`
 
 跑一下发现和 before.mjs 是一样的
-
-
 
 pipe 的源码里，也是返回 RunnableSequence，这俩本质一样
 
@@ -159,8 +149,6 @@ batch 是批量，也就是并发进行多个单独的 invoke
 
 ![img](./15-Runnable：把写逻辑变成组装chain.assets/640.png)
 
-
-
 串联起来的 Runnable 的 chain 就自然可以支持同步调用、批量调用、流式返回。
 
 那我们就只需要考虑怎么组装这个 chain 了。
@@ -168,8 +156,6 @@ batch 是批量，也就是并发进行多个单独的 invoke
 这就是用 LCEL 的方式写代码的好处，你不需要依次调用每个组件，只需要声明这个 chain，然后统一调用。
 
 前面用了 RunnableSequence，它是顺序执行，我们再来用一下其余的 Runnable api
-
-
 
 ### RunnableLambda
 
@@ -180,23 +166,23 @@ src/runnables/RunnableLambda.mjs
 然后通过 RunnableSequence 来顺序调用。这样，普通函数就可以在这个 chain 里调用了。
 
 ```js
-import "dotenv/config";
-import { RunnableLambda, RunnableSequence } from "@langchain/core/runnables";
+import 'dotenv/config'
+import { RunnableLambda, RunnableSequence } from '@langchain/core/runnables'
 
-const addOne = RunnableLambda.from((input) => {
-  console.log(`输入: ${input}`);
-  return input + 1;
-});
+const addOne = RunnableLambda.from(input => {
+  console.log(`输入: ${input}`)
+  return input + 1
+})
 
-const multiplyTwo = RunnableLambda.from((input) => {
-  console.log(`输入: ${input}`);
-  return input * 2;
-});
+const multiplyTwo = RunnableLambda.from(input => {
+  console.log(`输入: ${input}`)
+  return input * 2
+})
 
-const chain = RunnableSequence.from([addOne, multiplyTwo, addOne]);
+const chain = RunnableSequence.from([addOne, multiplyTwo, addOne])
 
-const result = await chain.invoke(5);
-console.log("✅ 最终结果:", result);
+const result = await chain.invoke(5)
+console.log('✅ 最终结果:', result)
 ```
 
 跑一下：
@@ -215,8 +201,6 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-lambda
 // 输入 5，先走addOne，变成 6，走multiplyTwo变成 12，在走addOne变成 13
 ```
 
-
-
 ### RunnableMap
 
 然后是 RunnableMap，它可以并行执行多个 Runnable：
@@ -224,16 +208,16 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-lambda
 src/runnables/RunnableMap.mjs
 
 ```js
-import "dotenv/config";
-import { RunnableMap, RunnableLambda } from "@langchain/core/runnables";
-import { PromptTemplate } from "@langchain/core/prompts";
+import 'dotenv/config'
+import { RunnableMap, RunnableLambda } from '@langchain/core/runnables'
+import { PromptTemplate } from '@langchain/core/prompts'
 
-const addOne = RunnableLambda.from((input) => input.num + 1);
-const multiplyTwo = RunnableLambda.from((input) => input.num * 2);
-const square = RunnableLambda.from((input) => input.num * input.num);
+const addOne = RunnableLambda.from(input => input.num + 1)
+const multiplyTwo = RunnableLambda.from(input => input.num * 2)
+const square = RunnableLambda.from(input => input.num * input.num)
 
-const greetTemplate = PromptTemplate.fromTemplate("你好，{name}！");
-const weatherTemplate = PromptTemplate.fromTemplate("今天天气{weather}。");
+const greetTemplate = PromptTemplate.fromTemplate('你好，{name}！')
+const weatherTemplate = PromptTemplate.fromTemplate('今天天气{weather}。')
 
 // 创建 RunnableMap，并行执行多个 runnable
 // key 可以随便命名
@@ -246,19 +230,19 @@ const runnableMap = RunnableMap.from({
   // prompt 格式化
   greeting: greetTemplate,
   weather: weatherTemplate,
-});
+})
 
 // 测试输入
 // key 是匹配输入的不能随便起
 const input = {
-  name: "神光",
-  weather: "多云",
+  name: '神光',
+  weather: '多云',
   num: 5,
-};
+}
 
 // 执行 RunnableMap
-const result = await runnableMap.invoke(input);
-console.log("✅ 最终结果:", result);
+const result = await runnableMap.invoke(input)
+console.log('✅ 最终结果:', result)
 ```
 
 这里我们输入的 input 会并行经过 5 个 Runnable 处理，结果放到对象的对应属性上
@@ -297,8 +281,6 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-map
 
 :::
 
-
-
 ### RunnableBranch
 
 接下来是 RunnableBranch，它就是 if else 逻辑
@@ -306,36 +288,42 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-map
 src/runnable/RunnableBranch.mjs
 
 ```js
-import 'dotenv/config';
-import { RunnableBranch, RunnableLambda } from"@langchain/core/runnables";
+import 'dotenv/config'
+import { RunnableBranch, RunnableLambda } from '@langchain/core/runnables'
 
 // 创建条件判断函数
-const isPositive = RunnableLambda.from((input) => input > 0);
-const isNegative = RunnableLambda.from((input) => input < 0);
-const isEven = RunnableLambda.from((input) => input % 2 === 0);
+const isPositive = RunnableLambda.from(input => input > 0)
+const isNegative = RunnableLambda.from(input => input < 0)
+const isEven = RunnableLambda.from(input => input % 2 === 0)
 
 // 创建分支处理函数
-const handlePositive = RunnableLambda.from((input) =>`正数: ${input} + 10 = ${input + 10}`);
-const handleNegative = RunnableLambda.from((input) =>`负数: ${input} - 10 = ${input - 10}`);
-const handleEven = RunnableLambda.from((input) =>`偶数: ${input} * 2 = ${input * 2}`);
+const handlePositive = RunnableLambda.from(
+  input => `正数: ${input} + 10 = ${input + 10}`,
+)
+const handleNegative = RunnableLambda.from(
+  input => `负数: ${input} - 10 = ${input - 10}`,
+)
+const handleEven = RunnableLambda.from(
+  input => `偶数: ${input} * 2 = ${input * 2}`,
+)
 
 // 当所有条件都不满足时的兜底分支
-const handleDefault = RunnableLambda.from((input) =>`默认: ${input}`);
+const handleDefault = RunnableLambda.from(input => `默认: ${input}`)
 
 // 创建 RunnableBranch
 const branch = RunnableBranch.from([
-    [isPositive, handlePositive],
-    [isNegative, handleNegative],
-    [isEven, handleEven],
-    handleDefault
-]);
+  [isPositive, handlePositive],
+  [isNegative, handleNegative],
+  [isEven, handleEven],
+  handleDefault,
+])
 
 // 测试不同的输入
-const testCases = [5, -3, 4, 0, "abc"];
+const testCases = [5, -3, 4, 0, 'abc']
 
 for (const testCase of testCases) {
-    const result = await branch.invoke(testCase);
-    console.log(`输入: ${testCase} => ${result}`);
+  const result = await branch.invoke(testCase)
+  console.log(`输入: ${testCase} => ${result}`)
 }
 ```
 
@@ -367,7 +355,7 @@ RunnableBranch.from([
   [condition1, runnable1],
   [condition2, runnable2],
   [condition3, runnable3],
-  defaultRunnable
+  defaultRunnable,
 ])
 ```
 
@@ -390,7 +378,7 @@ const branch = RunnableBranch.from([
   [isNegative, handleNegative],
   [isEven, handleEven],
   handleDefault,
-]);
+])
 ```
 
 等价于
@@ -409,8 +397,6 @@ if (input > 0) {
 
 :::
 
-
-
 ### RouterRunnable
 
 然后是 RouterRunnable，它相当于 switch case
@@ -418,14 +404,14 @@ if (input > 0) {
 src/runnables/RouterRunnable.mjs
 
 ```js
-import "dotenv/config";
-import { RouterRunnable, RunnableLambda } from "@langchain/core/runnables";
+import 'dotenv/config'
+import { RouterRunnable, RunnableLambda } from '@langchain/core/runnables'
 
 // 创建两个简单的 RunnableLambda
-const toUpperCase = RunnableLambda.from((text) => text.toUpperCase());
-const reverseText = RunnableLambda.from((text) =>
-  text.split("").reverse().join("")
-);
+const toUpperCase = RunnableLambda.from(text => text.toUpperCase())
+const reverseText = RunnableLambda.from(text =>
+  text.split('').reverse().join(''),
+)
 
 // 创建 RouterRunnable，根据 key 选择要调用的 runnable
 const router = new RouterRunnable({
@@ -433,62 +419,61 @@ const router = new RouterRunnable({
     toUpperCase,
     reverseText,
   },
-});
+})
 
 // 测试：调用 reverseText
 const result1 = await router.invoke({
-  key: "reverseText", // 根据 key 选择要调用的 runnable
-  input: "Hello World",
-});
-console.log("reverseText 结果:", result1);
+  key: 'reverseText', // 根据 key 选择要调用的 runnable
+  input: 'Hello World',
+})
+console.log('reverseText 结果:', result1)
 
 // 测试：调用 toUpperCase
 const result2 = await router.invoke({
-  key: "toUpperCase", // 根据 key 选择要调用的 runnable
-  input: "Hello World",
-});
-console.log("toUpperCase 结果:", result2);
+  key: 'toUpperCase', // 根据 key 选择要调用的 runnable
+  input: 'Hello World',
+})
+console.log('toUpperCase 结果:', result2)
 ```
 
 根据 key 匹配对应的 chain 来执行。
-
-
 
 ### RunnablePassthrough
 
 然后是 RunnablePassthrough，它是传入的最初的值：
 
 ```js
-import "dotenv/config";
+import 'dotenv/config'
 import {
   RunnablePassthrough,
   RunnableLambda,
   RunnableSequence,
   RunnableMap,
-} from "@langchain/core/runnables";
+} from '@langchain/core/runnables'
 
 const chain = RunnableSequence.from([
   // 将输入转换为对象，为{ concept: "teSta" }
-  RunnableLambda.from((input) => ({ concept: input + "a" })),
+  RunnableLambda.from(input => ({ concept: input + 'a' })),
   // 将对象转换为另一个对象
   RunnableMap.from({
     // 将输入原封不动地传递下去
     original: new RunnablePassthrough(),
-    processed: RunnableLambda.from((obj) => ({
+    processed: RunnableLambda.from(obj => ({
       // 这里的 obj 是上面 RunnableLambda.from((input) => ({ concept: input + "a" })) 的输出
       concept: obj.concept,
       upper: obj.concept.toUpperCase(),
       length: obj.concept.length,
     })),
   }),
-]);
+])
 
-const input = "teSt";
-const result = await chain.invoke(input);
-console.log("✅ 最终结果:", result);
+const input = 'teSt'
+const result = await chain.invoke(input)
+console.log('✅ 最终结果:', result)
 ```
 
 跑一下：
+
 ```js
 mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-passthrough
 
@@ -513,13 +498,13 @@ processed 部分用 RunnableLambda 处理。
 
 ```js
 const chain = RunnableSequence.from([
-  (input) => ({ concept: input + "a" }),
-  (obj) => ({
+  input => ({ concept: input + 'a' }),
+  obj => ({
     concept: obj.concept,
     upper: obj.concept.toUpperCase(),
     length: obj.concept.length,
   }),
-]);
+])
 ```
 
 只保留函数、对象即可，LangChain 会把函数转为 RunnableLambda，把对象转为 RunnableMap
@@ -537,16 +522,16 @@ const chain = RunnableSequence.from([
 
 ```js
 const chain = RunnableSequence.from([
-  (input) => ({ concept: input + "a" }),
+  input => ({ concept: input + 'a' }),
   RunnablePassthrough.assign({
     original: new RunnablePassthrough(),
-    processed: (obj) => ({
+    processed: obj => ({
       concept: obj.concept,
       upper: obj.concept.toUpperCase(),
       length: obj.concept.length,
     }),
   }),
-]);
+])
 ```
 
 跑一下：
@@ -566,8 +551,6 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-passthrough
 
 现在之前的属性也保留着，只是合并了新的属性，就像 Object.assign 一样
 
-
-
 ### RunnableEach
 
 接下来是 RunnableEach，这个显然就是循环：
@@ -575,33 +558,33 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-passthrough
 src/runnables/RunnableEach.mjs
 
 ```js
-import "dotenv/config";
+import 'dotenv/config'
 import {
   RunnableEach,
   RunnableLambda,
   RunnableSequence,
-} from "@langchain/core/runnables";
+} from '@langchain/core/runnables'
 
-const toUpperCase = RunnableLambda.from((input) => input.toUpperCase());
-const addGreeting = RunnableLambda.from((input) => `你好，${input}！`);
+const toUpperCase = RunnableLambda.from(input => input.toUpperCase())
+const addGreeting = RunnableLambda.from(input => `你好，${input}！`)
 
-const processItem = RunnableSequence.from([toUpperCase, addGreeting]);
+const processItem = RunnableSequence.from([toUpperCase, addGreeting])
 
 // 使用 RunnableEach 对数组中的每个元素应用这个链
 const chain = new RunnableEach({
   bound: processItem,
-});
+})
 
-const input = ["alice", "bob", "carol"];
-const result = await chain.invoke(input);
+const input = ['alice', 'bob', 'carol']
+const result = await chain.invoke(input)
 
-console.log("✅ RunnableEach - 数组元素处理:");
-console.log("输入:", input);
-console.log("输出:", result);
+console.log('✅ RunnableEach - 数组元素处理:')
+console.log('输入:', input)
+console.log('输出:', result)
 ```
 
 ```
-mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-each       
+mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-each
 
 > ai@1.0.0 runnable-each /Users/mac/jiuci/github/aiagent
 > node src/15/RunnableEach.mjs
@@ -611,8 +594,6 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-each
 输出: [ '你好，ALICE！', '你好，BOB！', '你好，CAROL！' ]
 ```
 
-
-
 ### RunnablePick
 
 再就是 RunnablePick，这个就是从对象里取一些属性：
@@ -620,28 +601,28 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-each
 src/runnables/RunablePick.mjs
 
 ```js
-import "dotenv/config";
-import { RunnablePick, RunnableSequence } from "@langchain/core/runnables";
+import 'dotenv/config'
+import { RunnablePick, RunnableSequence } from '@langchain/core/runnables'
 
 const inputData = {
-  name: "神光",
+  name: '神光',
   age: 30,
-  city: "北京",
-  country: "中国",
-  email: "shenguang@example.com",
-  phone: "+86-13800138000",
-};
+  city: '北京',
+  country: '中国',
+  email: 'shenguang@example.com',
+  phone: '+86-13800138000',
+}
 
 const chain = RunnableSequence.from([
-  (input) => ({
+  input => ({
     ...input,
     fullInfo: `${input.name}，${input.age}岁，来自${input.city}`,
   }),
-  new RunnablePick(["name", "fullInfo", "phone"]),
-]);
+  new RunnablePick(['name', 'fullInfo', 'phone']),
+])
 
-const result = await chain.invoke(inputData);
-console.log("✅ 最终结果:", result);
+const result = await chain.invoke(inputData)
+console.log('✅ 最终结果:', result)
 ```
 
 ```
@@ -653,8 +634,6 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-pick
 ✅ 最终结果: { name: '神光', fullInfo: '神光，30岁，来自北京', phone: '+86-13800138000' }
 ```
 
-
-
 ### RunnableWithMessageHistory
 
 最后是 RunnableWithMessageHistory，它是给 chain 加上 memory 的功能
@@ -662,15 +641,15 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-pick
 src/runnables/RunnableWithMessageHistory.mjs
 
 ```js
-import "dotenv/config";
-import { RunnableWithMessageHistory } from "@langchain/core/runnables";
-import { InMemoryChatMessageHistory } from "@langchain/core/chat_history";
-import { ChatOpenAI } from "@langchain/openai";
+import 'dotenv/config'
+import { RunnableWithMessageHistory } from '@langchain/core/runnables'
+import { InMemoryChatMessageHistory } from '@langchain/core/chat_history'
+import { ChatOpenAI } from '@langchain/openai'
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
-} from "@langchain/core/prompts";
-import { StringOutputParser } from "@langchain/core/output_parsers";
+} from '@langchain/core/prompts'
+import { StringOutputParser } from '@langchain/core/output_parsers'
 
 const model = new ChatOpenAI({
   modelName: process.env.MODEL_NAME,
@@ -679,105 +658,105 @@ const model = new ChatOpenAI({
   configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-});
+})
 
 const prompt = ChatPromptTemplate.fromMessages([
   [
-    "system",
-    "你是一个简洁、有帮助的中文助手，会用 1-2 句话回答用户问题，重点给出明确、有用的信息。",
+    'system',
+    '你是一个简洁、有帮助的中文助手，会用 1-2 句话回答用户问题，重点给出明确、有用的信息。',
   ],
   // 这里用 MessagesPlaceholder 来承载「之前的多轮对话」,会被历史消息占位替换。
-  new MessagesPlaceholder("history"),
-  ["human", "{question}"],
-]);
+  new MessagesPlaceholder('history'),
+  ['human', '{question}'],
+])
 
 // 用 Prompt 生成 LLM 输入。
 // .pipe(StringOutputParser()) → 将模型输出解析为纯字符串。
-const simpleChain = prompt.pipe(model).pipe(new StringOutputParser());
+const simpleChain = prompt.pipe(model).pipe(new StringOutputParser())
 
-const messageHistories = new Map();
+const messageHistories = new Map()
 
-const getMessageHistory = (sessionId) => {
+const getMessageHistory = sessionId => {
   if (!messageHistories.has(sessionId)) {
-    messageHistories.set(sessionId, new InMemoryChatMessageHistory());
+    messageHistories.set(sessionId, new InMemoryChatMessageHistory())
   }
-  return messageHistories.get(sessionId);
-};
+  return messageHistories.get(sessionId)
+}
 
 // 创建带消息历史的链
 const chain = new RunnableWithMessageHistory({
   // 实际问答链，负责输出回答。
   runnable: simpleChain,
   // 根据 sessionId 获取历史消息。
-  getMessageHistory: (sessionId) => getMessageHistory(sessionId),
+  getMessageHistory: sessionId => getMessageHistory(sessionId),
   // 输入消息的 key。
-  inputMessagesKey: "question",
+  inputMessagesKey: 'question',
   // 历史消息的 key。
-  historyMessagesKey: "history",
-});
+  historyMessagesKey: 'history',
+})
 
 // 测试：第一次对话
-console.log("--- 第一次对话（提供信息） ---");
+console.log('--- 第一次对话（提供信息） ---')
 const result1 = await chain.invoke(
   {
-    question: "我的名字是神光，我来自山东，我喜欢编程、写作、金铲铲。",
+    question: '我的名字是神光，我来自山东，我喜欢编程、写作、金铲铲。',
   },
   {
     configurable: {
-      sessionId: "user-123",
+      sessionId: 'user-123',
     },
-  }
-);
-console.log("问题: 我的名字是神光，我来自山东，我喜欢编程、写作、金铲铲。");
-console.log("回答:", result1);
-console.log();
+  },
+)
+console.log('问题: 我的名字是神光，我来自山东，我喜欢编程、写作、金铲铲。')
+console.log('回答:', result1)
+console.log()
 
 // 测试：第二次对话
-console.log("--- 第二次对话（询问之前的信息） ---");
+console.log('--- 第二次对话（询问之前的信息） ---')
 const result2 = await chain.invoke(
   {
-    question: "我刚才说我来自哪里？",
+    question: '我刚才说我来自哪里？',
   },
   {
     configurable: {
-      sessionId: "user-123",
+      sessionId: 'user-123',
     },
-  }
-);
-console.log("问题: 我刚才说我来自哪里？");
-console.log("回答:", result2);
-console.log();
+  },
+)
+console.log('问题: 我刚才说我来自哪里？')
+console.log('回答:', result2)
+console.log()
 
 // 测试：第三次对话
-console.log("--- 第三次对话（继续询问） ---");
+console.log('--- 第三次对话（继续询问） ---')
 const result3 = await chain.invoke(
   {
-    question: "我的爱好是什么？",
+    question: '我的爱好是什么？',
   },
   {
     configurable: {
-      sessionId: "user-123",
+      sessionId: 'user-123',
     },
-  }
-);
-console.log("问题: 我的爱好是什么？");
-console.log("回答:", result3);
-console.log();
+  },
+)
+console.log('问题: 我的爱好是什么？')
+console.log('回答:', result3)
+console.log()
 
 // 测试：第四次对话
-console.log("--- 第四次对话（继续询问） ---");
+console.log('--- 第四次对话（继续询问） ---')
 const result4 = await chain.invoke(
   {
-    question: "我的邮箱是什么？",
+    question: '我的邮箱是什么？',
   },
   {
     configurable: {
-      sessionId: "user-1231",
+      sessionId: 'user-1231',
     },
-  }
-);
-console.log("问题: 我的邮箱是什么？");
-console.log("回答:", result4);
+  },
+)
+console.log('问题: 我的邮箱是什么？')
+console.log('回答:', result4)
 ```
 
 我们用 ChatPromptTemplate 创建 prompt，其中 history 对话历史用 MessagesPlaceholder 插入。
@@ -813,8 +792,6 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run runnable-with-message-history
 
 这样就可以给一段 Chain 加上 memory。
 
-
-
 ## 总结
 
 LangChain 的很多组件都继承了 Runnable 抽象类，而且也提供了很多 Runnable 的 api
@@ -840,24 +817,3 @@ LangChain 的很多组件都继承了 Runnable 抽象类，而且也提供了很
 并且 Runnable 提供了 invoke、stream、batch 方法，可以做同步调用、流式返回、批量调用等。
 
 学完 Runnable 的 api 后，我们再写之前的逻辑，就都可以用 chain 的方式写了，这样更简洁。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

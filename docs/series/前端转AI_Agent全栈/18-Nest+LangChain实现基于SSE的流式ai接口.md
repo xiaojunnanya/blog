@@ -8,12 +8,6 @@ tags: [AI]
 keywords: [AI]
 ---
 
-
-
-
-
-
-
 ## 前言
 
 前面学了 LangChain 的各种功能，但都是在 Node.js 脚本里跑的，而实际上大多数 Agent 都是跑在后端服务里。
@@ -33,8 +27,6 @@ nest new hello-nest-langchain
 ```
 
 具体关于nest这里就不介绍了
-
-
 
 ## 使用
 
@@ -100,8 +92,6 @@ export class AiController {
 
 跑一下：`http://localhost:3000/ai/chat?query=你好`
 
-
-
 ## 配置抽离
 
 但现在有两个问题：
@@ -114,11 +104,11 @@ export class AiController {
 在 AppModule 里引入 ConfigModule：
 
 ```ts
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AiModule } from './ai/ai.module';
-import { ConfigModule } from '@nestjs/config';
+import { Module } from '@nestjs/common'
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import { AiModule } from './ai/ai.module'
+import { ConfigModule } from '@nestjs/config'
 
 @Module({
   imports: [
@@ -149,19 +139,19 @@ MODEL_NAME=qwen-plus
 现在配置就可以用 ConfigService 动态读取了：
 
 ```ts
-import { Inject, Injectable } from '@nestjs/common';
-import { ChatOpenAI } from '@langchain/openai';
-import { PromptTemplate } from '@langchain/core/prompts';
-import type { Runnable } from '@langchain/core/runnables';
-import { StringOutputParser } from '@langchain/core/output_parsers';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common'
+import { ChatOpenAI } from '@langchain/openai'
+import { PromptTemplate } from '@langchain/core/prompts'
+import type { Runnable } from '@langchain/core/runnables'
+import { StringOutputParser } from '@langchain/core/output_parsers'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class AiService {
-  private readonly chain: Runnable;
+  private readonly chain: Runnable
 
   constructor(@Inject(ConfigService) configService: ConfigService) {
-    const prompt = PromptTemplate.fromTemplate('请回答以下问题：\n\n{query}');
+    const prompt = PromptTemplate.fromTemplate('请回答以下问题：\n\n{query}')
     const model = new ChatOpenAI({
       temperature: 0.7,
       modelName: configService.get('MODEL_NAME'),
@@ -169,17 +159,15 @@ export class AiService {
       configuration: {
         baseURL: configService.get('OPENAI_API_URL'),
       },
-    });
-    this.chain = prompt.pipe(model).pipe(new StringOutputParser());
+    })
+    this.chain = prompt.pipe(model).pipe(new StringOutputParser())
   }
 
   async runChain(query: string): Promise<string> {
-    return this.chain.invoke({ query });
+    return this.chain.invoke({ query })
   }
 }
 ```
-
-
 
 ## 流式返回
 
@@ -200,7 +188,7 @@ async *streamChain(query: string): AsyncGenerator<string> {
 
 调用 chain 的 stream 方法，流式返回内容。
 
-这里用到了 js 的生成器语法，也就是方法名那里标个*，然后 yield 不断异步返回内容。
+这里用到了 js 的生成器语法，也就是方法名那里标个\*，然后 yield 不断异步返回内容。
 
 你没用过这个语法也没关系，理解意思就行，过一遍就会了。
 
@@ -241,43 +229,41 @@ export class AiController {
 我们写一下前端代码，有的同学可能不知道 sse 的接口怎么调用；
 
 ```js
-btn.addEventListener("click", () => {
-        const baseUrl = apiUrlInput.value.replace(/\/$/, "");
-        const q = queryInput.value.trim();
-        if (!q) {
-          status.textContent = "请输入问题";
-          return;
-        }
+btn.addEventListener('click', () => {
+  const baseUrl = apiUrlInput.value.replace(/\/$/, '')
+  const q = queryInput.value.trim()
+  if (!q) {
+    status.textContent = '请输入问题'
+    return
+  }
 
-        const url = `${baseUrl}/ai/chat/stream?query=${encodeURIComponent(q)}`;
-        output.textContent = "";
-        btn.disabled = true;
-        status.textContent = "连接中...";
+  const url = `${baseUrl}/ai/chat/stream?query=${encodeURIComponent(q)}`
+  output.textContent = ''
+  btn.disabled = true
+  status.textContent = '连接中...'
 
-        const eventSource = new EventSource(url);
+  const eventSource = new EventSource(url)
 
-        eventSource.onmessage = ({ data }) => {
-          output.textContent += data;
-          status.textContent = "接收中...";
-        };
+  eventSource.onmessage = ({ data }) => {
+    output.textContent += data
+    status.textContent = '接收中...'
+  }
 
-        eventSource.onerror = () => {
-          eventSource.close();
-          btn.disabled = false;
-          status.textContent = "连接已结束";
-        };
+  eventSource.onerror = () => {
+    eventSource.close()
+    btn.disabled = false
+    status.textContent = '连接已结束'
+  }
 
-        eventSource.addEventListener("done", () => {
-          eventSource.close();
-          btn.disabled = false;
-          status.textContent = "完成";
-        });
-      });
+  eventSource.addEventListener('done', () => {
+    eventSource.close()
+    btn.disabled = false
+    status.textContent = '完成'
+  })
+})
 ```
 
 就是调用 EventSource 的 api，在 onmessage 回调里接收 data 就可以了。
-
-
 
 ## **总结**
 
@@ -303,12 +289,3 @@ chain 定义在构造器里，避免重复创建。
 前端代码用 EventSource 来监听 sse 的 message 事件，拿到流式返回的数据。
 
 SSE 在 ai 接口流式返回内容方面是最常用的方式，后面会经常用到。
-
-
-
-
-
-
-
-
-

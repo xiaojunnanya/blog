@@ -8,8 +8,6 @@ tags: [AI]
 keywords: [AI]
 ---
 
-
-
 ## 前言
 
 我们学了 loader、splitter、向量数据库 Milvus，这样我们 RAG 流程就完整跑通了：
@@ -18,8 +16,6 @@ keywords: [AI]
 - 查询的时候，把 query 也用嵌入模型向量化，根据余弦相似度，匹配最相近的文档返回
 
 这节我们就来做一个综合性的小实战：电子书语义检索助手。
-
-
 
 ## 实战
 
@@ -37,8 +33,6 @@ keywords: [AI]
 
 我们来写一下
 
-
-
 ### 开始
 
 创建 src/ebook-writer.mjs
@@ -48,8 +42,6 @@ keywords: [AI]
 - 连接 Milvus：` await client.connectPromise`
 - 创建 ebook 的集合：`await ensureCollection(bookId)`
 - 加载 epub 文件用 splitter 分块存入 Milvus：`await loadAndProcessEPubStreaming(bookId)`
-
-
 
 集合的 schema 是这样的：
 
@@ -64,19 +56,13 @@ keywords: [AI]
 
 - 最后要 loadCollection 把这个集合加载到内存才能做快速语义检索。
 
-
-
 然后是 loader 加载 epub 的文件，并 splitter 分块：
 
 - 首先用 EPubLoader 加载 epub 文件，并对每一章做下分割。
 - 但每一章内容还是太多了，再用 RecursiveCharacterTextSplitter 对每章内容以每 500 个字符分下块，分块之后调用插入方法。
 - 插入逻辑就是对 content 用嵌入模型向量化，然后调用 insert 方法插入到 Milvus 的集合中。
 
-
-
 代码最后的解释都在最下方，这个部分看看就行
-
-
 
 ### 存储
 
@@ -85,25 +71,25 @@ keywords: [AI]
 完整代码：
 
 ```js
-import "dotenv/config";
-import { parse } from "path";
+import 'dotenv/config'
+import { parse } from 'path'
 import {
   MilvusClient,
   DataType,
   MetricType,
   IndexType,
-} from "@zilliz/milvus2-sdk-node";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { EPubLoader } from "@langchain/community/document_loaders/fs/epub";
-import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+} from '@zilliz/milvus2-sdk-node'
+import { OpenAIEmbeddings } from '@langchain/openai'
+import { EPubLoader } from '@langchain/community/document_loaders/fs/epub'
+import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 
-const COLLECTION_NAME = "ebook_collection";
-const VECTOR_DIM = 1024;
-const CHUNK_SIZE = 500; // 拆分到 500 个字符
-const EPUB_FILE = "src/10/天龙八部.epub";
+const COLLECTION_NAME = 'ebook_collection'
+const VECTOR_DIM = 1024
+const CHUNK_SIZE = 500 // 拆分到 500 个字符
+const EPUB_FILE = 'src/10/天龙八部.epub'
 
 // 从文件名提取书名（去掉扩展名）
-const BOOK_NAME = parse(EPUB_FILE).name;
+const BOOK_NAME = parse(EPUB_FILE).name
 
 // 初始化 Embeddings 模型
 const embeddings = new OpenAIEmbeddings({
@@ -113,19 +99,19 @@ const embeddings = new OpenAIEmbeddings({
     baseURL: process.env.OPENAI_BASE_URL,
   },
   dimensions: VECTOR_DIM,
-});
+})
 
 // 初始化 Milvus 客户端
 const client = new MilvusClient({
-  address: "localhost:19530",
-});
+  address: 'localhost:19530',
+})
 
 /**
  * 获取文本的向量嵌入
  */
 async function getEmbedding(text) {
-  const result = await embeddings.embedQuery(text);
-  return result;
+  const result = await embeddings.embedQuery(text)
+  return result
 }
 
 /**
@@ -136,51 +122,51 @@ async function ensureCollection(bookId) {
     // 检查集合是否存在
     const hasCollection = await client.hasCollection({
       collection_name: COLLECTION_NAME,
-    });
+    })
 
     if (!hasCollection.value) {
-      console.log("创建集合...");
+      console.log('创建集合...')
       await client.createCollection({
         collection_name: COLLECTION_NAME,
         fields: [
           {
-            name: "id",
+            name: 'id',
             data_type: DataType.VarChar,
             max_length: 100,
             is_primary_key: true,
           },
-          { name: "book_id", data_type: DataType.VarChar, max_length: 100 },
-          { name: "book_name", data_type: DataType.VarChar, max_length: 200 },
-          { name: "chapter_num", data_type: DataType.Int32 },
-          { name: "index", data_type: DataType.Int32 },
-          { name: "content", data_type: DataType.VarChar, max_length: 10000 },
-          { name: "vector", data_type: DataType.FloatVector, dim: VECTOR_DIM },
+          { name: 'book_id', data_type: DataType.VarChar, max_length: 100 },
+          { name: 'book_name', data_type: DataType.VarChar, max_length: 200 },
+          { name: 'chapter_num', data_type: DataType.Int32 },
+          { name: 'index', data_type: DataType.Int32 },
+          { name: 'content', data_type: DataType.VarChar, max_length: 10000 },
+          { name: 'vector', data_type: DataType.FloatVector, dim: VECTOR_DIM },
         ],
-      });
-      console.log("✓ 集合创建成功");
+      })
+      console.log('✓ 集合创建成功')
 
       // 创建索引
-      console.log("创建索引...");
+      console.log('创建索引...')
       await client.createIndex({
         collection_name: COLLECTION_NAME,
-        field_name: "vector",
+        field_name: 'vector',
         index_type: IndexType.IVF_FLAT,
         metric_type: MetricType.COSINE,
         params: { nlist: 1024 },
-      });
-      console.log("✓ 索引创建成功");
+      })
+      console.log('✓ 索引创建成功')
     }
 
     // 确保集合已加载
     try {
-      await client.loadCollection({ collection_name: COLLECTION_NAME });
-      console.log("✓ 集合已加载");
+      await client.loadCollection({ collection_name: COLLECTION_NAME })
+      console.log('✓ 集合已加载')
     } catch (error) {
-      console.log("✓ 集合已处于加载状态");
+      console.log('✓ 集合已处于加载状态')
     }
   } catch (error) {
-    console.error("创建集合时出错:", error.message);
-    throw error;
+    console.error('创建集合时出错:', error.message)
+    throw error
   }
 }
 
@@ -190,13 +176,13 @@ async function ensureCollection(bookId) {
 async function insertChunksBatch(chunks, bookId, chapterNum) {
   try {
     if (chunks.length === 0) {
-      return0;
+      return0
     }
 
     // 为每个文档块生成向量并构建插入数据
     const insertData = await Promise.all(
       chunks.map(async (chunk, chunkIndex) => {
-        const vector = await getEmbedding(chunk);
+        const vector = await getEmbedding(chunk)
         // 手动生成 ID：book_id_chapterNum_index
         return {
           id: `${bookId}_${chapterNum}_${chunkIndex}`,
@@ -206,21 +192,21 @@ async function insertChunksBatch(chunks, bookId, chapterNum) {
           index: chunkIndex,
           content: chunk,
           vector: vector,
-        };
-      })
-    );
+        }
+      }),
+    )
 
     // 批量插入到 Milvus
     const insertResult = await client.insert({
       collection_name: COLLECTION_NAME,
       data: insertData,
-    });
+    })
 
-    return Number(insertResult.insert_cnt) || 0;
+    return Number(insertResult.insert_cnt) || 0
   } catch (error) {
-    console.error(`插入章节 ${chapterNum} 的数据时出错:`, error.message);
-    console.error("错误详情:", error);
-    throw error;
+    console.error(`插入章节 ${chapterNum} 的数据时出错:`, error.message)
+    console.error('错误详情:', error)
+    throw error
   }
 }
 
@@ -229,23 +215,23 @@ async function insertChunksBatch(chunks, bookId, chapterNum) {
  */
 async function loadAndProcessEPubStreaming(bookId) {
   try {
-    console.log(`\n开始加载 EPUB 文件: ${EPUB_FILE}`);
+    console.log(`\n开始加载 EPUB 文件: ${EPUB_FILE}`)
 
     // 使用 EPubLoader 加载文件，按章节拆分
     const loader = new EPubLoader(EPUB_FILE, {
       splitChapters: true,
-    });
+    })
 
-    const documents = await loader.load();
-    console.log(`✓ 加载完成，共 ${documents.length} 个章节\n`);
+    const documents = await loader.load()
+    console.log(`✓ 加载完成，共 ${documents.length} 个章节\n`)
 
     // 创建文本拆分器，拆分到 500 个字符
     const textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: CHUNK_SIZE,
       chunkOverlap: 50, // 重叠 50 个字符，保持上下文连贯性
-    });
+    })
 
-    let totalInserted = 0;
+    let totalInserted = 0
 
     // 遍历每个章节，进行二次拆分并立即插入
     for (
@@ -253,41 +239,41 @@ async function loadAndProcessEPubStreaming(bookId) {
       chapterIndex < documents.length;
       chapterIndex++
     ) {
-      const chapter = documents[chapterIndex];
-      const chapterContent = chapter.pageContent;
+      const chapter = documents[chapterIndex]
+      const chapterContent = chapter.pageContent
 
-      console.log(`处理第 ${chapterIndex + 1}/${documents.length} 章...`);
+      console.log(`处理第 ${chapterIndex + 1}/${documents.length} 章...`)
 
       // 使用 splitter 进行二次拆分
-      const chunks = await textSplitter.splitText(chapterContent);
+      const chunks = await textSplitter.splitText(chapterContent)
 
-      console.log(`  拆分为 ${chunks.length} 个片段`);
+      console.log(`  拆分为 ${chunks.length} 个片段`)
 
       if (chunks.length === 0) {
-        console.log(`  跳过空章节\n`);
-        continue;
+        console.log(`  跳过空章节\n`)
+        continue
       }
 
-      console.log(`  生成向量并插入中...`);
+      console.log(`  生成向量并插入中...`)
 
       // 立即生成向量并插入该章节的所有片段
       const insertedCount = await insertChunksBatch(
         chunks,
         bookId,
-        chapterIndex + 1
-      );
-      totalInserted += insertedCount;
+        chapterIndex + 1,
+      )
+      totalInserted += insertedCount
 
       console.log(
-        `  ✓ 已插入 ${insertedCount} 条记录（累计: ${totalInserted}）\n`
-      );
+        `  ✓ 已插入 ${insertedCount} 条记录（累计: ${totalInserted}）\n`,
+      )
     }
 
-    console.log(`\n总共插入 ${totalInserted} 条记录\n`);
-    return totalInserted;
+    console.log(`\n总共插入 ${totalInserted} 条记录\n`)
+    return totalInserted
   } catch (error) {
-    console.error("加载 EPUB 文件时出错:", error.message);
-    throw error;
+    console.error('加载 EPUB 文件时出错:', error.message)
+    throw error
   }
 }
 
@@ -296,35 +282,35 @@ async function loadAndProcessEPubStreaming(bookId) {
  */
 async function main() {
   try {
-    console.log("=".repeat(80));
-    console.log("电子书处理程序");
-    console.log("=".repeat(80));
+    console.log('='.repeat(80))
+    console.log('电子书处理程序')
+    console.log('='.repeat(80))
 
     // 连接 Milvus
-    console.log("\n连接 Milvus...");
-    await client.connectPromise;
-    console.log("✓ 已连接\n");
+    console.log('\n连接 Milvus...')
+    await client.connectPromise
+    console.log('✓ 已连接\n')
 
     // 设置 book_id（
-    const bookId = 1;
+    const bookId = 1
 
     // 确保集合存在
-    await ensureCollection(bookId);
+    await ensureCollection(bookId)
 
     // 加载和处理 EPUB 文件（流式处理，边处理边插入）
-    await loadAndProcessEPubStreaming(bookId);
+    await loadAndProcessEPubStreaming(bookId)
 
-    console.log("=".repeat(80));
-    console.log("处理完成！");
-    console.log("=".repeat(80));
+    console.log('='.repeat(80))
+    console.log('处理完成！')
+    console.log('='.repeat(80))
   } catch (error) {
-    console.error("\n错误:", error.message);
-    console.error(error.stack);
-    process.exit(1);
+    console.error('\n错误:', error.message)
+    console.error(error.stack)
+    process.exit(1)
   }
 }
 
-main();
+main()
 ```
 
 跑一下：等《天龙八部》电子书全部拆分存入向量数据库。
@@ -335,19 +321,17 @@ main();
 
 接下来我们试下查询
 
-
-
 ### 查询
 
 创建 src/ebook-query.mjs
 
 ```js
-import "dotenv/config";
-import { MilvusClient, MetricType } from "@zilliz/milvus2-sdk-node";
-import { OpenAIEmbeddings } from "@langchain/openai";
+import 'dotenv/config'
+import { MilvusClient, MetricType } from '@zilliz/milvus2-sdk-node'
+import { OpenAIEmbeddings } from '@langchain/openai'
 
-const COLLECTION_NAME = "ebook_collection";
-const VECTOR_DIM = 1024;
+const COLLECTION_NAME = 'ebook_collection'
+const VECTOR_DIM = 1024
 
 const embeddings = new OpenAIEmbeddings({
   apiKey: process.env.OPENAI_API_KEY,
@@ -356,64 +340,64 @@ const embeddings = new OpenAIEmbeddings({
     baseURL: process.env.OPENAI_BASE_URL,
   },
   dimensions: VECTOR_DIM,
-});
+})
 
 const client = new MilvusClient({
-  address: "localhost:19530",
-});
+  address: 'localhost:19530',
+})
 
 async function getEmbedding(text) {
-  const result = await embeddings.embedQuery(text);
-  return result;
+  const result = await embeddings.embedQuery(text)
+  return result
 }
 
 async function main() {
   try {
-    console.log("Connecting to Milvus...");
-    await client.connectPromise;
-    console.log("✓ Connected\n");
+    console.log('Connecting to Milvus...')
+    await client.connectPromise
+    console.log('✓ Connected\n')
 
     // 确保集合已加载
     try {
-      await client.loadCollection({ collection_name: COLLECTION_NAME });
-      console.log("✓ 集合已加载\n");
+      await client.loadCollection({ collection_name: COLLECTION_NAME })
+      console.log('✓ 集合已加载\n')
     } catch (error) {
       // 如果已经加载，会报错，忽略即可
-      if (!error.message.includes("already loaded")) {
-        throw error;
+      if (!error.message.includes('already loaded')) {
+        throw error
       }
-      console.log("✓ 集合已处于加载状态\n");
+      console.log('✓ 集合已处于加载状态\n')
     }
 
     // 向量搜索
-    console.log("Searching for similar ebook content...");
-    const query = "段誉会什么武功？";
-    console.log(`Query: "${query}"\n`);
+    console.log('Searching for similar ebook content...')
+    const query = '段誉会什么武功？'
+    console.log(`Query: "${query}"\n`)
 
-    const queryVector = await getEmbedding(query);
+    const queryVector = await getEmbedding(query)
     const searchResult = await client.search({
       collection_name: COLLECTION_NAME,
       vector: queryVector,
       limit: 3,
       metric_type: MetricType.COSINE,
-      output_fields: ["id", "book_id", "chapter_num", "index", "content"],
-    });
+      output_fields: ['id', 'book_id', 'chapter_num', 'index', 'content'],
+    })
 
-    console.log(`Found ${searchResult.results.length} results:\n`);
+    console.log(`Found ${searchResult.results.length} results:\n`)
     searchResult.results.forEach((item, index) => {
-      console.log(`${index + 1}. [Score: ${item.score.toFixed(4)}]`);
-      console.log(`   ID: ${item.id}`);
-      console.log(`   Book ID: ${item.book_id}`);
-      console.log(`   Chapter: 第 ${item.chapter_num} 章`);
-      console.log(`   Index: ${item.index}`);
-      console.log(`   Content: ${item.content}\n`);
-    });
+      console.log(`${index + 1}. [Score: ${item.score.toFixed(4)}]`)
+      console.log(`   ID: ${item.id}`)
+      console.log(`   Book ID: ${item.book_id}`)
+      console.log(`   Chapter: 第 ${item.chapter_num} 章`)
+      console.log(`   Index: ${item.index}`)
+      console.log(`   Content: ${item.content}\n`)
+    })
   } catch (error) {
-    console.error("Error:", error.message);
+    console.error('Error:', error.message)
   }
 }
 
-main();
+main()
 ```
 
 跑一下
@@ -426,19 +410,17 @@ main();
 
 当然，给一堆文档还不够，你得让大模型去理解文档，生成最终的回答。
 
-
-
 ### 与大模型结合
 
 创建 src/ebook-reader-rag.mjs
 
 ```js
-import "dotenv/config";
-import { MilvusClient, MetricType } from "@zilliz/milvus2-sdk-node";
-import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import 'dotenv/config'
+import { MilvusClient, MetricType } from '@zilliz/milvus2-sdk-node'
+import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 
-const COLLECTION_NAME = "ebook_collection";
-const VECTOR_DIM = 1024;
+const COLLECTION_NAME = 'ebook_collection'
+const VECTOR_DIM = 1024
 
 // 初始化 OpenAI Chat 模型
 const model = new ChatOpenAI({
@@ -448,7 +430,7 @@ const model = new ChatOpenAI({
   configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-});
+})
 
 // 初始化 Embeddings 模型
 const embeddings = new OpenAIEmbeddings({
@@ -458,19 +440,19 @@ const embeddings = new OpenAIEmbeddings({
     baseURL: process.env.OPENAI_BASE_URL,
   },
   dimensions: VECTOR_DIM,
-});
+})
 
 // 初始化 Milvus 客户端
 const client = new MilvusClient({
-  address: "localhost:19530",
-});
+  address: 'localhost:19530',
+})
 
 /**
  * 获取文本的向量嵌入
  */
 async function getEmbedding(text) {
-  const result = await embeddings.embedQuery(text);
-  return result;
+  const result = await embeddings.embedQuery(text)
+  return result
 }
 
 /**
@@ -479,7 +461,7 @@ async function getEmbedding(text) {
 async function retrieveRelevantContent(question, k = 3) {
   try {
     // 生成问题的向量
-    const queryVector = await getEmbedding(question);
+    const queryVector = await getEmbedding(question)
 
     // 在 Milvus 中搜索相似的内容
     const searchResult = await client.search({
@@ -487,13 +469,13 @@ async function retrieveRelevantContent(question, k = 3) {
       vector: queryVector,
       limit: k,
       metric_type: MetricType.COSINE,
-      output_fields: ["id", "book_id", "chapter_num", "index", "content"],
-    });
+      output_fields: ['id', 'book_id', 'chapter_num', 'index', 'content'],
+    })
 
-    return searchResult.results;
+    return searchResult.results
   } catch (error) {
-    console.error("检索内容时出错:", error.message);
-    return [];
+    console.error('检索内容时出错:', error.message)
+    return []
   }
 }
 
@@ -502,40 +484,40 @@ async function retrieveRelevantContent(question, k = 3) {
  */
 async function answerEbookQuestion(question, k = 3) {
   try {
-    console.log("=".repeat(80));
-    console.log(`问题: ${question}`);
-    console.log("=".repeat(80));
+    console.log('='.repeat(80))
+    console.log(`问题: ${question}`)
+    console.log('='.repeat(80))
 
     // 1. 检索相关内容
-    console.log("\n【检索相关内容】");
-    const retrievedContent = await retrieveRelevantContent(question, k);
+    console.log('\n【检索相关内容】')
+    const retrievedContent = await retrieveRelevantContent(question, k)
 
     if (retrievedContent.length === 0) {
-      console.log("未找到相关内容");
-      return "抱歉，我没有找到相关的《天龙八部》内容。";
+      console.log('未找到相关内容')
+      return '抱歉，我没有找到相关的《天龙八部》内容。'
     }
 
     // 2. 打印检索到的内容及相似度
     retrievedContent.forEach((item, i) => {
-      console.log(`\n[片段 ${i + 1}] 相似度: ${item.score.toFixed(4)}`);
-      console.log(`书籍: ${item.book_id}`);
-      console.log(`章节: 第 ${item.chapter_num} 章`);
-      console.log(`片段索引: ${item.index}`);
+      console.log(`\n[片段 ${i + 1}] 相似度: ${item.score.toFixed(4)}`)
+      console.log(`书籍: ${item.book_id}`)
+      console.log(`章节: 第 ${item.chapter_num} 章`)
+      console.log(`片段索引: ${item.index}`)
       console.log(
         `内容: ${item.content.substring(0, 200)}${
-          item.content.length > 200 ? "..." : ""
-        }`
-      );
-    });
+          item.content.length > 200 ? '...' : ''
+        }`,
+      )
+    })
 
     // 3. 构建上下文
     const context = retrievedContent
       .map((item, i) => {
         return `[片段 ${i + 1}]
 章节: 第 ${item.chapter_num} 章
-内容: ${item.content}`;
+内容: ${item.content}`
       })
-      .join("\n\n━━━━━\n\n");
+      .join('\n\n━━━━━\n\n')
 
     // 4. 构建 prompt
     const prompt = `你是一个专业的《天龙八部》小说助手。基于小说内容回答问题，用准确、详细的语言。
@@ -552,47 +534,47 @@ ${context}
 4. 回答要准确，符合小说的情节和人物设定
 5. 可以引用原文内容来支持你的回答
 
-AI 助手的回答:`;
+AI 助手的回答:`
 
     // 5. 调用 LLM 生成回答
-    console.log("\n【AI 回答】");
-    const response = await model.invoke(prompt);
-    console.log(response.content);
-    console.log("\n");
+    console.log('\n【AI 回答】')
+    const response = await model.invoke(prompt)
+    console.log(response.content)
+    console.log('\n')
 
-    return response.content;
+    return response.content
   } catch (error) {
-    console.error("回答问题时出错:", error.message);
-    return "抱歉，处理您的问题时出现了错误。";
+    console.error('回答问题时出错:', error.message)
+    return '抱歉，处理您的问题时出现了错误。'
   }
 }
 
 async function main() {
   try {
-    console.log("连接到 Milvus...");
-    await client.connectPromise;
-    console.log("✓ 已连接\n");
+    console.log('连接到 Milvus...')
+    await client.connectPromise
+    console.log('✓ 已连接\n')
 
     // 确保集合已加载
     try {
-      await client.loadCollection({ collection_name: COLLECTION_NAME });
-      console.log("✓ 集合已加载\n");
+      await client.loadCollection({ collection_name: COLLECTION_NAME })
+      console.log('✓ 集合已加载\n')
     } catch (error) {
       // 如果已经加载，会报错，忽略即可
-      if (!error.message.includes("already loaded")) {
-        throw error;
+      if (!error.message.includes('already loaded')) {
+        throw error
       }
-      console.log("✓ 集合已处于加载状态\n");
+      console.log('✓ 集合已处于加载状态\n')
     }
 
     // 问一个关于《天龙八部》的问题
-    await answerEbookQuestion("鸠摩智会什么武功？", 5);
+    await answerEbookQuestion('鸠摩智会什么武功？', 5)
   } catch (error) {
-    console.error("错误:", error.message);
+    console.error('错误:', error.message)
   }
 }
 
-main();
+main()
 ```
 
 跑一下可以看到，大模型根据片段内容做了回答，并且引用了原文。
@@ -602,8 +584,6 @@ main();
 这样，电子书语义检索助手就完成了。
 
 你也可以把电子书换成公司内部的文档，实现文档检索，流程一样。
-
-
 
 ## 总结
 
@@ -615,34 +595,32 @@ main();
 
 这就涉及到了 MySQL 和 Milvus 的联动，我们后面学到 MySQL 部分再继续深入。
 
-
-
 ## 解释代码
 
 ```js
-import "dotenv/config";
-import { parse } from "path";
+import 'dotenv/config'
+import { parse } from 'path'
 import {
   MilvusClient,
   DataType,
   MetricType,
   IndexType,
-} from "@zilliz/milvus2-sdk-node";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { EPubLoader } from "@langchain/community/document_loaders/fs/epub";
-import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+} from '@zilliz/milvus2-sdk-node'
+import { OpenAIEmbeddings } from '@langchain/openai'
+import { EPubLoader } from '@langchain/community/document_loaders/fs/epub'
+import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 
 // 集合名
-const COLLECTION_NAME = "ebook_collection";
+const COLLECTION_NAME = 'ebook_collection'
 // 向量维度
-const VECTOR_DIM = 1024;
+const VECTOR_DIM = 1024
 // 拆分大小
-const CHUNK_SIZE = 500; // 拆分到 500 个字符
+const CHUNK_SIZE = 500 // 拆分到 500 个字符
 // EPUB 文件路径
-const EPUB_FILE = "src/10/天龙八部.epub";
+const EPUB_FILE = 'src/10/天龙八部.epub'
 
 // 从文件名提取书名（去掉扩展名）
-const BOOK_NAME = parse(EPUB_FILE).name;
+const BOOK_NAME = parse(EPUB_FILE).name
 
 // 初始化 Embeddings 模型
 const embeddings = new OpenAIEmbeddings({
@@ -652,17 +630,17 @@ const embeddings = new OpenAIEmbeddings({
     baseURL: process.env.OPENAI_BASE_URL,
   },
   dimensions: VECTOR_DIM,
-});
+})
 
 // 初始化 Milvus 客户端
 const client = new MilvusClient({
-  address: "localhost:19530",
-});
+  address: 'localhost:19530',
+})
 
 // 获取文本的向量嵌入
 async function getEmbedding(text) {
-  const result = await embeddings.embedQuery(text);
-  return result;
+  const result = await embeddings.embedQuery(text)
+  return result
 }
 
 // 创建或获取集合
@@ -671,51 +649,51 @@ async function ensureCollection(bookId) {
     // 检查集合是否存在
     const hasCollection = await client.hasCollection({
       collection_name: COLLECTION_NAME,
-    });
+    })
 
     if (!hasCollection.value) {
-      console.log("创建集合...");
+      console.log('创建集合...')
       await client.createCollection({
         collection_name: COLLECTION_NAME,
         fields: [
           {
-            name: "id",
+            name: 'id',
             data_type: DataType.VarChar,
             max_length: 100,
             is_primary_key: true,
           },
-          { name: "book_id", data_type: DataType.VarChar, max_length: 100 },
-          { name: "book_name", data_type: DataType.VarChar, max_length: 200 },
-          { name: "chapter_num", data_type: DataType.Int32 },
-          { name: "index", data_type: DataType.Int32 },
-          { name: "content", data_type: DataType.VarChar, max_length: 10000 },
-          { name: "vector", data_type: DataType.FloatVector, dim: VECTOR_DIM },
+          { name: 'book_id', data_type: DataType.VarChar, max_length: 100 },
+          { name: 'book_name', data_type: DataType.VarChar, max_length: 200 },
+          { name: 'chapter_num', data_type: DataType.Int32 },
+          { name: 'index', data_type: DataType.Int32 },
+          { name: 'content', data_type: DataType.VarChar, max_length: 10000 },
+          { name: 'vector', data_type: DataType.FloatVector, dim: VECTOR_DIM },
         ],
-      });
-      console.log("✓ 集合创建成功");
+      })
+      console.log('✓ 集合创建成功')
 
       // 创建索引
-      console.log("创建索引...");
+      console.log('创建索引...')
       await client.createIndex({
         collection_name: COLLECTION_NAME,
-        field_name: "vector", // 为 vector 这个字段创建索引，在 Milvus 里，索引是附加在字段上的结构，不是新建一个字段。
+        field_name: 'vector', // 为 vector 这个字段创建索引，在 Milvus 里，索引是附加在字段上的结构，不是新建一个字段。
         index_type: IndexType.IVF_FLAT,
         metric_type: MetricType.COSINE,
         params: { nlist: 1024 },
-      });
-      console.log("✓ 索引创建成功");
+      })
+      console.log('✓ 索引创建成功')
     }
 
     // 确保集合已加载
     try {
-      await client.loadCollection({ collection_name: COLLECTION_NAME });
-      console.log("✓ 集合已加载");
+      await client.loadCollection({ collection_name: COLLECTION_NAME })
+      console.log('✓ 集合已加载')
     } catch (error) {
-      console.log("✓ 集合已处于加载状态");
+      console.log('✓ 集合已处于加载状态')
     }
   } catch (error) {
-    console.error("创建集合时出错:", error.message);
-    throw error;
+    console.error('创建集合时出错:', error.message)
+    throw error
   }
 }
 
@@ -723,13 +701,13 @@ async function ensureCollection(bookId) {
 async function insertChunksBatch(chunks, bookId, chapterNum) {
   try {
     if (chunks.length === 0) {
-      return 0;
+      return 0
     }
 
     // 为每个文档块生成向量并构建插入数据
     const insertData = await Promise.all(
       chunks.map(async (chunk, chunkIndex) => {
-        const vector = await getEmbedding(chunk);
+        const vector = await getEmbedding(chunk)
         // 手动生成 ID：book_id_chapterNum_index
         return {
           id: `${bookId}_${chapterNum}_${chunkIndex}`,
@@ -739,46 +717,46 @@ async function insertChunksBatch(chunks, bookId, chapterNum) {
           index: chunkIndex,
           content: chunk,
           vector: vector,
-        };
-      })
-    );
+        }
+      }),
+    )
 
     // 批量插入到 Milvus
     const insertResult = await client.insert({
       collection_name: COLLECTION_NAME,
       data: insertData,
-    });
+    })
 
-    return Number(insertResult.insert_cnt) || 0;
+    return Number(insertResult.insert_cnt) || 0
   } catch (error) {
-    console.error(`插入章节 ${chapterNum} 的数据时出错:`, error.message);
-    console.error("错误详情:", error);
-    throw error;
+    console.error(`插入章节 ${chapterNum} 的数据时出错:`, error.message)
+    console.error('错误详情:', error)
+    throw error
   }
 }
 
 // 加载 EPUB 文件并进行流式处理（边处理边插入）
 async function loadAndProcessEPubStreaming(bookId) {
   try {
-    console.log(`\n开始加载 EPUB 文件: ${EPUB_FILE}`);
+    console.log(`\n开始加载 EPUB 文件: ${EPUB_FILE}`)
 
     // 使用 EPubLoader 读取文件，并按章节拆分
     // EPubLoader 是 LangChain 社区提供的用于读取 EPUB 文件的加载器。
     // 功能：自动解析 EPUB 文件，并把每一章变成一个 Document
     const loader = new EPubLoader(EPUB_FILE, {
       splitChapters: true,
-    });
+    })
 
-    const documents = await loader.load();
-    console.log(`✓ 加载完成，共 ${documents.length} 个章节\n`);
+    const documents = await loader.load()
+    console.log(`✓ 加载完成，共 ${documents.length} 个章节\n`)
 
     // 创建文本拆分器，拆分到 500 个字符
     const textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: CHUNK_SIZE,
       chunkOverlap: 50, // 重叠 50 个字符，保持上下文连贯性
-    });
+    })
 
-    let totalInserted = 0;
+    let totalInserted = 0
 
     // 遍历每个章节，进行二次拆分并立即插入
     for (
@@ -786,41 +764,41 @@ async function loadAndProcessEPubStreaming(bookId) {
       chapterIndex < documents.length;
       chapterIndex++
     ) {
-      const chapter = documents[chapterIndex];
-      const chapterContent = chapter.pageContent;
+      const chapter = documents[chapterIndex]
+      const chapterContent = chapter.pageContent
 
-      console.log(`处理第 ${chapterIndex + 1}/${documents.length} 章...`);
+      console.log(`处理第 ${chapterIndex + 1}/${documents.length} 章...`)
 
       // 使用 splitter 进行二次拆分
-      const chunks = await textSplitter.splitText(chapterContent);
+      const chunks = await textSplitter.splitText(chapterContent)
 
-      console.log(`拆分为 ${chunks.length} 个片段`);
+      console.log(`拆分为 ${chunks.length} 个片段`)
 
       if (chunks.length === 0) {
-        console.log(`跳过空章节\n`);
-        continue;
+        console.log(`跳过空章节\n`)
+        continue
       }
 
-      console.log(`生成向量并插入中...`);
+      console.log(`生成向量并插入中...`)
 
       // 立即生成向量并插入该章节的所有片段
       const insertedCount = await insertChunksBatch(
         chunks,
         bookId,
-        chapterIndex + 1
-      );
-      totalInserted += insertedCount;
+        chapterIndex + 1,
+      )
+      totalInserted += insertedCount
 
       console.log(
-        `  ✓ 已插入 ${insertedCount} 条记录（累计: ${totalInserted}）\n`
-      );
+        `  ✓ 已插入 ${insertedCount} 条记录（累计: ${totalInserted}）\n`,
+      )
     }
 
-    console.log(`\n总共插入 ${totalInserted} 条记录\n`);
-    return totalInserted;
+    console.log(`\n总共插入 ${totalInserted} 条记录\n`)
+    return totalInserted
   } catch (error) {
-    console.error("加载 EPUB 文件时出错:", error.message);
-    throw error;
+    console.error('加载 EPUB 文件时出错:', error.message)
+    throw error
   }
 }
 
@@ -829,36 +807,33 @@ async function loadAndProcessEPubStreaming(bookId) {
  */
 async function main() {
   try {
-    console.log("=".repeat(80));
-    console.log("电子书处理程序");
-    console.log("=".repeat(80));
+    console.log('='.repeat(80))
+    console.log('电子书处理程序')
+    console.log('='.repeat(80))
 
     // 连接 Milvus
-    console.log("\n连接 Milvus...");
-    await client.connectPromise;
-    console.log("✓ 已连接\n");
+    console.log('\n连接 Milvus...')
+    await client.connectPromise
+    console.log('✓ 已连接\n')
 
     // 设置 book_id（
-    const bookId = 1;
+    const bookId = 1
 
     // 确保集合存在
-    await ensureCollection(bookId);
+    await ensureCollection(bookId)
 
     // 加载和处理 EPUB 文件（流式处理，边处理边插入）
-    await loadAndProcessEPubStreaming(bookId);
+    await loadAndProcessEPubStreaming(bookId)
 
-    console.log("=".repeat(80));
-    console.log("处理完成！");
-    console.log("=".repeat(80));
+    console.log('='.repeat(80))
+    console.log('处理完成！')
+    console.log('='.repeat(80))
   } catch (error) {
-    console.error("\n错误:", error.message);
-    console.error(error.stack);
-    process.exit(1);
+    console.error('\n错误:', error.message)
+    console.error(error.stack)
+    process.exit(1)
   }
 }
 
-main();
+main()
 ```
-
-
-

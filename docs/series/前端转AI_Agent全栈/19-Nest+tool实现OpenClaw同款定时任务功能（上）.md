@@ -8,10 +8,6 @@ tags: [AI]
 keywords: [AI]
 ---
 
-
-
-
-
 ## 前言
 
 定时任务是 Agent 常见功能。
@@ -25,8 +21,6 @@ keywords: [AI]
 OpenClaw 当然也有定时任务功能。
 
 我们看下它是怎么实现的：
-
-
 
 ### OpenClaw 的实现
 
@@ -47,8 +41,6 @@ OpenClaw 当然也有定时任务功能。
 
 ![图片](./19-Nest+tool%E5%AE%9E%E7%8E%B0OpenClaw%E5%90%8C%E6%AC%BE%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E5%8A%9F%E8%83%BD%EF%BC%88%E4%B8%8A%EF%BC%89.assets/640-1774280678197-9.png)
 
-
-
 ### Nanobot 的实现
 
 再来看下 Nanobot 的实现，它是 mini 版 OpenClaw
@@ -61,44 +53,14 @@ OpenClaw 当然也有定时任务功能。
 
 ![图片](./19-Nest+tool%E5%AE%9E%E7%8E%B0OpenClaw%E5%90%8C%E6%AC%BE%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E5%8A%9F%E8%83%BD%EF%BC%88%E4%B8%8A%EF%BC%89.assets/640-1774281017339-18.png)
 
-
-
 既然各种 Agent 都有定时任务功能，那我们也按照这个方案实现一遍，后面可以集成到我们的 Agent 项目里。
-
-
 
 ## 使用
 
 我们还在上一节的hello-nest-langchain中测试使用
-
 
 ---
 
 暂停...
 
 ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
