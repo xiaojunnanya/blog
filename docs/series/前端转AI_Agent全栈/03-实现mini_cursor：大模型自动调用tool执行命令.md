@@ -845,3 +845,36 @@ try {
   console.error(`\n❌ 错误: ${error.message}\n`)
 }
 ```
+
+### 对比`tool-file-read`和`mini-cursor`
+
+`tool-file-read` 是手动驱动工具调用流程
+
+```
+let response = await modelWithTools.invoke(messages);
+
+while (response.tool_calls) {
+  // 你自己执行工具
+  // 你自己拼 ToolMessage
+  // 再次调用模型
+}
+```
+
+你做了三件事：
+
+1. 模型说：我要调用 read_file
+2. 你执行工具
+3. 你把结果喂回模型
+
+这叫LLM + Tool（函数调用模式）
+
+`mini-cursor`中的写法本质上是让模型开始“自己决定下一步做什么”
+
+它会：
+
+1. 规划任务
+2. 决定用哪个工具
+3. 根据结果继续下一步
+4. 一直循环直到完成
+
+这就是：Agent（智能体）

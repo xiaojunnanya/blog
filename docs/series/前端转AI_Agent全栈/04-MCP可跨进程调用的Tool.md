@@ -46,24 +46,27 @@ Rust 写的高性能工具
 
 :::info
 
-> **Agent 本身是 Node 进程运行的，Tool 只是一个 JS 函数接口。**
->  但这个函数内部可以调用任何语言写的程序。
+> **Agent 本身是 Node 进程运行的，Tool 只是一个 JS 函数接口。** 但这个函数内部可以调用任何语言写的程序。
 
 也就是说：
 
 - Tool 对 LLM 来说：只是一个 JSON API，模型根本不关心你内部怎么实现。
+
 ```json
 {
   "name": "execute_something",
   "args": { ... }
 }
 ```
+
 - Tool 对 Node 来说：只是一个 JS 函数
+
 ```js
 async function tool(args) {
   // 里面想干嘛都行
 }
 ```
+
 - 这个函数内部可以：
   - 调 python
   - 调 java
@@ -79,7 +82,7 @@ async function tool(args) {
 确实，也就是这样：
 
 ```
-     Prompt      tool_calls                               stdio    
+     Prompt      tool_calls                               stdio
 USER ——————> LLM ———————————> tools ——> 调用java写的某个工具 —————> java进程
 ```
 
@@ -90,14 +93,14 @@ USER ——————> LLM ———————————> tools ——> �
 也就是这样：
 
 ```js
-     Prompt                                       
-USER ——————> 
+     Prompt
+USER ——————>
 	tool_calls
-LLM ———————————> 
-tools ——> 
+LLM ———————————>
+tools ——>
 调用java写的某个工具 —————> 本地java服务进程
 				           http
-                  —————> 远程java服务进程 
+                  —————> 远程java服务进程
 ```
 
 现在是解决了跨语言调用工具的问题。
@@ -157,82 +160,82 @@ MCP 最大的特点就是可以**跨进程调用工具**。
 创建 my-mcp-server.mjs
 
 ```js
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { z } from 'zod'
 
 // 数据库
 const database = {
   users: {
-    "001": {
-      id: "001",
-      name: "张三",
-      email: "zhangsan@example.com",
-      role: "admin",
+    '001': {
+      id: '001',
+      name: '张三',
+      email: 'zhangsan@example.com',
+      role: 'admin',
     },
-    "002": { id: "002", name: "李四", email: "lisi@example.com", role: "user" },
-    "003": {
-      id: "003",
-      name: "王五",
-      email: "wangwu@example.com",
-      role: "user",
+    '002': { id: '002', name: '李四', email: 'lisi@example.com', role: 'user' },
+    '003': {
+      id: '003',
+      name: '王五',
+      email: 'wangwu@example.com',
+      role: 'user',
     },
   },
-};
+}
 
 const server = new McpServer({
-  name: "my-mcp-server",
-  version: "1.0.0",
-});
+  name: 'my-mcp-server',
+  version: '1.0.0',
+})
 
 // 注册工具：查询用户信息
 server.registerTool(
-  "query_user",
+  'query_user',
   {
     description:
-      "查询数据库中的用户信息。输入用户 ID，返回该用户的详细信息（姓名、邮箱、角色）。",
+      '查询数据库中的用户信息。输入用户 ID，返回该用户的详细信息（姓名、邮箱、角色）。',
     inputSchema: {
-      userId: z.string().describe("用户 ID，例如: 001, 002, 003"),
+      userId: z.string().describe('用户 ID，例如: 001, 002, 003'),
     },
   },
   async ({ userId }) => {
-    const user = database.users[userId];
+    const user = database.users[userId]
 
     if (!user) {
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `用户 ID ${userId} 不存在。可用的 ID: 001, 002, 003`,
           },
         ],
-      };
+      }
     }
 
     return {
       content: [
         {
-          type: "text",
+          type: 'text',
           text: `用户信息：\n- ID: ${user.id}\n- 姓名: ${user.name}\n- 邮箱: ${user.email}\n- 角色: ${user.role}`,
         },
       ],
-    };
+    }
   },
-);
+)
 
 server.registerResource(
-  "使用指南",
-  "docs://guide",
+  '使用指南',
+  'docs://guide',
   {
-    description: "MCP Server 使用文档",
-    mimeType: "text/plain",
+    description: 'MCP Server 使用文档',
+    mimeType: 'text/plain',
   },
   async () => {
     return {
       contents: [
         {
-          uri: "docs://guide",
-          mimeType: "text/plain",
+          uri: 'docs://guide',
+          mimeType: 'text/plain',
           text: `MCP Server 使用指南
 
 功能：提供用户查询等工具。
@@ -240,12 +243,12 @@ server.registerResource(
 使用：在 Cursor 等 MCP Client 中通过自然语言对话，Cursor 会自动调用相应工具。`,
         },
       ],
-    };
+    }
   },
-);
+)
 
-const transport = new StdioServerTransport();
-await server.connect(transport);
+const transport = new StdioServerTransport()
+await server.connect(transport)
 ```
 
 代码很容易看懂：
@@ -274,14 +277,12 @@ await server.connect(transport);
 
 ```json
 {
-    "mcpServer": {
-        "my-mcp-server": {
-            "commands":"node",
-            "args":[
-                "src/4/my-mcp-server.mjs"
-            ]
-        }
+  "mcpServer": {
+    "my-mcp-server": {
+      "commands": "node",
+      "args": ["src/4/my-mcp-server.mjs"]
     }
+  }
 }
 ```
 
@@ -306,73 +307,73 @@ resource 主要是查询信息用的（read）， 而 tool 是执行功能用的
 创建 langchain-mcp-test.mjs
 
 ```js
-import "dotenv/config";
-import { MultiServerMCPClient } from "@langchain/mcp-adapters";
-import { ChatOpenAI } from "@langchain/openai";
-import chalk from "chalk";
-import { HumanMessage, ToolMessage } from "@langchain/core/messages";
+import 'dotenv/config'
+import { MultiServerMCPClient } from '@langchain/mcp-adapters'
+import { ChatOpenAI } from '@langchain/openai'
+import chalk from 'chalk'
+import { HumanMessage, ToolMessage } from '@langchain/core/messages'
 
 const model = new ChatOpenAI({
-  modelName: "qwen-plus",
+  modelName: 'qwen-plus',
   apiKey: process.env.OPENAI_API_KEY,
   configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-});
+})
 
 const mcpClient = new MultiServerMCPClient({
   mcpServers: {
-    "my-mcp-server": {
-      command: "node",
-      args: ["/Users/mac/jiuci/github/aiagent/src/4/my-mcp-server.mjs"],
+    'my-mcp-server': {
+      command: 'node',
+      args: ['/Users/mac/jiuci/github/aiagent/src/4/my-mcp-server.mjs'],
     },
   },
-});
+})
 
-const tools = await mcpClient.getTools();
-const modelWithTools = model.bindTools(tools);
+const tools = await mcpClient.getTools()
+const modelWithTools = model.bindTools(tools)
 
 async function runAgentWithTools(query, maxIterations = 30) {
-  const messages = [new HumanMessage(query)];
+  const messages = [new HumanMessage(query)]
 
   for (let i = 0; i < maxIterations; i++) {
-    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`));
-    const response = await modelWithTools.invoke(messages);
-    messages.push(response);
+    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`))
+    const response = await modelWithTools.invoke(messages)
+    messages.push(response)
 
     // 检查是否有工具调用
     if (!response.tool_calls || response.tool_calls.length === 0) {
-      console.log(`\n✨ AI 最终回复:\n${response.content}\n`);
-      return response.content;
+      console.log(`\n✨ AI 最终回复:\n${response.content}\n`)
+      return response.content
     }
 
     console.log(
       chalk.bgBlue(`🔍 检测到 ${response.tool_calls.length} 个工具调用`),
-    );
+    )
     console.log(
       chalk.bgBlue(
-        `🔍 工具调用: ${response.tool_calls.map((t) => t.name).join(", ")}`,
+        `🔍 工具调用: ${response.tool_calls.map(t => t.name).join(', ')}`,
       ),
-    );
+    )
     // 执行工具调用
     for (const toolCall of response.tool_calls) {
-      const foundTool = tools.find((t) => t.name === toolCall.name);
+      const foundTool = tools.find(t => t.name === toolCall.name)
       if (foundTool) {
-        const toolResult = await foundTool.invoke(toolCall.args);
+        const toolResult = await foundTool.invoke(toolCall.args)
         messages.push(
           new ToolMessage({
             content: toolResult,
             tool_call_id: toolCall.id,
           }),
-        );
+        )
       }
     }
   }
 
-  return messages[messages.length - 1].content;
+  return messages[messages.length - 1].content
 }
 
-await runAgentWithTools("查一下用户 002 的信息");
+await runAgentWithTools('查一下用户 002 的信息')
 ```
 
 我们用 @langchain/mcp-adapters 创建了 mcp client，写法和 cursor 里配置一样
@@ -400,8 +401,8 @@ await runAgentWithTools("查一下用户 002 的信息");
 ```js
 // await runAgentWithTools("查一下用户 002 的信息");
 
-const res = await mcpClient.listResources();
-console.log(res);
+const res = await mcpClient.listResources()
+console.log(res)
 ```
 
 结果：
@@ -427,35 +428,32 @@ PS C:\X\program\study\ai> pnpm run langchain-mcp-test
 遍历依次读取 uri 内容：
 
 ```js
-const res = await mcpClient.listResources();
+const res = await mcpClient.listResources()
 
 for (const [serverName, resources] of Object.entries(res)) {
-    for (const resource of resources) {
-        const content = await mcpClient.readResource(serverName, resource.uri);
-        console.log(content);
-    }
+  for (const resource of resources) {
+    const content = await mcpClient.readResource(serverName, resource.uri)
+    console.log(content)
+  }
 }
 ```
 
 然后只要把它放到 system message 里作为上下文就好了：
 
 ```js
-const res = await mcpClient.listResources();
+const res = await mcpClient.listResources()
 
-let resourceContent = '';
+let resourceContent = ''
 for (const [serverName, resources] of Object.entries(res)) {
-    for (const resource of resources) {
-        const content = await mcpClient.readResource(serverName, resource.uri);
-        resourceContent += content[0].text;
-    }
+  for (const resource of resources) {
+    const content = await mcpClient.readResource(serverName, resource.uri)
+    resourceContent += content[0].text
+  }
 }
 ```
 
 ```js
-const messages = [
-    new SystemMessage(resourceContent),
-    new HumanMessage(query)
-];
+const messages = [new SystemMessage(resourceContent), new HumanMessage(query)]
 ```
 
 调用一下：`await runAgentWithTools("MCP Server 的使用指南是什么");`
@@ -473,7 +471,9 @@ mcp 本质上还是 tool，和之前的 tool 的区别只不过是可以跨进�
 当你不需要跨进程用的时候，还是之前那样写更好，还少了进程通信的成本。
 
 ## stdio 和 http
+
 以下节我们将要使用的高德MCP为例：
+
 ```json
 {
   "amap-maps-streamableHTTP": {
@@ -481,21 +481,20 @@ mcp 本质上还是 tool，和之前的 tool 的区别只不过是可以跨进�
   },
   "amap-maps": {
     "command": "npx",
-    "args": [
-      "-y",
-      "@amap/amap-maps-mcp-server"
-    ],
+    "args": ["-y", "@amap/amap-maps-mcp-server"],
     "env": {
       "AMAP_MAPS_API_KEY": "你的 api key"
     }
-  },
+  }
 }
 ```
+
 第一种方式就是通过 url 来调用，即http，第二种方式就是通过 stdio 来调用。
 
 这两种方式：工具能力完全一样
 
 只是：
+
 ```nginx
 MCP 协议层
    ↓
@@ -503,7 +502,6 @@ MCP 协议层
    ├─ stdio
    └─ http
 ```
-
 
 ## 总结
 
@@ -519,57 +517,53 @@ MCP 协议层
 
 除了自己写 mcp server，现在也有很多现成的 mcp server 可以直接用，下节我们来用一下。
 
-
 ## 完整代码
 
 ```js
-import "dotenv/config";
-import { MultiServerMCPClient } from "@langchain/mcp-adapters";
-import { ChatOpenAI } from "@langchain/openai";
-import chalk from "chalk";
+import 'dotenv/config'
+import { MultiServerMCPClient } from '@langchain/mcp-adapters'
+import { ChatOpenAI } from '@langchain/openai'
+import chalk from 'chalk'
 import {
   HumanMessage,
   ToolMessage,
   SystemMessage,
-} from "@langchain/core/messages";
+} from '@langchain/core/messages'
 
 const model = new ChatOpenAI({
-  modelName: "qwen-plus",
+  modelName: 'qwen-plus',
   apiKey: process.env.OPENAI_API_KEY,
   configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-});
+})
 
 /** ---------- MCP CLIENT ---------- */
 const mcpClient = new MultiServerMCPClient({
   mcpServers: {
-    "my-mcp-server": {
-      command: "node",
-      args: ["C:\\X\\program\\study\\ai\\src\\4\\my-mcp-server.mjs"],
+    'my-mcp-server': {
+      command: 'node',
+      args: ['C:\\X\\program\\study\\ai\\src\\4\\my-mcp-server.mjs'],
     },
   },
-});
+})
 
 /** ---------- LOAD TOOLS ---------- */
-const tools = await mcpClient.getTools();
-const modelWithTools = model.bindTools(tools);
+const tools = await mcpClient.getTools()
+const modelWithTools = model.bindTools(tools)
 
 /** ---------- 读取 MCP Resource 并注入上下文 ---------- */
 async function loadResourceContext() {
-  const res = await mcpClient.listResources();
+  const res = await mcpClient.listResources()
 
-  let resourceContent = "";
+  let resourceContent = ''
   for (const [serverName, resources] of Object.entries(res)) {
     for (const resource of resources) {
-      const content = await mcpClient.readResource(
-        serverName,
-        resource.uri
-      );
-      resourceContent += content[0].text + "\n";
+      const content = await mcpClient.readResource(serverName, resource.uri)
+      resourceContent += content[0].text + '\n'
     }
   }
-  return resourceContent;
+  return resourceContent
 }
 
 /** ---------- AGENT LOOP ---------- */
@@ -577,110 +571,105 @@ async function runAgentWithTools(query, resourceContext, maxIterations = 30) {
   const messages = [
     new SystemMessage(resourceContext), // 注入 resource 作为上下文
     new HumanMessage(query),
-  ];
+  ]
 
   for (let i = 0; i < maxIterations; i++) {
-    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`));
+    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`))
 
-    const response = await modelWithTools.invoke(messages);
-    messages.push(response);
+    const response = await modelWithTools.invoke(messages)
+    messages.push(response)
 
     if (!response.tool_calls || response.tool_calls.length === 0) {
-      console.log(`\n✨ AI 最终回复:\n${response.content}\n`);
-      return response.content;
+      console.log(`\n✨ AI 最终回复:\n${response.content}\n`)
+      return response.content
     }
 
     console.log(
-      chalk.bgBlue(`🔍 检测到 ${response.tool_calls.length} 个工具调用`)
-    );
+      chalk.bgBlue(`🔍 检测到 ${response.tool_calls.length} 个工具调用`),
+    )
     console.log(
       chalk.bgBlue(
-        `🔍 工具调用: ${response.tool_calls.map((t) => t.name).join(", ")}`
-      )
-    );
+        `🔍 工具调用: ${response.tool_calls.map(t => t.name).join(', ')}`,
+      ),
+    )
 
     for (const toolCall of response.tool_calls) {
-      const foundTool = tools.find((t) => t.name === toolCall.name);
+      const foundTool = tools.find(t => t.name === toolCall.name)
       if (foundTool) {
-        const toolResult = await foundTool.invoke(toolCall.args);
+        const toolResult = await foundTool.invoke(toolCall.args)
         messages.push(
           new ToolMessage({
             content: toolResult,
             tool_call_id: toolCall.id,
-          })
-        );
+          }),
+        )
       }
     }
   }
 
-  return messages[messages.length - 1].content;
+  return messages[messages.length - 1].content
 }
 
 /** ---------- RUN ---------- */
 try {
-  const resourceContext = await loadResourceContext();
+  const resourceContext = await loadResourceContext()
 
-  await runAgentWithTools(
-    "MCP Server 的使用指南是什么",
-    resourceContext
-  );
+  await runAgentWithTools('MCP Server 的使用指南是什么', resourceContext)
 
-  await runAgentWithTools(
-    "查一下用户 002 的信息",
-    resourceContext
-  );
+  await runAgentWithTools('查一下用户 002 的信息', resourceContext)
 } finally {
-  await mcpClient.close();
+  await mcpClient.close()
 }
 ```
 
-
 ## 解释代码
+
 ### my-mcp-server
+
 ```js
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { z } from 'zod'
 
 // 数据库
 const database = {
   users: {
-    "001": {
-      id: "001",
-      name: "张三",
-      email: "zhangsan@example.com",
-      role: "admin",
+    '001': {
+      id: '001',
+      name: '张三',
+      email: 'zhangsan@example.com',
+      role: 'admin',
     },
-    "002": { id: "002", name: "李四", email: "lisi@example.com", role: "user" },
-    "003": {
-      id: "003",
-      name: "王五",
-      email: "wangwu@example.com",
-      role: "user",
+    '002': { id: '002', name: '李四', email: 'lisi@example.com', role: 'user' },
+    '003': {
+      id: '003',
+      name: '王五',
+      email: 'wangwu@example.com',
+      role: 'user',
     },
   },
-};
+}
 
 const server = new McpServer({
-  name: "my-mcp-server",
-  version: "1.0.0",
-});
+  name: 'my-mcp-server',
+  version: '1.0.0',
+})
 
 // 注册Tool，类似于函数，可以被 MCP Client 调用
 server.registerTool(
-  "query_user", // Tool name
+  'query_user', // Tool name
   {
     description:
-      "查询数据库中的用户信息。输入用户 ID，返回该用户的详细信息（姓名、邮箱、角色）。",
+      '查询数据库中的用户信息。输入用户 ID，返回该用户的详细信息（姓名、邮箱、角色）。',
     // Tool input schema
     inputSchema: {
-      userId: z.string().describe("用户 ID，例如: 001, 002, 003"),
+      userId: z.string().describe('用户 ID，例如: 001, 002, 003'),
     },
   },
   // Tool 实现函数
   // 当 ai 调用工具时，会执行这个函数，把参数传进来，结果返回给 AI
   async ({ userId }) => {
-    const user = database.users[userId];
+    const user = database.users[userId]
 
     if (!user) {
       // 注意返回内容格式：
@@ -694,42 +683,41 @@ server.registerTool(
       // }
       // 这是 MCP 标准格式。
 
-
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `用户 ID ${userId} 不存在。可用的 ID: 001, 002, 003`,
           },
         ],
-      };
+      }
     }
 
     return {
       content: [
         {
-          type: "text",
+          type: 'text',
           text: `用户信息：\n- ID: ${user.id}\n- 姓名: ${user.name}\n- 邮箱: ${user.email}\n- 角色: ${user.role}`,
         },
       ],
-    };
-  }
-);
+    }
+  },
+)
 
 // 注册 Resource（资源），类似于文件，可以被 MCP Client 读取
 server.registerResource(
-  "使用指南", // Resource name
-  "docs://guide", // Resource uri
+  '使用指南', // Resource name
+  'docs://guide', // Resource uri
   {
-    description: "MCP Server 使用文档",
-    mimeType: "text/plain",
+    description: 'MCP Server 使用文档',
+    mimeType: 'text/plain',
   },
   async () => {
     return {
       contents: [
         {
-          uri: "docs://guide",
-          mimeType: "text/plain",
+          uri: 'docs://guide',
+          mimeType: 'text/plain',
           text: `MCP Server 使用指南
 
 功能：提供用户查询等工具。
@@ -737,68 +725,65 @@ server.registerResource(
 使用：在 Cursor 等 MCP Client 中通过自然语言对话，Cursor 会自动调用相应工具。`,
         },
       ],
-    };
-  }
-);
+    }
+  },
+)
 
 // 启动 MCP Server，并通过 stdio 等待 Client 连接
-const transport = new StdioServerTransport();
-await server.connect(transport);
+const transport = new StdioServerTransport()
+await server.connect(transport)
 ```
 
 ### langchain-mcp-test
+
 ```js
-import "dotenv/config";
-import { MultiServerMCPClient } from "@langchain/mcp-adapters";
-import { ChatOpenAI } from "@langchain/openai";
-import chalk from "chalk";
+import 'dotenv/config'
+import { MultiServerMCPClient } from '@langchain/mcp-adapters'
+import { ChatOpenAI } from '@langchain/openai'
+import chalk from 'chalk'
 import {
   HumanMessage,
   ToolMessage,
   SystemMessage,
-} from "@langchain/core/messages";
+} from '@langchain/core/messages'
 
 const model = new ChatOpenAI({
-  modelName: "qwen-plus",
+  modelName: 'qwen-plus',
   apiKey: process.env.OPENAI_API_KEY,
   configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-});
+})
 
 const mcpClient = new MultiServerMCPClient({
   mcpServers: {
-    "my-mcp-server": {
-      command: "node",
-      args: ["/Users/mac/jiuci/github/aiagent/src/4/my-mcp-server.mjs"],
+    'my-mcp-server': {
+      command: 'node',
+      args: ['/Users/mac/jiuci/github/aiagent/src/4/my-mcp-server.mjs'],
     },
   },
-});
+})
 
-
-const tools = await mcpClient.getTools();
-const modelWithTools = model.bindTools(tools);
+const tools = await mcpClient.getTools()
+const modelWithTools = model.bindTools(tools)
 
 // 读取 MCP Resource 并注入上下文
 async function loadResourceContext() {
   // 获取所有 MCP Server 的资源列表
   // 返回一个对象，key 是 server name，value 是资源列表
-  const res = await mcpClient.listResources();
+  const res = await mcpClient.listResources()
 
-  let resourceContent = "";
+  let resourceContent = ''
   for (const [serverName, resources] of Object.entries(res)) {
     for (const resource of resources) {
-      const content = await mcpClient.readResource(
-        serverName,
-        resource.uri
-      );
-      resourceContent += content[0].text + "\n";
+      const content = await mcpClient.readResource(serverName, resource.uri)
+      resourceContent += content[0].text + '\n'
     }
   }
 
   // 拼接成字符串，注入到 SystemMessage 中作为 AI 的背景知识
   // 这样模型就能理解服务器提供了哪些功能和文档。
-  return resourceContent;
+  return resourceContent
 }
 
 // Agent 执行函数
@@ -809,60 +794,54 @@ async function runAgentWithTools(query, resourceContext, maxIterations = 30) {
   const messages = [
     new SystemMessage(resourceContext), // 注入 resource 作为上下文
     new HumanMessage(query),
-  ];
+  ]
 
   for (let i = 0; i < maxIterations; i++) {
-    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`));
+    console.log(chalk.bgGreen(`⏳ 正在等待 AI 思考...`))
 
-    const response = await modelWithTools.invoke(messages);
-    messages.push(response);
+    const response = await modelWithTools.invoke(messages)
+    messages.push(response)
 
     if (!response.tool_calls || response.tool_calls.length === 0) {
-      console.log(`\n✨ AI 最终回复:\n${response.content}\n`);
-      return response.content;
+      console.log(`\n✨ AI 最终回复:\n${response.content}\n`)
+      return response.content
     }
 
     console.log(
-      chalk.bgBlue(`🔍 检测到 ${response.tool_calls.length} 个工具调用`)
-    );
-    
+      chalk.bgBlue(`🔍 检测到 ${response.tool_calls.length} 个工具调用`),
+    )
+
     console.log(
       chalk.bgBlue(
-        `🔍 工具调用: ${response.tool_calls.map((t) => t.name).join(", ")}`
-      )
-    );
+        `🔍 工具调用: ${response.tool_calls.map(t => t.name).join(', ')}`,
+      ),
+    )
 
     for (const toolCall of response.tool_calls) {
-      const foundTool = tools.find((t) => t.name === toolCall.name);
+      const foundTool = tools.find(t => t.name === toolCall.name)
       if (foundTool) {
-        const toolResult = await foundTool.invoke(toolCall.args);
+        const toolResult = await foundTool.invoke(toolCall.args)
         messages.push(
           new ToolMessage({
             content: toolResult,
             tool_call_id: toolCall.id,
-          })
-        );
+          }),
+        )
       }
     }
   }
 
   // 循环可能达到最大迭代次数，返回最后一个消息的内容
-  return messages[messages.length - 1].content;
+  return messages[messages.length - 1].content
 }
 
 try {
-  const resourceContext = await loadResourceContext();
+  const resourceContext = await loadResourceContext()
 
-  await runAgentWithTools(
-    "MCP Server 的使用指南是什么",
-    resourceContext
-  );
+  await runAgentWithTools('MCP Server 的使用指南是什么', resourceContext)
 
-  await runAgentWithTools(
-    "查一下用户 002 的信息",
-    resourceContext
-  );
+  await runAgentWithTools('查一下用户 002 的信息', resourceContext)
 } finally {
-  await mcpClient.close();
+  await mcpClient.close()
 }
 ```
