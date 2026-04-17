@@ -100,7 +100,7 @@ keywords: [AI]
 
 用户的 prompt 会通过嵌入模型转成向量，然后 retriever 基于这个向量去向量数据库中检索，找到相似的向量，把对应的文档块返回，加到 prompt 里作为背景知识，给大模型。
 
-:::info retriever 是什么？Retriever = 检索器
+:::info `retriever 是什么？Retriever = 检索器`
 
 它的作用就是：根据用户问题的向量，从向量数据库中找到“最相关的文档块”。
 
@@ -112,7 +112,9 @@ keywords: [AI]
 4. 去向量数据库做相似度搜索
 5. 找到 Top K 相似文档 （在向量数据库里，和你“问题向量”最相似的前 K 条文档/文档片段）
 6. 把这些文档拼接进 prompt
-7. 再交给 LLM 生成回答 :::
+7. 再交给 LLM 生成回答
+
+:::
 
 存的不是向量么？怎么记录向量关联的文档？
 
@@ -469,7 +471,7 @@ const vectorStore = await MemoryVectorStore.fromDocuments(documents, embeddings)
 // 1. 调用 vectorStore.similaritySearch()
 // 2. 得到相似度最高的 k 个文档
 // 3. 返回文档集合
-const retriever = vectorStore.asRetriever({ k: 3 })
+const retriever = vectorStore.asRetriever({ k: 4 })
 
 const questions = ['东东和光光是怎么成为朋友的？']
 
@@ -488,7 +490,8 @@ for (const question of questions) {
    */
   const retrievedDocs = await retriever.invoke(question)
 
-  // 使用 similaritySearchWithScore 获取相似度评分
+  // 使用 similaritySearchWithScore 获取相似度评分，3是给 3 条标上相似度，与上面的 4 区分开
+  // 上面都 4 是排序后给 ai 4 条，这里的 3 是给 3 条打上相似度评分，其实也就是取那个 4 点前三条，因为那个 4 就是排序后的
   const scoredResults = await vectorStore.similaritySearchWithScore(question, 3)
 
   // 打印用到的文档和相似度评分
