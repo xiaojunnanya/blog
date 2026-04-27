@@ -71,9 +71,9 @@ cd milvus
 
 用到的镜像根据配置文件自动下载。
 
-下载的镜像：![image-20260303170253255](./09-向量数据库Milvus：做 AIAgent开发必备技术.assets/image-20260303170253255.png)
+下载的镜像：![image-20260303170253255](./09-向量数据库Milvus：做%20AIAgent开发必备技术.assets/image-20260303170253255.png)
 
-跑起来的容器：![image-20260303170253255](./09-向量数据库Milvus：做 AIAgent开发必备技术.assets/image-20260128152427654.png)
+跑起来的容器：![image-20260303170253255](./09-向量数据库Milvus：做%20AIAgent开发必备技术.assets/image-20260128152427654.png)
 
 milvus 数据库是跑在 19530 这个端口。
 

@@ -137,15 +137,15 @@ async function runAgentWithTools(query, maxIterations = 30) {
 一个是 ChatMessageHistory 相关的：
 
 ```js
-																inMemoryChatMessageHistory    		存内存里
+													inMemoryChatMessageHistory    		    存内存里
 
-																RedisChatMessageHistory						存到 redis
+													RedisChatMessageHistory						存到 redis
 
 BaseChatMessageHistory
 
-																FileSystemChatMessageHistory			存文件
+													FileSystemChatMessageHistory			     存文件
 
-																TypeORMChatMessageHistory					通过 typeorm 存在 mysql 等数据库
+													TypeORMChatMessageHistory					通过 typeorm 存在 mysql 等数据库
 ```
 
 它是存储层，也就是 messages 存在哪，可以是内存、文件、数据库等。
@@ -153,19 +153,19 @@ BaseChatMessageHistory
 然后是逻辑层，也就是截断、总结、向量数据库这些：
 
 ```
-													BufferMemory    											全量保存 message
+							BufferMemory    											全量保存 message
 
-													BufferWindowMemory										保留最近 k 条
+							BufferWindowMemory										保留最近 k 条
 
-													ConversationSummaryMemory							每轮对话都总结
+							ConversationSummaryMemory							每轮对话都总结
 
-BaseMemory 								ConversationSummaryBufferMemory				maxToekn 内保存，超出后总结
+BaseMemory 		ConversationSummaryBufferMemory				maxToekn 内保存，超出后总结
 
-													VectorStoreRetrieverMemory						通过向量数据库做语义检索
+							VectorStoreRetrieverMemory						通过向量数据库做语义检索
 
-													EntityMemory													实体维度记录
+							EntityMemory													实体维度记录
 
-													CombinedMeMory												组合多种 memory
+							CombinedMeMory												组合多种 memory
 ```
 
 每个 xxMemory 类都有一个 chatHistory 属性，关联着存储层。
