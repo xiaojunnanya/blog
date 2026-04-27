@@ -477,7 +477,7 @@ const logTextSplitter = new RecursiveCharacterTextSplitter({
 
 如果你不传 lengthFunction，RecursiveCharacterTextSplitter 默认用的是：`(text) => text.length`，按“字符个数”来计算长度
 
-现在传递了`lengthFunction: (text) => enc.encode(text).length`，算的是，这个文本会被分成多少个 token，这个时候chunkSize就变成了最后 150token，chunkOverlap 重叠 20token，而不是字符了
+现在传递了`lengthFunction: (text) => enc.encode(text).length`，算的是，这个文本会被分成多少个 token，这个时候chunkSize就变成了最后 150 token而不是150字符，chunkOverlap 重叠 20 token而不是20字符，而不是字符了
 
 :::
 
