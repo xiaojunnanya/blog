@@ -16,6 +16,7 @@
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "dev": "npm run start",
+    "push": "sh scp.sh",
     "start:en": "docusaurus start --locale en",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
