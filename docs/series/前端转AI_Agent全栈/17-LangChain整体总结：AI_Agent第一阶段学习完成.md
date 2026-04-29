@@ -676,13 +676,13 @@ const modelWithTools = model.bindTools(tools)
 
 并且按照你指定的 schema 来填充参数。
 
-![图片](./13-Output_Parser实战：智能录入+流式版mini_curosr.assets/image-3.png)
+![图片](./11-Memory管理的三大策略：截断、总结、检索.assets/image-1.png)
 
 这样我们根据 tool_calls 去调用工具，然后把结果封装成 ToolMessage 也放入 messages 数组。
 
 之后继续循环调用：
 
-![图片](./13-Output_Parser实战：智能录入+流式版mini_curosr.assets/image-2.png)
+![图片](./11-Memory管理的三大策略：截断、总结、检索.assets/image-20260304162742892.png)
 
 直到没有新的 tool_call ，循环结束
 
