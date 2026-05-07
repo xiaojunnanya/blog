@@ -338,3 +338,166 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run asr-test
 因为 SSE 是基于 http 的文本协议，需要转 Base64 才行，传这种二进制数据还是 WebSocket 更合适。
 
 思路理清了，接下来按照这个实现下豆包同款交互。
+
+## 豆包同款
+
+### 后端
+
+先创建后端项目：`nest new asr-and-tts-nest-service`
+
+先写一下调用大模型回答的 SSE 接口
+
+#### sse回答接口
+
+创建 ai 模块：
+
+```
+nest g module ai
+nest g controller ai --no-spec
+nest g service ai --no-spec
+```
+
+改下 AiService、AiController、AiModule
+
+```ts
+import { Inject, Injectable } from '@nestjs/common'
+import { ChatOpenAI } from '@langchain/openai'
+import { PromptTemplate } from '@langchain/core/prompts'
+import type { Runnable } from '@langchain/core/runnables'
+import { StringOutputParser } from '@langchain/core/output_parsers'
+
+@Injectable()
+export class AiService {
+  private readonly chain: Runnable
+
+  constructor(@Inject('CHAT_MODEL') model: ChatOpenAI) {
+    const prompt = PromptTemplate.fromTemplate('请回答以下问题：\n\n{query}')
+    this.chain = prompt.pipe(model).pipe(new StringOutputParser())
+  }
+
+  async *streamChain(query: string): AsyncGenerator<string> {
+    const stream = await this.chain.stream({ query })
+    for await (const chunk of stream) {
+      yield chunk
+    }
+  }
+}
+```
+
+```ts
+import { Controller, Get, Query, Sse } from '@nestjs/common'
+import { from, map, Observable } from 'rxjs'
+import { AiService } from './ai.service'
+
+@Controller('ai')
+export class AiController {
+  constructor(private readonly aiService: AiService) {}
+
+  @Sse('chat/stream')
+  chatStream(@Query('query') query: string): Observable<{ data: string }> {
+    return from(this.aiService.streamChain(query)).pipe(
+      map(chunk => ({ data: chunk })),
+    )
+  }
+}
+```
+
+```ts
+import { Module } from '@nestjs/common'
+import { AiService } from './ai.service'
+import { AiController } from './ai.controller'
+import { ConfigService } from '@nestjs/config'
+import { ChatOpenAI } from '@langchain/openai'
+
+@Module({
+  controllers: [AiController],
+  providers: [
+    AiService,
+    {
+      provide: 'CHAT_MODEL',
+      useFactory: (configService: ConfigService) => {
+        return new ChatOpenAI({
+          model: configService.get('MODEL_NAME'),
+          apiKey: configService.get('OPENAI_API_KEY'),
+          configuration: {
+            baseURL: configService.get('OPENAI_BASE_URL'),
+          },
+        })
+      },
+      inject: [ConfigService],
+    },
+  ],
+})
+export class AiModule {}
+```
+
+就是基于用 langchain 创建一个 chain 来回答用户的问题，流式返回
+
+安装依赖：`pnpm install @nestjs/config @langchain/openai @langchain/core`，配置.env
+
+```
+OPENAI_API_KEY=sk-xxx
+OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+MODEL_NAME=qwen-plus
+```
+
+在AppModule引入：
+
+```ts
+@Module(P
+  imports: [
+    AiModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+  ],
+)
+```
+
+#### 语音转文字接口
+
+创建 speech 模块：
+
+```
+nest g module speech
+nest g service speech --no-spec
+nest g controller speech --no-spec
+```
+
+把之前 asr 的逻辑拿过来，放到 service 里：
+
+```ts
+import { Inject, Injectable } from '@nestjs/common'
+import type * as tencentcloud from 'tencentcloud-sdk-nodejs'
+
+type UploadedAudio = {
+  buffer: Buffer
+  originalname: string
+  mimetype: string
+  size: number
+}
+
+type AsrClient = InstanceType<typeof tencentcloud.asr.v20190614.Client>
+
+@Injectable()
+export class SpeechService {
+  constructor(@Inject('ASR_CLIENT') private readonly asrClient: AsrClient) {}
+
+  async recognizeBySentence(file: UploadedAudio): Promise<string> {
+    const audioBase64 = file.buffer.toString('base64')
+
+    const result = await this.asrClient.SentenceRecognition({
+      EngSerViceType: '16k_zh',
+      SourceType: 1,
+      Data: audioBase64,
+      DataLen: file.buffer.length,
+      VoiceFormat: 'ogg-opus',
+    })
+
+    return result.Result ?? ''
+  }
+}
+```
+
+把传过来的 buffer 转成 base64 字符串，用 asrClient 的 SentenceRecognition 方法来识别成文字返回。
