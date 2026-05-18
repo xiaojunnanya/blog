@@ -243,9 +243,9 @@ function streamTTS() {
 streamTTS()
 ```
 
-appid 在这里：https://console.cloud.tencent.com/developer，基本信息里的APPID
+使用基本信息里的APPID：https://console.cloud.tencent.com/developer
 
-安装以来：`pnpm i ws`
+安装依赖：`pnpm i ws`
 
 跑一下，可以看到文件先是5s，然后变成12s是不断追加的
 
@@ -310,7 +310,7 @@ run()
 
 安装下依赖：`pnpm install tencentcloud-sdk-nodejs`
 
-然后需要开通一下：https://console.cloud.tencent.com/asr，开通之后密钥用之前的密钥就行
+然后需要开通一下，密钥使用之前的密钥就行：https://console.cloud.tencent.com/asr
 
 跑一下：
 

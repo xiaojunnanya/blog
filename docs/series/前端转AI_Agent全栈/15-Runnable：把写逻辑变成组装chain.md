@@ -12,6 +12,45 @@ keywords: [AI]
 
 LangChain 很多 api 都实现了 Runnable 接口，比如 PromptTemplate、OutputParser、ChatOpenAI 等。
 
+:::info `Runnable` 是什么？
+
+在 LangChain 官方文档里，Runnable 可以理解成：“一个可以被统一调用、串联、流式处理、批量执行的可执行单元”。
+
+它是 LangChain 的核心抽象。
+
+你可以把它理解成：`输入 -> 执行逻辑 -> 输出`
+
+只要一个对象符合这个规范，它就是 Runnable。
+
+比如：PromptTemplate 、ChatModel 、OutputParser 、Tool 、Chain 、Agent 的部分组件
+
+本质上都能：.invoke(input)
+
+所以它们都属于 Runnable。
+
+**最核心的几个方法**
+
+- `invoke()`：最基础的执行，`const result = await runnable.invoke(input)`，同步/单次调用
+- `stream()`：流式输出，`const stream = await runnable.stream(input)`，用于：ChatGPT 打字机效果、token 流输出、流式 tool call等
+- `batch()`：批量执行，`await runnable.batch([input1,input2,input3])`，类似promise.all，但 LangChain 做了统一封装
+- `pipe()`：把多个 Runnable 串起来，这个非常重要,`prompt.pipe(model).pipe(parser)`，等价于：`Prompt -> LLM -> Parser`
+
+**为什么 LangChain 要搞 Runnable？**
+
+因为以前：Prompt 是一种类型 Model 是一种类型 Parser 又是另一种类型
+
+很难统一组合。
+
+后来 LangChain 把所有东西抽象成：`Runnable<Input, Output>`
+
+于是：模型能串 parser 能串 tool 能串 chain 能串 agent 里的步骤也能串
+
+整个系统就统一了。
+
+一句话理解Runnable 就是：LangChain 对“可执行 AI 单元”的统一抽象接口。
+
+:::
+
 而且 Runnable 相关的 api 也有很多：
 
 ![img](./15-Runnable：把写逻辑变成组装chain.assets/image-1.png)
@@ -23,6 +62,8 @@ LangChain 很多 api 都实现了 Runnable 接口，比如 PromptTemplate、Outp
 ## Runnable
 
 ### RunnableSequence
+
+（RunnableSequence其实本质上就是.pipe，pipe 是语法糖，RunnableSequence 是底层实现）
 
 之前我们这么写
 
@@ -125,7 +166,7 @@ console.log(result)
 
 用 RunnableSequence 声明这三个顺序执行，然后直接执行这条 chain 就好了。
 
-了 RunnableSequence 声明，还可以直接 pipe：`const chain = promptTemplate.pipe(model).pipe(outputParser)`
+除了 RunnableSequence 声明，还可以直接 pipe：`const chain = promptTemplate.pipe(model).pipe(outputParser)`
 
 跑一下发现和 before.mjs 是一样的
 
@@ -159,7 +200,7 @@ batch 是批量，也就是并发进行多个单独的 invoke
 
 ### RunnableLambda
 
-首先是 RunnableLambda，这个是把普通函数封装成 Runnable 对象
+RunnableLambda这个是把普通函数封装成 Runnable 对象，他的作用是让任意的js/ts函数接入 LangChain Runnable 体系
 
 src/runnables/RunnableLambda.mjs
 
