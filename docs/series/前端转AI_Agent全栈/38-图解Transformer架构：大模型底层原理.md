@@ -1,7 +1,7 @@
 ---
-id: aiagent30
-slug: /aiagent30
-title: 30-DeepAgents：开箱即用的 skill、上下文压缩等 middleware
+id: aiagent38
+slug: /aiagent38
+title: 38-图解Transformer架构：大模型底层原理
 date: 2002-09-26
 authors: 鲸落
 tags: [AI]
