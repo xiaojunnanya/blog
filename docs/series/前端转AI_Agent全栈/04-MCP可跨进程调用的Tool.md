@@ -143,7 +143,7 @@ MCP 最大的特点就是可以**跨进程调用工具**。
 
 提到 MCP 都会提到这张图：
 
-![image-20260128134407575](./04-MCP可跨进程调用的Tool.assets/image-20260128134407575.png)
+![image-20260128134407575](https://img.xiaojunnan.cn/04-image-20260128134407575.png)
 
 你的 ai agent 就是 MCP 客户端，可以通过 MCP 协议调用各种 MCP Server，实现跨进程的工具调用。
 

@@ -60,13 +60,13 @@ keywords: [AI]
 
 可视化一下是这样：
 
-![image-20260128150604827](./06-RAG：把文档向量化，基于向量实现真正的语义搜索.assets/image-20260128150604827.png)
+![image-20260128150604827](https://img.xiaojunnan.cn/06-image-20260128150604827.png)
 
 明显可以看出来，苹果、水果、香蕉，这三个概念相关性很大，而水果和石头相关性就不大。
 
 计算的话，可以通过夹角判断相似度，夹角越小相似度越高：
 
-![image-20260128150752455](./06-RAG：把文档向量化，基于向量实现真正的语义搜索.assets/image-20260128150611878.png)
+![image-20260128150752455](https://img.xiaojunnan.cn/06-image-20260128150611878.png)
 
 也就是**余弦相似度**（两个向量夹角的余弦值）。
 
@@ -96,7 +96,7 @@ keywords: [AI]
 
 那加上向量化之后的 RAG 流程是什么样的呢？
 
-![img](./06-RAG：把文档向量化，基于向量实现真正的语义搜索.assets/image-1.png)
+![img](https://img.xiaojunnan.cn/06-image-1.png)
 
 用户的 prompt 会通过嵌入模型转成向量，然后 retriever 基于这个向量去向量数据库中检索，找到相似的向量，把对应的文档块返回，加到 prompt 里作为背景知识，给大模型。
 
@@ -324,7 +324,7 @@ mac@macdeMacBook-Air-3 aiagent % pnpm run hello-rag
 
 回过头来再看下这张图：
 
-![img](./06-RAG：把文档向量化，基于向量实现真正的语义搜索.assets/image-1.png)
+![img](https://img.xiaojunnan.cn/06-image-1.png)
 
 是不是就很清楚了！
 

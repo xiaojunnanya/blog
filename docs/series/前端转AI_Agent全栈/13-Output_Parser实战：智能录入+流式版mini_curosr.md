@@ -30,7 +30,7 @@ keywords: [AI]
 
 但在 AI 时代，一般都是智能录入的：
 
-![img](./13-Output_Parser实战：智能录入+流式版mini_curosr.assets/image-1.png)
+![img](https://img.xiaojunnan.cn/13-image-1.png)
 
 你只需要给一段文本，让 AI 分析并提取其中的数据，按照结构整理好，然后插入数据库。
 
@@ -381,21 +381,21 @@ json schema 就和 tool 的 args 一样，都是大模型层面支持的，会�
 
 先想想之前不用流式是什么流程：
 
-- 我们传入 SystemMessage 和 HumanMessage，调用大模型之后，返回 AIMessage ![image](./11-Memory管理的三大策略：截断、总结、检索.assets/image-20260304162742892.png)
-- 把这个 AIMessage 也加入 memory，之后根据 AIMessage 中的 tool_calls 信息调用 tool，执行结果封装成 ToolMessage 放入 memory ![image](./11-Memory管理的三大策略：截断、总结、检索.assets/image-1.png)
+- 我们传入 SystemMessage 和 HumanMessage，调用大模型之后，返回 AIMessage ![image](https://img.xiaojunnan.cn/11-image-20260304162742892.png)
+- 把这个 AIMessage 也加入 memory，之后根据 AIMessage 中的 tool_calls 信息调用 tool，执行结果封装成 ToolMessage 放入 memory ![image](https://img.xiaojunnan.cn/11-image-1.png)
 - 直到不再返回带 tool_calls 信息的 AIMessage，就代表循环结束。
 
 那如果改成流式返回的话，难点在哪呢？
 
 难点在于返回的 AIMessage 是 chunk。
 
-![image](./13-Output_Parser实战：智能录入+流式版mini_curosr.assets/image-4.png)
+![image](https://img.xiaojunnan.cn/13-image-4.png)
 
 我们要把 AIMessageChunk 拼接成完整的 AIMessage 才能放入 Memory 再次调用大模型。
 
 这个用它的 contact 方法即可。
 
-![image](./13-Output_Parser实战：智能录入+流式版mini_curosr.assets/image-5.png)
+![image](https://img.xiaojunnan.cn/13-image-5.png)
 
 流式返回一个个 AIMessageChunk，调用 concat 方法合并一下，流式结束就拿到了完整的 AIMessage，把它放入 memory 即可。
 
@@ -693,11 +693,11 @@ try {
 
 之前是完整的 AIMessage 和 tool_calls
 
-![image](./11-Memory管理的三大策略：截断、总结、检索.assets/image-1.png)
+![image](https://img.xiaojunnan.cn/11-image-1.png)
 
 现在需要自己对 AIMessageChunk 做 concat，以及用 JsonOutputToolsParser 解析 tool_call_chunks：
 
-![图片](./13-Output_Parser实战：智能录入+流式版mini_curosr.assets/640.png)
+![图片](https://img.xiaojunnan.cn/13-640.png)
 
 ## **总结**
 

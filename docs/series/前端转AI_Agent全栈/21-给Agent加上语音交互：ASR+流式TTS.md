@@ -499,9 +499,3 @@ export class SpeechService {
 ```
 
 把传过来的 buffer 转成 base64 字符串，用 asrClient 的 SentenceRecognition 方法来识别成文字返回。
-
-
-
-SpeechModule 里创建 AsrClient：
-
-![image-20260726200508504](https://img.xiaojunnan.cn/image-20260726200508504.png)

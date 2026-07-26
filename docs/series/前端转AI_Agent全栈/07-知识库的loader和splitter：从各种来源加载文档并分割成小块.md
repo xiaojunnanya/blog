@@ -32,7 +32,7 @@ keywords: [AI]
 
 这种显然就不是直接创建 Document 对象了，而是要用各种 loader 来转换：
 
-![img](./07-知识库的loader和splitter：从各种来源加载文档并分割成小块.assets/image-1.png)
+![img](https://img.xiaojunnan.cn/07-image-1.png)
 
 经过对应的 loader 处理后，变成 Document，之后再由嵌入模型向量化后存入知识库。
 
@@ -52,7 +52,7 @@ https://docs.langchain.com/oss/python/integrations/document_loaders
 
 ## Splitter
 
-![img](./07-知识库的loader和splitter：从各种来源加载文档并分割成小块.assets/image-2.png)
+![img](https://img.xiaojunnan.cn/07-image-2.png)
 
 大的文档经过 TextSplitter 分割后，变成一个个小文档，再给到嵌入模型做向量化。
 

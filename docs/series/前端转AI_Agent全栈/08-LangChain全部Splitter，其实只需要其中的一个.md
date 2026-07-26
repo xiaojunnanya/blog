@@ -38,11 +38,11 @@ const textSplitter = new RecursiveCharacterTextSplitter({
 
 首先按照 。的 sperator 来分割字符串，然后按照 chunk size 放入一个个 Document，也就是这样：
 
-![img](./08-LangChain全部Splitter，其实只需要其中的一个.assets/image-01.png)
+![img](https://img.xiaojunnan.cn/08-image-01.png)
 
 如果分割后还是大于 chunk size，就需要按照后面的 sperator 继续分割，然后加上 overlap：
 
-![img](./08-LangChain全部Splitter，其实只需要其中的一个.assets/image-02.png)
+![img](https://img.xiaojunnan.cn/08-image-02.png)
 
 注意，**overloap 只有文本超过 chunk size，文本被打断了才会加**，不是所有的块都会有 overlap
 
@@ -115,7 +115,7 @@ overlap 是为了解决“硬切文本”带来的语义断裂问题，如果文
 
 比如上面那段话超过了 chunk size，分割到两个 chunk 里，第二个 chunk 就会按照设置重复一部分内容，保证语义的连贯性，通常设置为 chunkSize 的 10% - 20%，牺牲了一点存储空间（因为数据重复了），换取了模型对上下文理解的完整性。
 
-![img](./08-LangChain全部Splitter，其实只需要其中的一个.assets/image-03.png)
+![img](https://img.xiaojunnan.cn/08-image-03.png)
 
 ## splitter
 
@@ -123,7 +123,7 @@ overlap 是为了解决“硬切文本”带来的语义断裂问题，如果文
 
 我们点击 @langchain/textsplitters 这个包进入看 ts 类型，可以看到这个包导出的 splitter，以及它们的继承关系：
 
-![img](./08-LangChain全部Splitter，其实只需要其中的一个.assets/image-04.png)
+![img](https://img.xiaojunnan.cn/08-image-04.png)
 
 ### TextSplitter
 
@@ -201,7 +201,7 @@ pineapple 2
 
 回过头来再看下所有的 Splitter：
 
-![img](./08-LangChain全部Splitter，其实只需要其中的一个.assets/image-04.png)
+![img](https://img.xiaojunnan.cn/08-image-04.png)
 
 关系就比较清晰了。
 

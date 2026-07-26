@@ -86,7 +86,7 @@ async function runAgentWithTools(query, maxIterations = 30) {
 
 大模型返回了 AIMessage 和 tool_calls 信息。
 
-![image-20260304162742892](./11-Memory管理的三大策略：截断、总结、检索.assets/image-20260304162742892.png)
+![image-20260304162742892](https://img.xiaojunnan.cn/11-image-20260304162742892.png)
 
 我们基于 tool_calls 去调用工具，然后把结果封装成 ToolMessage 也放入 messages 数组。
 
@@ -94,11 +94,11 @@ async function runAgentWithTools(query, maxIterations = 30) {
 
 循环继续调用大模型，这是第二次调用。
 
-![image](./11-Memory管理的三大策略：截断、总结、检索.assets/image-1.png)
+![image](https://img.xiaojunnan.cn/11-image-1.png)
 
 直到不再有 tool_calls，就把那个 AIMessage 返回，这就是最终回复。
 
-![image](./11-Memory管理的三大策略：截断、总结、检索.assets/image-2.png)
+![image](https://img.xiaojunnan.cn/11-image-2.png)
 
 这个过程我们循环调用了多次大模型。
 
@@ -176,7 +176,7 @@ BaseMemory 		ConversationSummaryBufferMemory				maxToekn 内保存，超出后�
 
 可以看到，刚才提到的所有 Memory api 都被废弃了：
 
-![image](./11-Memory管理的三大策略：截断、总结、检索.assets/image-3.png)
+![image](https://img.xiaojunnan.cn/11-image-3.png)
 
 因为它们不够灵活，像之前提到的截断、总结、检索（向量数据库）完全可以自己实现：
 

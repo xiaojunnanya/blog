@@ -77,7 +77,7 @@ Gemini 的格式是这样：
 
 你如果用 LangChain，就是这样：
 
-![img](./17-LangChain整体总结：AI_Agent第一阶段学习完成.assets/640.png)
+![img](https://img.xiaojunnan.cn/640.png)
 
 所有大模型的 api 都实现 BaseChatModel
 
@@ -109,7 +109,7 @@ Gemini 的格式是这样：
 
 通过 BaseChatModel 屏蔽了大模型底层差异后，再就是对输入、输出做控制：
 
-![img](./17-LangChain整体总结：AI_Agent第一阶段学习完成.assets/640-20260317160107361.png)
+![img](https://img.xiaojunnan.cn/640-20260317160107361.png)
 
 这就用到了 PromptTemplate 和 OutputParser 的 api
 
@@ -339,7 +339,7 @@ const exampleSelector = await LengthBasedExampleSelector.fromExamples(
 
 这些就是 Prompt Template 的核心 api 了
 
-![img](./17-LangChain整体总结：AI_Agent第一阶段学习完成.assets/640-20260317162434591.png)
+![img](https://img.xiaojunnan.cn/640-20260317162434591.png)
 
 ## 输出控制
 
@@ -507,13 +507,13 @@ LangChain 会：
 
 之前流式返回的内容是这样的：
 
-![图片](./17-LangChain整体总结：AI_Agent第一阶段学习完成.assets/640-4317886.png)
+![图片](https://img-xiaojunnan-blog.oss-cn-hangzhou.aliyuncs.com/640-4317886.png)
 
 参数片段在 tool_call_chunks 里
 
 用了 JsonOutputToolsParser 是这样的：
 
-![图片](./17-LangChain整体总结：AI_Agent第一阶段学习完成.assets/640-20260324100457613.png)
+![图片](https://img.xiaojunnan.cn/640-20260324100457613.png)
 
 这时候的片段信息不完整，比如少了大括号，少了一半引号等
 
@@ -672,17 +672,17 @@ const modelWithTools = model.bindTools(tools)
 
 只要描述写的清楚，那大模型就会在需要调用 tool 的时候返回 tool_calls 信息：
 
-![图片](./17-LangChain整体总结：AI_Agent第一阶段学习完成.assets/640-20260324100936943.png)
+![图片](https://img.xiaojunnan.cn/640-20260324100936943.png)
 
 并且按照你指定的 schema 来填充参数。
 
-![图片](./11-Memory管理的三大策略：截断、总结、检索.assets/image-1.png)
+![图片](https://img.xiaojunnan.cn/11-image-1.png)
 
 这样我们根据 tool_calls 去调用工具，然后把结果封装成 ToolMessage 也放入 messages 数组。
 
 之后继续循环调用：
 
-![图片](./11-Memory管理的三大策略：截断、总结、检索.assets/image-20260304162742892.png)
+![图片](https://img.xiaojunnan.cn/11-image-20260304162742892.png)
 
 直到没有新的 tool_call ，循环结束
 
@@ -783,13 +783,13 @@ LCEL 就是：
 
 并且提供了一系列 Runnable 的 api 可以连接不同的组件：
 
-![](./15-Runnable：把写逻辑变成组装chain.assets/image-1.png)
+![](https://img.xiaojunnan.cn/image-1.png)
 
 这样组装出一条 chain 之后，统一执行。
 
 而且调用方式有 invoke（同步调用）、stream（流式）、batch（批量调用） 三种：
 
-![](./15-Runnable：把写逻辑变成组装chain.assets/640.png)
+![](https://img.xiaojunnan.cn/641.png)
 
 通过 LCEL 的写法，把各个组件用声明式的方式连接起来，可以动态加一些逻辑。
 

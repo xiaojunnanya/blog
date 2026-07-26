@@ -53,7 +53,7 @@ LangChain 很多 api 都实现了 Runnable 接口，比如 PromptTemplate、Outp
 
 而且 Runnable 相关的 api 也有很多：
 
-![img](./15-Runnable：把写逻辑变成组装chain.assets/image-1.png)
+![img](https://img.xiaojunnan.cn/image-15-1.png)
 
 那 Runnable 都是干什么的呢？
 
@@ -188,7 +188,7 @@ batch 是批量，也就是并发进行多个单独的 invoke
 
 调用 stream 就是调用这个链条上每个组件的 stream，不断返回数据。
 
-![img](./15-Runnable：把写逻辑变成组装chain.assets/640.png)
+![img](https://img.xiaojunnan.cn/641.png)
 
 串联起来的 Runnable 的 chain 就自然可以支持同步调用、批量调用、流式返回。
 

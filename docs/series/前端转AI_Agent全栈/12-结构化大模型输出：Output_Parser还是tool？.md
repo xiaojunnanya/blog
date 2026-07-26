@@ -1075,7 +1075,7 @@ try {
 
 其实流式输出的情况下，如果你用了 tool call，是这样返回的：
 
-![image-20260309180851560](./12-结构化大模型输出：Output_Parser还是tool？.assets/image-20260309180851560.png)
+![image-20260309180851560](https://img.xiaojunnan.cn/12-image-20260309180851560.png)
 
 ### tool_call_chunks
 
@@ -1146,7 +1146,7 @@ try {
 
 基于这个可以实现流式打印效果，但是看下 chunk 内容：
 
-![image-20260309181243407](./12-结构化大模型输出：Output_Parser还是tool？.assets/image-20260309181243407.png)
+![image-20260309181243407](https://img.xiaojunnan.cn/12-image-20260309181243407.png)
 
 这时候是不能调用 tool 的，因为参数还不完整，没有 tool_calls 信息。
 

@@ -71,9 +71,9 @@ cd milvus
 
 用到的镜像根据配置文件自动下载。
 
-下载的镜像：![image-20260303170253255](./09-向量数据库Milvus：做%20AIAgent开发必备技术.assets/image-20260303170253255.png)
+下载的镜像：![image-20260303170253255](https://img.xiaojunnan.cn/09-image-20260303170253255.png)
 
-跑起来的容器：![image-20260303170253255](./09-向量数据库Milvus：做%20AIAgent开发必备技术.assets/image-20260128152427654.png)
+跑起来的容器：![image-20260303170253255](https://img.xiaojunnan.cn/09-image-20260128152427654.png)
 
 milvus 数据库是跑在 19530 这个端口。
 
@@ -233,7 +233,7 @@ async function main() {
 main()
 ```
 
-在 milvus 里是这样存储数据的：![image](./09-向量数据库Milvus：做%20AIAgent开发必备技术.assets/image-1.png)
+在 milvus 里是这样存储数据的：![image](https://img.xiaojunnan.cn/09-image-1.png)
 
 Milvus 中可以创建多个 database，每个 database 下有多个 collection。
 
@@ -418,7 +418,7 @@ Generating embeddings...
 
 链接之后可以看到所有的集合，集合下所有的 Entity
 
-![image](./09-向量数据库Milvus：做%20AIAgent开发必备技术.assets/image-2.png)
+![image](https://img.xiaojunnan.cn/09-image-2.png)
 
 可以看到我们刚创建的 ai_diary 的 collection，以及下面的 5 条数据
 
