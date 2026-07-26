@@ -251,8 +251,6 @@ streamTTS()
 
 ### 流式语音合成 + ASR
 
-因为文本是流式返回的，所以语音一般也要流式生成，用 streaming tts 的接口。
-
 接下来试一下语音识别 ASR（Automatic Speech Recognition），叫 STT （Speech To Text） 也可以，但 ASR 用的多一些。
 
 这个就不用流式了。你平时用豆包的时候，都是说完一段话才转成的文本
@@ -501,3 +499,9 @@ export class SpeechService {
 ```
 
 把传过来的 buffer 转成 base64 字符串，用 asrClient 的 SentenceRecognition 方法来识别成文字返回。
+
+
+
+SpeechModule 里创建 AsrClient：
+
+![image-20260726200508504](https://img.xiaojunnan.cn/image-20260726200508504.png)
