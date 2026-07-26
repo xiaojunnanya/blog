@@ -14,11 +14,11 @@ keywords: [AI]
 
 LCEL 就是基于 Runnable 的 api 来声明 chain，然后统一执行。
 
-![img](./15-Runnable：把写逻辑变成组装chain.assets/image-1.png)
+![img](https://img.xiaojunnan.cn/image-15-1.png)
 
 声明的 chain 可以用 invoke、batch、stream 等 api 来同步调用、批量调用、流式返回，因为所有 Runnable 都实现了这些方法。
 
-![img](./15-Runnable：把写逻辑变成组装chain.assets/640.png)
+![img](https://img.xiaojunnan.cn/641.png)
 
 但是大家可能对用了 Runnable 之后和之前的写法的区别没有具体的认识。
 

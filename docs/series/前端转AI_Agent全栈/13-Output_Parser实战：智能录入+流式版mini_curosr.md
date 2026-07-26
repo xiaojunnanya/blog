@@ -470,7 +470,7 @@ for await (const chunk of stream) {
 - **返回的是 AIMessageChunk，需要 concat 拼接成完整的 AIMessage**
 - **AIMessageChunk 里的是 tool_call_chunks，只包含部分参数，需要用 JsonOutputToolsParser 来解析成 json**
 
-![图片](./13-Output_Parser实战：智能录入+流式版mini_curosr.assets/640.png)
+![图片](https://img.xiaojunnan.cn/13-640.png)
 
 这么一看确实比非流式的逻辑复杂了，因为有个拼接（concat）和解析（parse）的过程
 
