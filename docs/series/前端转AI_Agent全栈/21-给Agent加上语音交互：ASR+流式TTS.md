@@ -392,7 +392,7 @@ export class AiController {
   @Sse('chat/stream')
   chatStream(@Query('query') query: string): Observable<{ data: string }> {
     return from(this.aiService.streamChain(query)).pipe(
-      map(chunk => ({ data: chunk })),
+      map((chunk) => ({ data: chunk })),
     )
   }
 }
@@ -440,15 +440,24 @@ MODEL_NAME=qwen-plus
 在AppModule引入：
 
 ```ts
-@Module(P
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { AiModule } from "./ai/ai.module";
+import { ConfigModule } from "@nestjs/config";
+
+@Module({
+  controllers: [AppController],
+  providers: [AppService],
   imports: [
     AiModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ".env",
     }),
   ],
-)
+})
+export class AppModule {}
 ```
 
 ### 语音转文字接口
@@ -503,13 +512,13 @@ export class SpeechService {
 SpeechModule 里创建 AsrClient：
 
 ```ts
-import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { SpeechService } from './speech.service';
-import { SpeechController } from './speech.controller';
-import * as tencentcloud from 'tencentcloud-sdk-nodejs';
+import { Module } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { SpeechService } from './speech.service'
+import { SpeechController } from './speech.controller'
+import * as tencentcloud from 'tencentcloud-sdk-nodejs'
 
-const AsrClient = tencentcloud.asr.v20190614.Client;
+const AsrClient = tencentcloud.asr.v20190614.Client
 
 @Module({
   providers: [
@@ -529,7 +538,7 @@ const AsrClient = tencentcloud.asr.v20190614.Client;
               reqTimeout: 30,
             },
           },
-        });
+        })
       },
       inject: [ConfigService],
     },
@@ -550,9 +559,9 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { SpeechService } from './speech.service';
+} from '@nestjs/common'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { SpeechService } from './speech.service'
 
 @Controller('speech')
 export class SpeechController {
@@ -563,20 +572,18 @@ export class SpeechController {
   async recognize(
     @UploadedFile()
     file?: {
-      buffer: Buffer;
-      originalname: string;
-      mimetype: string;
-      size: number;
+      buffer: Buffer
+      originalname: string
+      mimetype: string
+      size: number
     },
   ) {
     if (!file?.buffer?.length) {
-      throw new BadRequestException(
-        '请通过 FormData 的 audio 字段上传音频文件',
-      );
+      throw new BadRequestException('请通过 FormData 的 audio 字段上传音频文件')
     }
 
-    const text = await this.speechService.recognizeBySentence(file);
-    return { text };
+    const text = await this.speechService.recognizeBySentence(file)
+    return { text }
   }
 }
 ```

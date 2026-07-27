@@ -54,7 +54,7 @@ keywords: [AI]
 
 - **决策准确率更高、token 消耗更低**：每个 Agent 只带必要的最少prompt，没有冗余信息干扰，虽然调用 LLM 次数多了，但更省 token、决策更准、更稳定
 - **并行思考和任务处理**：主管分派任务，子 Agent 并行处理，整体效率更高
-- **多角色互相讨论，纠错能力更强**：多 Agent 有不同橘色，可以互相监督、互相纠错，比单个 Agent 自己反思更靠谱，复杂任务表现更强
+- **多角色互相讨论，纠错能力更强**：多 Agent 有不同角色，可以互相监督、互相纠错，比单个 Agent 自己反思更靠谱，复杂任务表现更强
 
 
 
@@ -79,12 +79,12 @@ keywords: [AI]
 创建 src/basic-graph.mjs
 
 ```js
-import { Annotation, END, START, StateGraph } from"@langchain/langgraph";
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
 
 const StateAnnotation = Annotation.Root({
-text: Annotation({
+  text: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>"",
+    default: () => "",
   }),
 });
 
@@ -116,9 +116,26 @@ console.log("result:", result);
 
 然后用边（edge）连起来
 
-编译后执行，将打印的数据复制到https://mermaid.live里
+编译后执行，将mermaid的数据复制到https://mermaid.live里或Markdown 的 ```mermaid 代码块
 
 Annotation 用于创建 State，指定默认值（default）和合并逻辑（reducer）
+
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        step1(step1)
+        step2(step2)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> step1;
+        step1 --> step2;
+        step2 --> __end__;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
+```
+
+
 
 ![image-20260726215503922](https://img.xiaojunnan.cn/image-20260726215503922.png)
 

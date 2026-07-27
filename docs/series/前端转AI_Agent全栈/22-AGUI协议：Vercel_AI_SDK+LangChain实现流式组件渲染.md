@@ -116,27 +116,28 @@ Vercel AI SDK 提供了这些包：
 改下 AiModule，加一下网络搜索的 tool
 
 ```ts
-import { Module } from'@nestjs/common';
-import { AiService } from'./ai.service';
-import { AiController } from'./ai.controller';
-import { ConfigService } from'@nestjs/config';
-import { ChatOpenAI } from'@langchain/openai';
-import { tool } from'@langchain/core/tools';
-import z from'zod';
+import { Module } from '@nestjs/common'
+import { AiService } from './ai.service'
+import { AiController } from './ai.controller'
+import { ConfigService } from '@nestjs/config'
+import { ChatOpenAI } from '@langchain/openai'
+import { tool } from '@langchain/core/tools'
+import z from 'zod'
 
 @Module({
-controllers: [AiController],
-providers: [AiService,
+  controllers: [AiController],
+  providers: [
+    AiService,
     {
       provide: 'CHAT_MODEL',
       useFactory: (configService: ConfigService) => {
-        returnnew ChatOpenAI({
+        return new ChatOpenAI({
           model: configService.get('MODEL_NAME'),
           apiKey: configService.get('OPENAI_API_KEY'),
           configuration: {
             baseURL: configService.get('OPENAI_BASE_URL'),
           },
-        });
+        })
       },
       inject: [ConfigService],
     },
@@ -155,23 +156,23 @@ providers: [AiService,
             .max(20)
             .optional()
             .describe('返回的搜索结果数量，默认 10 条'),
-        });
-    
+        })
+
         return tool(
           async ({ query, count }: { query: string; count?: number }) => {
-            const apiKey = configService.get<string>('BOCHA_API_KEY');
+            const apiKey = configService.get<string>('BOCHA_API_KEY')
             if (!apiKey) {
-              return'Bocha Web Search 的 API Key 未配置（环境变量 BOCHA_API_KEY），请先在服务端配置后再重试。';
+              return 'Bocha Web Search 的 API Key 未配置（环境变量 BOCHA_API_KEY），请先在服务端配置后再重试。'
             }
-    
-            const url = 'https://api.bochaai.com/v1/web-search';
+
+            const url = 'https://api.bochaai.com/v1/web-search'
             const body = {
               query,
               freshness: 'noLimit',
               summary: true,
               count: count ?? 10,
-            };
-    
+            }
+
             const response = await fetch(url, {
               method: 'POST',
               headers: {
@@ -179,30 +180,30 @@ providers: [AiService,
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify(body),
-            });
-    
+            })
+
             if (!response.ok) {
-              const errorText = await response.text();
-              return`搜索 API 请求失败，状态码: ${response.status}, 错误信息: ${errorText}`;
+              const errorText = await response.text()
+              return `搜索 API 请求失败，状态码: ${response.status}, 错误信息: ${errorText}`
             }
-    
-            let json: any;
+
+            let json: any
             try {
-              json = await response.json();
+              json = await response.json()
             } catch (e) {
-              return`搜索 API 请求失败，原因是：搜索结果解析失败 ${(e as Error).message}`;
+              return `搜索 API 请求失败，原因是：搜索结果解析失败 ${(e as Error).message}`
             }
-    
+
             try {
               if (json.code !== 200 || !json.data) {
-                return`搜索 API 请求失败，原因是: ${json.msg ?? '未知错误'}`;
+                return `搜索 API 请求失败，原因是: ${json.msg ?? '未知错误'}`
               }
-    
-              const webpages = json.data.webPages?.value ?? [];
+
+              const webpages = json.data.webPages?.value ?? []
               if (!webpages.length) {
-                return'未找到相关结果。';
+                return '未找到相关结果。'
               }
-    
+
               const formatted = webpages
                 .map(
                   (page: any, idx: number) =>
@@ -214,11 +215,11 @@ providers: [AiService,
     网站图标: ${page.siteIcon}
     发布时间: ${page.dateLastCrawled}`,
                 )
-                .join('\n\n');
-    
-              return formatted;
+                .join('\n\n')
+
+              return formatted
             } catch (e) {
-              return`搜索 API 请求失败，原因是：搜索结果解析失败 ${(e as Error).message}`;
+              return `搜索 API 请求失败，原因是：搜索结果解析失败 ${(e as Error).message}`
             }
           },
           {
@@ -227,13 +228,13 @@ providers: [AiService,
               '使用 Bocha Web Search API 搜索互联网网页。输入为搜索关键词（可选 count 指定结果数量），返回包含标题、URL、摘要、网站名称、图标和时间等信息的结果列表。',
             schema: webSearchArgsSchema,
           },
-        );
+        )
       },
       inject: [ConfigService],
     },
   ],
 })
-exportclass AiModule {}
+export class AiModule {}
 ```
 
 这里创建了 ChatModel 和网络搜索的 tool 的 provider
@@ -241,39 +242,46 @@ exportclass AiModule {}
 然后在 AiService 注入：
 
 ```ts
-import { Inject, Injectable } from'@nestjs/common';
-import { ChatOpenAI } from'@langchain/openai';
-import { AIMessage, AIMessageChunk, createAgent, HumanMessage, SystemMessage, ToolMessage } from'langchain';
-import { UIMessage } from'ai';
-import { toBaseMessages, toUIMessageStream } from'@ai-sdk/langchain';
+import { Inject, Injectable } from '@nestjs/common'
+import { ChatOpenAI } from '@langchain/openai'
+import {
+  AIMessage,
+  AIMessageChunk,
+  createAgent,
+  HumanMessage,
+  SystemMessage,
+  ToolMessage,
+} from 'langchain'
+import { UIMessage } from 'ai'
+import { toBaseMessages, toUIMessageStream } from '@ai-sdk/langchain'
 
 @Injectable()
-exportclass AiService {
-  private readonly agent: ReturnType<typeof createAgent>;
+export class AiService {
+  private readonly agent: ReturnType<typeof createAgent>
 
-constructor(
+  constructor(
     @Inject('WEB_SEARCH_TOOL') private readonly webSearchTool: any,
-    @Inject('CHAT_MODEL') model: ChatOpenAI
+    @Inject('CHAT_MODEL') model: ChatOpenAI,
   ) {
     this.agent = createAgent({
-        model,
-        tools: [this.webSearchTool],
-        systemPrompt:
-          '你是 AI 助手，需要最新信息、事实核查或联网信息时，请使用 web_search 工具搜索后再作答。',
-      });
+      model,
+      tools: [this.webSearchTool],
+      systemPrompt:
+        '你是 AI 助手，需要最新信息、事实核查或联网信息时，请使用 web_search 工具搜索后再作答。',
+    })
   }
 
-async stream(messages: UIMessage[]) {
-    const lcMessages = await toBaseMessages(messages);
-    const lgStream = awaitthis.agent.stream(
+  async stream(messages: UIMessage[]) {
+    const lcMessages = await toBaseMessages(messages)
+    const lgStream = await this.agent.stream(
       { messages: lcMessages },
       {
         streamMode: ['messages', 'values'],
         recursionLimit: 12,
       },
-    );
+    )
 
-    return toUIMessageStream(lgStream as AsyncIterable<AIMessageChunk>);
+    return toUIMessageStream(lgStream as AsyncIterable<AIMessageChunk>)
   }
 }
 ```
@@ -291,32 +299,41 @@ async stream(messages: UIMessage[]) {
 我们改下 AiController，加一下接口：
 
 ```ts
-import { BadRequestException, Body, Controller, Get, Post, Query, Res, Sse } from'@nestjs/common';
-import type { Response } from'express';
-import { AiService } from'./ai.service';
-import { pipeUIMessageStreamToResponse, UIMessage } from'ai';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Res,
+  Sse,
+} from '@nestjs/common'
+import type { Response } from 'express'
+import { AiService } from './ai.service'
+import { pipeUIMessageStreamToResponse, UIMessage } from 'ai'
 
 @Controller('ai')
-exportclass AiController {
-constructor(private readonly aiService: AiService) {}
+export class AiController {
+  constructor(private readonly aiService: AiService) {}
 
-/**
+  /**
     本地测试：
     curl -N -sS -X POST 'http://localhost:3000/ai/chat' \
       -H 'Content-Type: application/json' \
       -d '{"messages":[{"id":"1","role":"user","parts":[{"type":"text","text":"北京今天的天气"}]}]}'
    */
   @Post('chat')
-async postChat(
+  async postChat(
     @Body() body: { messages?: UIMessage[] },
     @Res({ passthrough: false }) res: Response,
   ): Promise<void> {
     if (!body?.messages || !Array.isArray(body.messages)) {
-      thrownew BadRequestException('Invalid JSON');
+      throw new BadRequestException('Invalid JSON')
     }
 
-    const stream = awaitthis.aiService.stream(body.messages);
-    pipeUIMessageStreamToResponse({ response: res, stream });
+    const stream = await this.aiService.stream(body.messages)
+    pipeUIMessageStreamToResponse({ response: res, stream })
   }
 }
 ```
@@ -423,7 +440,7 @@ ai 包提供了 isToolUIPart、getToolName 的 api
 ```ts
 MailerModule.forRootAsync({
   inject: [ConfigService],
-useFactory: (configService: ConfigService) => ({
+  useFactory: (configService: ConfigService) => ({
     transport: {
       host: configService.get<string>('MAIL_HOST'),
       port: Number(configService.get<string>('MAIL_PORT')),
@@ -437,7 +454,7 @@ useFactory: (configService: ConfigService) => ({
       from: configService.get<string>('MAIL_FROM'),
     },
   }),
-}),
+})
 ```
 
 之后在 AiModule 添加一个 provider：
