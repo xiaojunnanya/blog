@@ -81,29 +81,35 @@ keywords: [AI]
 ```js
 import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
 
+// 定义图中所有节点共享的状态字段。
 const StateAnnotation = Annotation.Root({
   text: Annotation({
-    reducer: (_prev, next) => next,
-    default: () => "",
+    reducer: (_prev, next) => next, // 当节点返回新的 text 时，如何把新值和旧值合并。
+    default: () => "", // 初始值。
   }),
 });
 
+// 每个节点接收当前状态，并只返回自己要更新的字段。
 const step1 = (state) => ({ text: `${state.text} -> step1` });
 const step2 = (state) => ({ text: `${state.text} -> step2` });
 
+// 创建线性工作流：START -> step1 -> step2 -> END。
 const graph = new StateGraph(StateAnnotation)
-  .addNode("step1", step1)
-  .addNode("step2", step2)
-  .addEdge(START, "step1")
-  .addEdge("step1", "step2")
-  .addEdge("step2", END)
-  .compile();
+  .addNode("step1", step1) // 节点名称: step1，节点函数: step1。
+  .addNode("step2", step2) // 节点名称: step2，节点函数: step2。
+  .addEdge(START, "step1") // 起点: START，终点: step1。
+  .addEdge("step1", "step2") // 起点: step1，终点: step2。
+  .addEdge("step2", END) // 起点: step2，终点: END。
+  .compile(); // 编译图，生成可执行的函数。
 
 // 导出为 Mermaid：可复制到 https://mermaid.live 或 Markdown 的 ```mermaid 代码块
+// 获取的是当前工作流的图结构
 const drawable = await graph.getGraphAsync();
+// 将图结构转换为 Mermaid 格式
 const mermaid = drawable.drawMermaid({ withStyles: true });
 console.log(mermaid);
 
+// 使用初始状态执行整个工作流。
 const result = await graph.invoke({ text: "hello" });
 console.log("result:", result);
 ```
@@ -137,8 +143,6 @@ graph TD;
 
 
 
-![image-20260726215503922](https://img.xiaojunnan.cn/image-20260726215503922.png)
-
 这样我们基于 LangGraph 的第一个图就完成了。
 
 图中当然有分支和循环。
@@ -150,30 +154,30 @@ graph TD;
 src/conditional-routing.mjs
 
 ```js
-import { Annotation, END, START, StateGraph } from"@langchain/langgraph";
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
 
 const StateAnnotation = Annotation.Root({
-query: Annotation({
+  query: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>"",
+    default: () => "",
   }),
-route: Annotation({
+  route: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>"chat",
+    default: () => "chat",
   }),
-answer: Annotation({
+  answer: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>"",
+    default: () => "",
   }),
 });
 
 const router = (state) => {
-const isMath = /[+\-*/]/.test(state.query);
-return { route: isMath ? "math" : "chat" };
+  const isMath = /[+\-*/]/.test(state.query);
+  return { route: isMath ? "math" : "chat" };
 };
 
 const mathNode = (state) => {
-try {
+  try {
     return { answer: String(eval(state.query)) };
   } catch {
     return { answer: "表达式无法计算" };
@@ -200,22 +204,32 @@ const drawable = await graph.getGraphAsync();
 const mermaid = drawable.drawMermaid({ withStyles: true });
 console.log(mermaid);
 
-console.log(
-"result:",
-await graph.invoke({ query: "你好" })
-);
+console.log("result:", await graph.invoke({ query: "你好" }));
 
-console.log(
-    "result:",
-    await graph.invoke({ query: "10 * 8" })
-);
+console.log("result:", await graph.invoke({ query: "10 * 8" }));
 ```
 
 用 addConditionalEdges 添加分支
 
 判断文本如果有+-*/字符就走 math 分支，否则走 chat 分支
 
-![image-20260726215559077](https://img.xiaojunnan.cn/image-20260726215559077.png)
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        router(router)
+        math(math)
+        chat(chat)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> router;
+        chat --> __end__;
+        math --> __end__;
+        router -.-> math;
+        router -.-> chat;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
+```
 
 
 
@@ -226,27 +240,27 @@ console.log(
 src/loop-retry.mjs
 
 ```js
-import { Annotation, END, START, StateGraph } from"@langchain/langgraph";
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
 
 const StateAnnotation = Annotation.Root({
-tries: Annotation({
+  tries: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>0,
+    default: () => 0,
   }),
-ok: Annotation({
+  ok: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>false,
+    default: () => false,
   }),
-message: Annotation({
+  message: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>"",
+    default: () => "",
   }),
 });
 
 const attempt = (state) => {
-const tries = state.tries + 1;
-const ok = tries >= 3;
-return {
+  const tries = state.tries + 1;
+  const ok = tries >= 3;
+  return {
     tries,
     ok,
     message: ok ? `第 ${tries} 次成功` : `第 ${tries} 次失败，继续重试`,
@@ -275,9 +289,25 @@ console.log("result:", result);
 
 这样就可以实现循环效果
 
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        attempt(attempt)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> attempt;
+        attempt -.->|done| __end__;
+        attempt -.->|retry| attempt;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
+```
 
 
-## ChekpointerSaver
+
+
+
+## 保存状态
 
 经过这几个例子，应该能看出节点之间是怎么通信的：通过 state
 
@@ -294,27 +324,27 @@ import {
   MemorySaver,
   START,
   StateGraph,
-} from"@langchain/langgraph";
+} from "@langchain/langgraph";
 
 const StateAnnotation = Annotation.Root({
-visitCount: Annotation({
+  visitCount: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>0,
+    default: () => 0,
   }),
-message: Annotation({
+  message: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>"",
+    default: () => "",
   }),
 });
 
 /** 每跑一轮图，给「当前会话」访问次数 +1 */
 function recordVisit(state) {
-const visitCount = state.visitCount + 1;
-const message =
+  const visitCount = state.visitCount + 1;
+  const message =
     visitCount === 1
       ? "这是你在本会话里第 1 次进入。"
       : `这是你在本会话里第 ${visitCount} 次进入`;
-return { visitCount, message };
+  return { visitCount, message };
 }
 
 const graph = new StateGraph(StateAnnotation)
@@ -331,15 +361,13 @@ const user2 = { configurable: { thread_id: "用户-小李" } };
 const res1 = await app.invoke({}, user1);
 const res2 = await app.invoke({}, user1);
 const res3 = await app.invoke({}, user1);
-const res4  = await app.invoke({}, user2);
+const res4 = await app.invoke({}, user2);
 
-console.log(res1)
+console.log(res1);
 console.log(res2);
 console.log(res3);
 console.log(res4);
 ```
-
-
 
 我们用 MemorySaver 来把 state 保存到内存里，这样下次就会基于上次的 state 继续执行
 
@@ -356,7 +384,7 @@ LangGraph 提供了 interrupt 的 api
 创建 src/graph-interrupt.mjs
 
 ```js
-import { createInterface } from"node:readline/promises";
+import { createInterface } from "node:readline/promises";
 import {
   Annotation,
   Command,
@@ -365,31 +393,31 @@ import {
   START,
   StateGraph,
   interrupt,
-} from"@langchain/langgraph";
+} from "@langchain/langgraph";
 
 const StateAnnotation = Annotation.Root({
-actionSummary: Annotation({
+  actionSummary: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>"",
+    default: () => "",
   }),
-userInput: Annotation({
+  userInput: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>"",
+    default: () => "",
   }),
 });
 
 /** 展示一笔待确认的转账 */
 const showTransfer = () => ({
-actionSummary: "向张三转账 ¥100（模拟，不会真扣款）",
+  actionSummary: "向张三转账 ¥100（模拟，不会真扣款）",
 });
 
 /** 停在这里等人输入；resume 的值会写进 userInput */
 const waitConfirm = (state) => {
-const text = interrupt({
+  const text = interrupt({
     hint: "终端里输入「确认」或备注后回车，图才会继续",
     actionSummary: state.actionSummary,
   });
-return { userInput: String(text) };
+  return { userInput: String(text) };
 };
 
 const graph = new StateGraph(StateAnnotation)
@@ -415,12 +443,27 @@ const line = (await rl.question("> ")).trim();
 await rl.close();
 
 if (!line) {
-console.error("未输入，退出。");
+  console.error("未输入，退出。");
   process.exit(1);
 }
 
 const done = await graph.invoke(new Command({ resume: line }), config);
 console.log("结果：", done);
+```
+
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        showTransfer(showTransfer)
+        waitConfirm(waitConfirm)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> showTransfer;
+        showTransfer --> waitConfirm;
+        waitConfirm --> __end__;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
 ```
 
 
@@ -456,48 +499,64 @@ LangGraph 实现工具调用 Agent 有两种写法：
 
 但不用自己写，langgraph 内置了 ToolNode 和 toolsCondition 的 api
 
+用到的 inventory-mock.mjs
+
+```js
+/** 假数据，模拟「按 SKU 查库存」接口 */
+const rows = [
+  { sku: "SKU-001", name: "无线鼠标", stock: 42 },
+  { sku: "SKU-002", name: "机械键盘", stock: 7 },
+  { sku: "SKU-003", name: "USB-C 线缆", stock: 120 },
+];
+
+export function getProductBySku(sku) {
+  const key = String(sku).trim().toUpperCase();
+  const row = rows.find((r) => r.sku.toUpperCase() === key);
+  if (!row) return JSON.stringify({ found: false, sku: String(sku).trim() });
+  return JSON.stringify({ found: true, ...row });
+}
+```
+
+
+
 src/prebuilt-tool-node.mjs
 
-```
+```ts
 import "dotenv/config";
 
-import { HumanMessage } from"@langchain/core/messages";
-import { tool } from"@langchain/core/tools";
+import { HumanMessage } from "@langchain/core/messages";
+import { tool } from "@langchain/core/tools";
 import {
   END,
   MessagesAnnotation,
   START,
   StateGraph,
-} from"@langchain/langgraph";
-import { ToolNode, toolsCondition } from"@langchain/langgraph/prebuilt";
-import { ChatOpenAI } from"@langchain/openai";
-import { z } from"zod";
-import { getProductBySku } from"./inventory-mock.mjs";
+} from "@langchain/langgraph";
+import { ToolNode, toolsCondition } from "@langchain/langgraph/prebuilt";
+import { ChatOpenAI } from "@langchain/openai";
+import { z } from "zod";
+import { getProductBySku } from "./inventory-mock.mjs";
 
-const getProductStock = tool(
-async ({ sku }) => getProductBySku(sku),
-  {
-    name: "get_product_stock",
-    description:
-      "按 SKU 查商品名与库存，SKU 如 SKU-001。",
-    schema: z.object({
-      sku: z.string().describe("商品 SKU"),
-    }),
-  }
-);
+const getProductStock = tool(async ({ sku }) => getProductBySku(sku), {
+  name: "get_product_stock",
+  description: "按 SKU 查商品名与库存，SKU 如 SKU-001。",
+  schema: z.object({
+    sku: z.string().describe("商品 SKU"),
+  }),
+});
 
 const tools = [getProductStock];
-const llm = new ChatOpenAI({ 
-modelName: process.env.MODEL_NAME,
-apiKey: process.env.OPENAI_API_KEY,
-configuration: {
-      baseURL: process.env.OPENAI_BASE_URL,
+const llm = new ChatOpenAI({
+  modelName: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
   },
 }).bindTools(tools);
 
-asyncfunction agent(state) {
-const response = await llm.invoke(state.messages);
-return { messages: response };
+async function agent(state) {
+  const response = await llm.invoke(state.messages);
+  return { messages: response };
 }
 
 const toolNode = new ToolNode(tools);
@@ -511,10 +570,8 @@ const graph = new StateGraph(MessagesAnnotation)
   .compile();
 
 const result = await graph.invoke({
-messages: [
-    new HumanMessage(
-      "查一下 SKU-001 的库存还有多少，回答里带上商品名和数字。"
-    ),
+  messages: [
+    new HumanMessage("查一下 SKU-001 的库存还有多少，回答里带上商品名和数字。"),
   ],
 });
 
@@ -527,7 +584,23 @@ const last = result.messages.at(-1);
 console.log(last?.content ?? result.messages);
 ```
 
-![image-20260726220935958](https://img.xiaojunnan.cn/image-20260726220935958.png)
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        agent(agent)
+        tools(tools)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> agent;
+        tools --> agent;
+        agent -.-> tools;
+        agent -.-> __end__;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
+```
+
+
 
 
 
@@ -594,11 +667,65 @@ console.log(last?.content ?? result);
 
 看一下它的图：
 
-![image-20260726220935958](https://img.xiaojunnan.cn/image-20260726220935958.png)
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        agent(agent)
+        tools(tools)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> agent;
+        tools --> agent;
+        agent -.-> tools;
+        agent -.-> __end__;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
+```
 
 和刚才写的一样，这个 api 内部就是基于 LangGraph 构建的 agent loop 的图。
 
 学完 LangGraph 的图，我们来写一个多 Agent 的架构
+
+
+
+createAgent的逻辑就等同于
+
+```
+START
+  ↓
+agent（LLM）
+  ↓
+判断有没有 tool call
+  ├── 没有 → END
+  │
+  └── 有 → tools（执行工具）
+              ↓
+           agent（LLM）
+              ↓
+         判断有没有 tool call
+              ...
+```
+
+如果我改成
+
+```
+START
+  ↓
+agent（LLM）
+  ↓
+判断有没有 tool call
+  ├── 没有 → 执行其他逻辑 → END
+  │
+  └── 有 → tools（执行工具）
+              ↓
+           agent（LLM）
+              ↓
+         判断有没有 tool call
+              ...
+```
+
+那直接用 `StateGraph` 更灵活。
 
 
 
@@ -617,60 +744,56 @@ langchain 提供了这种多 Agent 架构的包 @langchain/langgraph-supervisor
 ```js
 import "dotenv/config";
 
-import { HumanMessage } from"@langchain/core/messages";
-import { createSupervisor } from"@langchain/langgraph-supervisor";
-import { ChatOpenAI } from"@langchain/openai";
-import { createAgent, tool } from"langchain";
-import { z } from"zod";
+import { HumanMessage } from "@langchain/core/messages";
+import { createSupervisor } from "@langchain/langgraph-supervisor";
+import { ChatOpenAI } from "@langchain/openai";
+import { createAgent, tool } from "langchain";
+import { z } from "zod";
 
-import { lookupCityTrivia, lookupWeather } from"./simple-mock.mjs";
+import { lookupCityTrivia, lookupWeather } from "./simple-mock.mjs";
 
 const model = new ChatOpenAI({
-modelName: process.env.MODEL_NAME,
-apiKey: process.env.OPENAI_API_KEY,
-configuration: {
+  modelName: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
 });
 
-const lookupWeatherTool = tool(
-async ({ city }) => lookupWeather(city),
-  {
-    name: "lookup_weather",
-    description: "查询某城市当日天气概况（气温区间、天气、空气质量等）。",
-    schema: z.object({
-      city: z.string().describe("城市名，如 杭州"),
-    }),
-  }
-);
+const lookupWeatherTool = tool(async ({ city }) => lookupWeather(city), {
+  name: "lookup_weather",
+  description: "查询某城市当日天气概况（气温区间、天气、空气质量等）。",
+  schema: z.object({
+    city: z.string().describe("城市名，如 杭州"),
+  }),
+});
 
-const lookupCityTriviaTool = tool(
-async ({ city }) => lookupCityTrivia(city),
-  {
-    name: "lookup_city_trivia",
-    description: "查询与某城市相关的一句趣味知识。",
-    schema: z.object({
-      city: z.string().describe("城市名，如 杭州"),
-    }),
-  }
-);
+const lookupCityTriviaTool = tool(async ({ city }) => lookupCityTrivia(city), {
+  name: "lookup_city_trivia",
+  description: "查询与某城市相关的一句趣味知识。",
+  schema: z.object({
+    city: z.string().describe("城市名，如 杭州"),
+  }),
+});
 
 /** 子代理 A：只回答「天气」类问题 */
 const weatherAgent = createAgent({
-name: "weather_agent",
-description: "专门查天气",
+  name: "weather_agent",
+  description: "专门查天气",
   model,
-tools: [lookupWeatherTool],
-systemPrompt: "你只处理天气。用户提到城市时，用 lookup_weather 查询后再用中文简短说明。",
+  tools: [lookupWeatherTool],
+  systemPrompt:
+    "你只处理天气。用户提到城市时，用 lookup_weather 查询后再用中文简短说明。",
 });
 
 /** 子代理 B：只回答「城市小知识」 */
 const triviaAgent = createAgent({
-name: "trivia_agent",
-description: "专门讲与城市相关的小知识；必须调用 lookup_city_trivia。",
+  name: "trivia_agent",
+  description: "专门讲与城市相关的小知识；必须调用 lookup_city_trivia。",
   model,
-tools: [lookupCityTriviaTool],
-systemPrompt: "你只讲城市小知识。先 lookup_city_trivia，再用人话转述，不要编造工具里没有的内容。",
+  tools: [lookupCityTriviaTool],
+  systemPrompt:
+    "你只讲城市小知识。先 lookup_city_trivia，再用人话转述，不要编造工具里没有的内容。",
 });
 
 /**
@@ -678,9 +801,9 @@ systemPrompt: "你只讲城市小知识。先 lookup_city_trivia，再用人话�
  * （真实业务里还可以再加更多子代理，思路一样。）
  */
 const workflow = createSupervisor({
-agents: [weatherAgent.graph, triviaAgent.graph],
-llm: model,
-prompt: `你是调度员，只负责选人，不要自己报气温、也不要自己讲城市百科。
+  agents: [weatherAgent.graph, triviaAgent.graph],
+  llm: model,
+  prompt: `你是调度员，只负责选人，不要自己报气温、也不要自己讲城市百科。
 
 - 问天气、气温、下不下雨、空气 → 用 weather_agent
 - 问小知识、名胜、历史、一句介绍 → 用 trivia_agent
@@ -693,7 +816,7 @@ const drawable = await app.getGraphAsync();
 console.log(drawable.drawMermaid({ withStyles: true }));
 
 const input = {
-messages: [
+  messages: [
     new HumanMessage("查一下杭州的天气，再讲一条和杭州有关的小知识。"),
   ],
 };
@@ -701,11 +824,11 @@ messages: [
 const nodePath = [];
 let finalState = null;
 const stream = await app.stream(input, { streamMode: ["updates", "values"] });
-forawait (const event of stream) {
-const [mode, payload] = event;
-if (mode === "updates" && payload && typeof payload === "object") {
+for await (const event of stream) {
+  const [mode, payload] = event;
+  if (mode === "updates" && payload && typeof payload === "object") {
     nodePath.push(...Object.keys(payload));
-  } elseif (mode === "values") {
+  } else if (mode === "values") {
     finalState = payload;
   }
 }
@@ -745,13 +868,13 @@ values 是全量模式，给你所有的 state
 
 
 
-用到查询代码的实现：
+用到查询代码的实现simple-mock.mjs：
 
 ```js
 /** 假接口：演示 supervisor 如何把问题分给不同子代理 */
 
 function normCity(city) {
-returnString(city).trim();
+  return String(city).trim();
 }
 
 const weatherTable = {
@@ -767,11 +890,11 @@ const triviaTable = {
 };
 
 /** 查某地当日天气摘要（模拟） */
-exportfunction lookupWeather(city) {
-const c = normCity(city);
-const w = weatherTable[c];
-if (!w) {
-    returnJSON.stringify({
+export function lookupWeather(city) {
+  const c = normCity(city);
+  const w = weatherTable[c];
+  if (!w) {
+    return JSON.stringify({
       city: c,
       summary: "暂无该城市数据，以下为占位",
       tempHighC: 20,
@@ -779,23 +902,41 @@ if (!w) {
       aqi: "—",
     });
   }
-returnJSON.stringify({ city: c, ...w });
+  return JSON.stringify({ city: c, ...w });
 }
 
 /** 查与某城市相关的一句小知识（模拟） */
-exportfunction lookupCityTrivia(city) {
-const c = normCity(city);
-const line = triviaTable[c];
-returnJSON.stringify({
+export function lookupCityTrivia(city) {
+  const c = normCity(city);
+  const line = triviaTable[c];
+  return JSON.stringify({
     city: c,
     trivia: line ?? `没有为「${c}」准备内置小知识，可换杭州/北京/上海试试。`,
   });
 }
+
 ```
 
 这样，我们第一个多 Agent 的代码就跑通了。
 
-![image-20260726221253644](https://img.xiaojunnan.cn/image-20260726221253644.png)
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        supervisor(supervisor)
+        weather_agent(weather_agent)
+        trivia_agent(trivia_agent)
+        __start__ --> supervisor;
+        trivia_agent --> supervisor;
+        weather_agent --> supervisor;
+        supervisor -.-> weather_agent;
+        supervisor -.-> trivia_agent;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
+```
+
+
 
 虽然用 stream 的 values 模式可以打印 state，但是它内容太多了。
 

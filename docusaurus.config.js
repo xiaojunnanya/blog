@@ -3,6 +3,9 @@ const path = require('path')
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   onBrokenLinks: 'ignore',
+  markdown: {
+    mermaid: true,
+  },
   title: '鲸落',
   titleDelimiter: '-',
   url: 'http://xiaojunnan.cn',
@@ -271,7 +274,7 @@ const config = {
       }),
     ],
   ],
-  // themes: ['@docusaurus/theme-live-codeblock'],
+  themes: ['@docusaurus/theme-mermaid'],
   plugins: [
     'docusaurus-plugin-matomo',
     'docusaurus-plugin-image-zoom',
