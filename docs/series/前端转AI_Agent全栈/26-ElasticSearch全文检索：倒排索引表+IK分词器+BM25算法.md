@@ -621,7 +621,7 @@ BM25（Best Matching 25）是全文检索的相关性打分算法
 
 
 
-## **总结**
+## 总结
 
 这节我们学了 ElasticSearch 做全文检索。
 
