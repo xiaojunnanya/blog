@@ -496,6 +496,7 @@ const sidebars = {
         type: 'generated-index',
       },
       items: [
+        'series/前端转AI_Agent全栈/aiagent00',
         'series/前端转AI_Agent全栈/aiagent01',
         'series/前端转AI_Agent全栈/aiagent02',
         'series/前端转AI_Agent全栈/aiagent03',
