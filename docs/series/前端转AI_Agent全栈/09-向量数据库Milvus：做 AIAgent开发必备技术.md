@@ -412,7 +412,7 @@ Generating embeddings...
 
 接下来做一下查询。
 
-先不着急用代码写，我们可以安装一个 GUI 工具：https://github.com/zilliztech/attu?tab=readme-ov-file#quick-start
+先不着急用代码写，我们可以安装一个 GUI 工具：https://github.com/zilliztech/attu?tab=readme-ov-file#desktop-app
 
 下载安装，用默认配置连接就行
 

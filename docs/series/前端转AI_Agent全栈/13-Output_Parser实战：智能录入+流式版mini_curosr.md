@@ -42,6 +42,8 @@ keywords: [AI]
 
 需要指定 MYSQL_ROOT_PASSWORD 这个环境变量，它是 root 用户的密码。
 
+![image-20260731232122291](https://img.xiaojunnan.cn/image-20260731232122291.png)
+
 然后下载一个 GUI 工具连上它，这里我们用 mysql 官方的 Mysql Workbench：https://dev.mysql.com/downloads/workbench/
 
 过程省略

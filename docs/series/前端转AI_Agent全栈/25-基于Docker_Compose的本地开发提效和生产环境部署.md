@@ -94,13 +94,8 @@ port 是映射宿主机的端口到容器内的端口。
 
 上面这些用命令行就是这样：
 
-```
-docker run -d \
-  --name mysql-container2 \
-  -p 3306:3306 \
-  -e MYSQL_ROOT_PASSWORD=admin \
-  -v /Users/guang/mysql:/var/lib/mysql \
-  mysql:latest
+```cmd
+docker run -d --name mysql-container2 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=admin -v C:\Users\guang\mysql:/var/lib/mysql mysql:latest
 ```
 
 
@@ -115,7 +110,7 @@ docker run -d \
 
 比如这样：
 
-```
+```dockerfile
 # 指定基础镜像（必须第一行）
 FROM node:24.15-alpine
 
@@ -137,7 +132,7 @@ COPY . .
 RUN npm run build
 
 # 声明暴露端口（仅声明）
-EXPOSE3000
+EXPOSE 3000
 
 # 容器启动时执行的命令（启动 Nest 服务）
 CMD ["node", "dist/main.js"]
@@ -183,11 +178,12 @@ docker build -t nest-app .
 然后跑一下：
 
 ```
-docker run -d \
-  --name nest-container \
-  -p 3006:3000 \
-  nest-app
+docker run -d --name nest-container -p 3006:3000 nest-app
 ```
+
+![image-20260801003256581](https://img.xiaojunnan.cn/image-20260801003256581.png)
+
+浏览器输入`http://localhost:3006/`可以看到成功了
 
 现在这样是可以的，但是镜像里会多了一些无关代码
 
@@ -197,7 +193,7 @@ docker run -d \
 
 所以我们一般用多阶段构建来写 Dockerfile：
 
-```
+```dockerfile
 # 构建阶段：需要 devDependencies（含 @nestjs/cli、typescript）才能 nest build
 FROM node:24.15-alpine AS builder
 WORKDIR /app
@@ -268,83 +264,84 @@ milvus 是这么跑的，我们自己的项目也是用这种方式来跑。
 version: '3.8'
 
 services:
-# MySQL
-mysql:
-    image:mysql:latest
-    container_name:mysql-dev
+  # MySQL
+  mysql:
+    image: mysql:latest
+    container_name: mysql-dev
     ports:
-      -"3306:3306"
+      - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD:admin
-    command:mysqld--character-set-server=utf8mb4--collation-server=utf8mb4_general_ci# 设置默认字符集
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: book
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci # 设置默认字符集
     volumes:
-      -${DOCKER_VOLUME_DIRECTORY:-.}/volumes/mysql:/var/lib/mysql
-    restart:always
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/mysql:/var/lib/mysql
+    restart: always
 
-# Milvus
-etcd:
-    container_name:milvus-etcd
-    image:quay.io/coreos/etcd:v3.5.18
+  # Milvus
+  etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.18
     environment:
-      -ETCD_AUTO_COMPACTION_MODE=revision
-      -ETCD_AUTO_COMPACTION_RETENTION=1000
-      -ETCD_QUOTA_BACKEND_BYTES=4294967296
-      -ETCD_SNAPSHOT_COUNT=50000
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
     volumes:
-      -${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
-    command:etcd-advertise-client-urls=http://etcd:2379-listen-client-urlshttp://0.0.0.0:2379--data-dir/etcd
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     healthcheck:
-      test:["CMD","etcdctl","endpoint","health"]
-      interval:30s
-      timeout:20s
-      retries:3
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
 
-minio:
-    container_name:milvus-minio
-    image:minio/minio:RELEASE.2024-05-28T17-19-04Z
+  minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2024-05-28T17-19-04Z
     environment:
-      MINIO_ACCESS_KEY:minioadmin
-      MINIO_SECRET_KEY:minioadmin
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
     ports:
-      -"9001:9001"
-      -"9000:9000"
+      - "9001:9001"
+      - "9000:9000"
     volumes:
-      -${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
-    command:minioserver/minio_data--console-address":9001"
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+    command: minio server /minio_data --console-address ":9001"
     healthcheck:
-      test:["CMD","curl","-f","http://localhost:9000/minio/health/live"]
-      interval:30s
-      timeout:20s
-      retries:3
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
 
-standalone:
-    container_name:milvus-standalone
-    image:milvusdb/milvus:v2.5.25
-    command:["milvus","run","standalone"]
+  standalone:
+    container_name: milvus-standalone
+    image: milvusdb/milvus:v2.5.25
+    command: ["milvus", "run", "standalone"]
     security_opt:
-      -seccomp:unconfined
+      - seccomp:unconfined
     environment:
-      MINIO_REGION:us-east-1
-      ETCD_ENDPOINTS:etcd:2379
-      MINIO_ADDRESS:minio:9000
+      MINIO_REGION: us-east-1
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
     volumes:
-      -${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
     healthcheck:
-      test:["CMD","curl","-f","http://localhost:9091/healthz"]
-      interval:30s
-      start_period:90s
-      timeout:20s
-      retries:3
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
     ports:
-      -"19530:19530"
-      -"9091:9091"
+      - "19530:19530"
+      - "9091:9091"
     depends_on:
-      -"etcd"
-      -"minio"
+      - "etcd"
+      - "minio"
 
 networks:
-default:
-    name:common-network
+  default:
+    name: common-network
 ```
 
 milvus 的部分复制之前那个 docker compose 配置文件的，我们加上了 mysql 的容器
@@ -396,16 +393,16 @@ pnpm install --save @nestjs/typeorm typeorm mysql2
 
 ```ts
 TypeOrmModule.forRoot({
-  type: 'mysql',
-host: 'localhost',
-port: 3306,
-username: 'root',
-password: 'admin',
-database: 'book',
-synchronize: true,
-connectorPackage: 'mysql2',
-logging: true,
-entities: []
+  	type: 'mysql',
+    host: 'localhost',
+    port: 3306,
+    username: 'root',
+    password: 'admin',
+    database: 'book',
+    synchronize: true,
+    connectorPackage: 'mysql2',
+    logging: true,
+    entities: []
 }),
 ```
 
