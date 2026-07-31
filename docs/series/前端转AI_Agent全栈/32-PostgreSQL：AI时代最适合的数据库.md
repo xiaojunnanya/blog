@@ -11,3 +11,696 @@ keywords: [AI]
 
 
 ## 前言
+
+关系型数据库是互联网应用的基石。
+
+账号信息、订单数据、聊天记录，或者企业的业务数据，几乎全部都依赖关系型数据库存储。
+
+你用豆包、gemini 之类的 agent 的时候，不管多久的会话、聊天，都能翻到记录
+
+这也是存在关系型数据库里的。
+
+一般是这样的表结构：![image-20260729231823573](https://img.xiaojunnan.cn/image-20260729231823573.png)
+
+三个表：用户表存用户信息，会话表存左侧会话列表的消息，消息表存具体的消息
+
+当用户登录的时候，会查出所有的会话列表显示在左边，这用到表和表的关联查询，用户和会话是一对多关系
+
+当点击某个会话的时候，会查询所有的历史消息，会话和消息也是一对多关系
+
+id 是主键（primary key），用于表示表的一条记录（record）
+
+user_id、conversation_id 是外键（foreign key），用于关联其他表的主键
+
+通过这种主外键就可以实现表和表的关联查询
+
+比如 sql 语句如下：
+
+```sql
+// 1. 根据用户 ID 查询他的所有会话
+SELECT * 
+FROM conversations 
+WHERE user_id = '你的用户ID';
+
+// 2. 根据会话 ID 查询这个会话里的所有消息
+SELECT * 
+FROM messages 
+WHERE conversation_id = '你的会话ID'
+ORDER BY created_at ASC;
+```
+
+
+
+## PostgreSQL
+
+MySQL、PostgreSQL（简称 PG）都是很流行的关系型数据库。
+
+但在 AI 时代，PostgreSQL 优势更大。
+
+因为消息内容需要加一个对应的向量字段用于语义检索：
+
+![image-20260729231910898](https://img.xiaojunnan.cn/image-20260729231910898.png)
+
+mysql 是不支持的，你需要在 milvus 里建一个对应的集合：
+
+![image-20260729231920405](https://img.xiaojunnan.cn/image-20260729231920405.png)
+
+这里用同样的结构来创建 milvus 集合就行，id 和 message.id 一致。
+
+这样语义检索出数据后，可以关联到 MySQL 那边。
+
+查询的时候是这样，写入的时候也要写两份，同样的数据要双写到 MySQL + Milvus，比较麻烦。
+
+那如果关系型数据库也支持向量检索就好了。
+
+没错，这就是 PostgreSQL 的最大优势。
+
+PostgreSQL 只需要在原本的消息表上，多加一个向量字段，不需要额外的数据库，不需要双写，不需要维护两套系统。
+
+所有消息、会话、用户数据、向量语义特征，全部存在同一张表里。
+
+查询的时候更简单。不用先查 Milvus、再查 MySQL，再手动拼接结果。
+
+一条 SQL 就能同时做到：
+
+```sql
+-- AI 长期记忆：根据用户ID + 语义检索历史消息
+SELECT m.*
+FROM messages m
+JOIN conversations c 
+ON m.conversation_id = c.id
+WHERE
+  c.user_id = '你的用户ID'-- 只查这个用户
+AND c.id = '你的会话ID'-- 只查这个会话
+ORDERBY
+  m.embedding <=> '[1.2, 0.5, 0.8, ...]'-- 向量相似度检索
+LIMIT5;
+```
+
+按用户过滤、按会话筛选、按时间排序、按语义检索。
+
+这就是 AI 时代最需要的能力。
+
+业务关系 + 向量检索，完美融合。
+
+不用拆分架构，不用同步数据，不用写复杂的关联逻辑。
+
+一张表，搞定传统关系查询 + AI 长期 记忆。
+
+所以你会发现 OpenAI、豆包、Kimi、通义千问、Dify 这些头部 AI 产品，几乎都把 PostgreSQL 当成核心数据库。
+
+不是 MySQL 不好，而是在 AI 时代 PostgreSQL 真的太合适了。
+
+这节我们就来学一下 PostgreSQL
+
+
+
+## 试试
+
+创建 docker-compose.yml
+
+```yaml
+services:
+  # PostgreSQL with pgvector (AI 向量数据库)
+postgres:
+      image:pgvector/pgvector:pg16
+      container_name:pg_vector_db
+      restart:always
+      environment:
+        POSTGRES_USER:user
+        POSTGRES_PASSWORD:123456
+        POSTGRES_DB:hello_pg
+      ports:
+        -"5432:5432"
+      volumes:
+        -${DOCKER_VOLUME_DIRECTORY:-.}/volumes/postgres:/var/lib/postgresql/data
+        -./init-scripts:/docker-entrypoint-initdb.d
+      healthcheck:
+        test:["CMD-SHELL","pg_isready -U user -d hello_pg"]
+        interval:5s
+        timeout:5s
+        retries:5
+
+# PostgreSQL GUI (pgAdmin)
+pgadmin:
+    container_name:pgadmin
+    image:dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL:admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD:admin
+    volumes:
+      -${DOCKER_VOLUME_DIRECTORY:-.}/volumes/pgadmin:/var/lib/pgadmin
+    healthcheck:
+      test:["CMD","curl","-f","http://localhost:80/login"]
+      interval:30s
+      timeout:20s
+      retries:3
+    ports:
+      -"8088:80"
+    depends_on:
+      -postgres
+
+networks:
+default:
+    name:common-network
+```
+
+跑一下：`docker compose up -d`
+
+接下来创建下表：
+
+create_tables.sql
+
+```sql
+-- 启用 pgvector 向量扩展
+CREATE EXTENSION IFNOTEXISTS vector;
+
+-- 用户表
+CREATETABLEIFNOTEXISTSusers (
+    idSERIAL PRIMARY KEY,
+    nameTEXTNOTNULL,
+    created_at TIMESTAMPWITHTIME ZONE DEFAULTCURRENT_TIMESTAMP
+);
+
+-- 会话表
+CREATETABLEIFNOTEXISTS conversations (
+    idSERIAL PRIMARY KEY,
+    user_id INTEGERNOTNULL,
+    title TEXT,
+    created_at TIMESTAMPWITHTIME ZONE DEFAULTCURRENT_TIMESTAMP,
+    CONSTRAINT fk_conversations_user
+        FOREIGNKEY (user_id) REFERENCESusers(id)
+        ONDELETECASCADE
+);
+
+-- 消息表（带向量）
+CREATETABLEIFNOTEXISTS messages (
+    idSERIAL PRIMARY KEY,
+    conversation_id INTEGERNOTNULL,
+    roleTEXTNOTNULLCHECK (roleIN ('user', 'assistant', 'system')),
+    contentTEXTNOTNULL,
+    embedding vector(1024), -- 与 EMBEDDING_MODEL 输出维度一致（text-embedding-v3 为 1024）
+    created_at TIMESTAMPWITHTIME ZONE DEFAULTCURRENT_TIMESTAMP,
+    CONSTRAINT fk_messages_conversation
+        FOREIGNKEY (conversation_id) REFERENCES conversations(id)
+        ONDELETECASCADE
+);
+
+-- 向量索引（加速搜索）
+CREATEINDEXIFNOTEXISTS idx_messages_embedding
+    ON messages USING hnsw (embedding vector_cosine_ops);
+```
+
+跑一下
+
+我们把 sql 移到了 init-scripts 目录下，这样 pg 容器启动就会自动执行建表语句
+
+接下来就可以增删改查了。
+
+因为有个向量字段，需要用嵌入模型来生成向量，我们用代码来做 crud
+
+
+
+## CRUD 
+
+分别写下三个表的 CRUD 代码：
+
+src/db.mjs
+
+```js
+import "dotenv/config";
+import pg from"pg";
+
+const { Pool } = pg;
+
+const pool = new Pool({
+connectionString: process.env.DATABASE_URL
+});
+
+asyncfunction query(text, params) {
+return pool.query(text, params);
+}
+
+export { pool, query };
+```
+
+用 pg 这个包连接数据库，创建 Pool，用 pool.query 执行 sql
+
+src/users.mjs
+
+```js
+import { query } from"./db.mjs";
+
+asyncfunction createUser(name) {
+const { rows } = await query(
+    "INSERT INTO users (name) VALUES ($1) RETURNING *",
+    [name]
+  );
+return rows[0];
+}
+
+asyncfunction getUserById(id) {
+const { rows } = await query("SELECT * FROM users WHERE id = $1", [id]);
+return rows[0] ?? null;
+}
+
+asyncfunction getAllUsers() {
+const { rows } = await query("SELECT * FROM users ORDER BY id");
+return rows;
+}
+
+asyncfunction updateUser(id, name) {
+const { rows } = await query(
+    "UPDATE users SET name = $1 WHERE id = $2 RETURNING *",
+    [name, id]
+  );
+return rows[0] ?? null;
+}
+
+asyncfunction deleteUser(id) {
+const { rowCount } = await query("DELETE FROM users WHERE id = $1", [id]);
+return rowCount > 0;
+}
+
+export {
+  createUser,
+  getUserById,
+  getAllUsers,
+  updateUser,
+  deleteUser,
+};
+```
+
+用户表的 CRUD 代码
+
+src/conversations.mjs
+
+```js
+import { query } from"./db.mjs";
+
+asyncfunction createConversation(userId, title = null) {
+const { rows } = await query(
+    "INSERT INTO conversations (user_id, title) VALUES ($1, $2) RETURNING *",
+    [userId, title]
+  );
+return rows[0];
+}
+
+asyncfunction getConversationById(id) {
+const { rows } = await query(
+    "SELECT * FROM conversations WHERE id = $1",
+    [id]
+  );
+return rows[0] ?? null;
+}
+
+asyncfunction getConversationsByUserId(userId) {
+const { rows } = await query(
+    "SELECT * FROM conversations WHERE user_id = $1 ORDER BY created_at DESC",
+    [userId]
+  );
+return rows;
+}
+
+asyncfunction getAllConversations() {
+const { rows } = await query(
+    "SELECT * FROM conversations ORDER BY created_at DESC"
+  );
+return rows;
+}
+
+asyncfunction updateConversation(id, { title }) {
+const { rows } = await query(
+    "UPDATE conversations SET title = $1 WHERE id = $2 RETURNING *",
+    [title, id]
+  );
+return rows[0] ?? null;
+}
+
+asyncfunction deleteConversation(id) {
+const { rowCount } = await query(
+    "DELETE FROM conversations WHERE id = $1",
+    [id]
+  );
+return rowCount > 0;
+}
+
+export {
+  createConversation,
+  getConversationById,
+  getConversationsByUserId,
+  getAllConversations,
+  updateConversation,
+  deleteConversation,
+};
+```
+
+对话表的 CRUD 代码
+
+还有消息表的 CRUD 代码
+
+src/messages.mjs
+
+```js
+import "dotenv/config";
+import { OpenAIEmbeddings } from"@langchain/openai";
+import { query } from"./db.mjs";
+
+const VALID_ROLES = ["user", "assistant", "system"];
+
+let embeddings;
+
+function getEmbeddings() {
+if (!embeddings) {
+    embeddings = new OpenAIEmbeddings({
+      model: process.env.EMBEDDING_MODEL || "text-embedding-v3",
+      apiKey: process.env.OPENAI_API_KEY,
+      configuration: {
+        baseURL: process.env.OPENAI_BASE_URL,
+      },
+    });
+  }
+return embeddings;
+}
+
+asyncfunction createMessage(conversationId, role, content, withEmbedding = false) {
+if (!VALID_ROLES.includes(role)) {
+    thrownewError(`role 必须是 ${VALID_ROLES.join("、")} 之一`);
+  }
+
+if (withEmbedding) {
+    const vector = await getEmbeddings().embedQuery(content);
+    const { rows } = await query(
+      `INSERT INTO messages (conversation_id, role, content, embedding)
+       VALUES ($1, $2, $3, $4::vector)
+       RETURNING id, conversation_id, role, content, created_at`,
+      [conversationId, role, content, JSON.stringify(vector)]
+    );
+    return rows[0];
+  }
+
+const { rows } = await query(
+    `INSERT INTO messages (conversation_id, role, content)
+     VALUES ($1, $2, $3)
+     RETURNING *`,
+    [conversationId, role, content]
+  );
+return rows[0];
+}
+
+asyncfunction getMessageById(id) {
+const { rows } = await query(
+    `SELECT id, conversation_id, role, content, created_at
+     FROM messages WHERE id = $1`,
+    [id]
+  );
+return rows[0] ?? null;
+}
+
+asyncfunction getMessagesByConversationId(conversationId) {
+const { rows } = await query(
+    `SELECT id, conversation_id, role, content, created_at
+     FROM messages
+     WHERE conversation_id = $1
+     ORDER BY created_at ASC`,
+    [conversationId]
+  );
+return rows;
+}
+
+asyncfunction updateMessage(id, content, withEmbedding = false) {
+if (withEmbedding) {
+    const vector = await getEmbeddings().embedQuery(content);
+    const { rows } = await query(
+      `UPDATE messages
+       SET content = $1, embedding = $2::vector
+       WHERE id = $3
+       RETURNING id, conversation_id, role, content, created_at`,
+      [content, JSON.stringify(vector), id]
+    );
+    return rows[0] ?? null;
+  }
+
+const { rows } = await query(
+    `UPDATE messages SET content = $1 WHERE id = $2 RETURNING *`,
+    [content, id]
+  );
+return rows[0] ?? null;
+}
+
+asyncfunction deleteMessage(id) {
+const { rowCount } = await query("DELETE FROM messages WHERE id = $1", [id]);
+return rowCount > 0;
+}
+
+asyncfunction searchSimilarMessages(conversationId, searchText, limit = 5) {
+const vector = await getEmbeddings().embedQuery(searchText);
+const { rows } = await query(
+    `SELECT id, conversation_id, role, content, created_at,
+            1 - (embedding <=> $1::vector) AS similarity
+     FROM messages
+     WHERE conversation_id = $2 AND embedding IS NOT NULL
+     ORDER BY embedding <=> $1::vector
+     LIMIT $3`,
+    [JSON.stringify(vector), conversationId, limit]
+  );
+return rows;
+}
+
+export {
+  createMessage,
+  getMessageById,
+  getMessagesByConversationId,
+  updateMessage,
+  deleteMessage,
+  searchSimilarMessages,
+};
+```
+
+这个要用到嵌入模型来做向量化
+
+然后在 src/index.mjs 里用一下：
+
+```js
+import { pool } from"./db.mjs";
+import * as users from"./users.mjs";
+import * as conversations from"./conversations.mjs";
+import * as messages from"./messages.mjs";
+
+asyncfunction run() {
+console.log("=== 用户 CRUD ===");
+
+const user = await users.createUser("张三");
+console.log("创建用户:", user);
+
+const fetchedUser = await users.getUserById(user.id);
+console.log("查询用户:", fetchedUser);
+
+const updatedUser = await users.updateUser(user.id, "李四");
+console.log("更新用户:", updatedUser);
+
+console.log("\n=== 会话 CRUD ===");
+
+const conversation = await conversations.createConversation(
+    user.id,
+    "第一次对话"
+  );
+console.log("创建会话:", conversation);
+
+const userConversations = await conversations.getConversationsByUserId(
+    user.id
+  );
+console.log("用户的会话列表:", userConversations);
+
+const updatedConversation = await conversations.updateConversation(
+    conversation.id,
+    { title: "更新后的标题" }
+  );
+console.log("更新会话:", updatedConversation);
+
+console.log("\n=== 消息 CRUD ===");
+
+const userMessage = await messages.createMessage(
+    conversation.id,
+    "user",
+    "你好，请介绍一下 PostgreSQL"
+  );
+console.log("创建用户消息:", userMessage);
+
+const assistantMessage = await messages.createMessage(
+    conversation.id,
+    "assistant",
+    "PostgreSQL 是一个功能强大的开源关系型数据库。"
+  );
+console.log("创建 AI 消息:", assistantMessage);
+
+const conversationMessages = await messages.getMessagesByConversationId(
+    conversation.id
+  );
+console.log("会话消息列表:", conversationMessages);
+
+const updatedMessage = await messages.updateMessage(
+    userMessage.id,
+    "你好，请介绍一下 pgvector"
+  );
+console.log("更新消息:", updatedMessage);
+
+console.log("\n=== 语义检索 ===");
+
+const seedMessages = [
+    { role: "user", content: "PostgreSQL 支持哪些数据类型？" },
+    {
+      role: "assistant",
+      content:
+        "PostgreSQL 支持整数、文本、JSON、数组，以及 pgvector 扩展提供的向量类型。",
+    },
+    { role: "user", content: "怎么做相似度搜索？" },
+    {
+      role: "assistant",
+      content:
+        "可以使用 pgvector 的 cosine 距离运算符 <=>，配合 hnsw 索引加速向量检索。",
+    },
+  ];
+
+for (const msg of seedMessages) {
+    await messages.createMessage(
+      conversation.id,
+      msg.role,
+      msg.content,
+      true
+    );
+  }
+console.log(`已写入 ${seedMessages.length} 条带 embedding 的消息`);
+
+const searchQueries = ["向量相似度怎么查", "关系型数据库有哪些类型"];
+
+for (const searchText of searchQueries) {
+    console.log(`\n搜索: "${searchText}"`);
+    const results = await messages.searchSimilarMessages(
+      conversation.id,
+      searchText,
+      3
+    );
+    if (results.length === 0) {
+      console.log("  无匹配结果");
+      continue;
+    }
+    for (const [i, row] of results.entries()) {
+      console.log(
+        `  ${i + 1}. [${row.role}] ${row.content} (similarity: ${Number(row.similarity).toFixed(4)})`
+      );
+    }
+  }
+
+// console.log("\n=== 清理 ===");
+
+// await messages.deleteMessage(assistantMessage.id);
+// await messages.deleteMessage(updatedMessage.id);
+// await conversations.deleteConversation(conversation.id);
+// await users.deleteUser(user.id);
+
+// console.log("演示数据已清理");
+}
+
+run()
+  .catch((err) => {
+    console.error("运行失败:", err.message);
+    process.exit(1);
+  })
+  .finally(() => pool.end());
+
+export { users, conversations, messages };
+```
+
+跑一下：`node src/index.mjs`
+
+重点是语义检索这部分
+
+。。。。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

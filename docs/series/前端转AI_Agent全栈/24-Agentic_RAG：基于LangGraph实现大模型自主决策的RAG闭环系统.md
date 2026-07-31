@@ -48,8 +48,6 @@ keywords: [AI]
 
 
 
-
-
 ## 传统 RAG
 
 我们先基于 LangGraph 实现传统 RAG
@@ -58,74 +56,76 @@ keywords: [AI]
 
 ```js
 import "dotenv/config";
-import { ChatOpenAI, OpenAIEmbeddings } from"@langchain/openai";
-import { Annotation, END, START, StateGraph } from"@langchain/langgraph";
-import { Milvus } from"@langchain/community/vectorstores/milvus";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
+import { Milvus } from "@langchain/community/vectorstores/milvus";
 
 const COLLECTION_NAME = "ebook_collection";
 const TOP_K = 5;
 
 const GraphState = Annotation.Root({
-    question: Annotation,
-    k: Annotation,
-    documents: Annotation,
-    generation: Annotation,
+  question: Annotation,
+  k: Annotation,
+  documents: Annotation,
+  generation: Annotation,
 });
 
 const model = new ChatOpenAI({
-    temperature: 0,
-    model: "qwen-plus",
-    configuration: {
-        baseURL: process.env.OPENAI_BASE_URL,
-    },
-    apiKey: process.env.OPENAI_API_KEY,
+  temperature: 0,
+  model: "qwen-plus",
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const embeddings = new OpenAIEmbeddings({
-    model: "text-embedding-v3",
-    dimensions: 1024,
+  model: "text-embedding-v3",
+  dimensions: 1024,
 });
 
 let vectorStore;
 
-asyncfunction retrieveRelevantContent(question, k = TOP_K) {
-    try {
-        const docsWithScores = await vectorStore.similaritySearchWithScore(question, k);
-        return docsWithScores.map(([doc, score]) => ({
-            score,
-            content: doc.pageContent,
-            id: doc.metadata?.id ?? "unknown",
-            book_id: doc.metadata?.book_id ?? "未知",
-            chapter_num: doc.metadata?.chapter_num ?? "未知",
-            index: doc.metadata?.index ?? "未知",
-        }));
-    } catch (error) {
-        console.error("检索内容时出错:", error.message);
-        return [];
-    }
+async function retrieveRelevantContent(question, k = TOP_K) {
+  try {
+    const docsWithScores = await vectorStore.similaritySearchWithScore(
+      question,
+      k,
+    );
+    return docsWithScores.map(([doc, score]) => ({
+      score,
+      content: doc.pageContent,
+      id: doc.metadata?.id ?? "unknown",
+      book_id: doc.metadata?.book_id ?? "未知",
+      chapter_num: doc.metadata?.chapter_num ?? "未知",
+      index: doc.metadata?.index ?? "未知",
+    }));
+  } catch (error) {
+    console.error("检索内容时出错:", error.message);
+    return [];
+  }
 }
 
 const retrieveNode = async (state) => {
-    const documents = await retrieveRelevantContent(state.question, state.k);
-    return {
-        question: state.question,
-        k: state.k,
-        documents,
-    };
+  const documents = await retrieveRelevantContent(state.question, state.k);
+  return {
+    question: state.question,
+    k: state.k,
+    documents,
+  };
 };
 
 const generateNode = async (state) => {
-    const context = state.documents
-        .map(
-            (item, i) =>
-                `[片段 ${i + 1}]
+  const context = state.documents
+    .map(
+      (item, i) =>
+        `[片段 ${i + 1}]
 章节: 第 ${item.chapter_num} 章
 内容: ${item.content}`,
-        )
-        .join("\n\n━━━━━\n\n");
+    )
+    .join("\n\n━━━━━\n\n");
 
-
-    const prompt = `你是一个专业的《天龙八部》小说助手。基于小说内容回答问题，用准确、详细的语言。
+  const prompt = `你是一个专业的《天龙八部》小说助手。基于小说内容回答问题，用准确、详细的语言。
 
 请根据以下《天龙八部》小说片段内容回答问题：
 ${context}
@@ -141,120 +141,136 @@ ${context}
 
 AI 助手的回答:`;
 
-    process.stdout.write("\n【AI 回答（流式）】\n");
-    let generation = "";
-    const stream = await model.stream(prompt);
-    forawait (const chunk of stream) {
-        const text = typeof chunk.content === "string" ? chunk.content : "";
-        if (!text) continue;
-        generation += text;
-        process.stdout.write(text);
-    }
-    process.stdout.write("\n");
+  process.stdout.write("\n【AI 回答（流式）】\n");
+  let generation = "";
+  const stream = await model.stream(prompt);
+  for await (const chunk of stream) {
+    const text = typeof chunk.content === "string" ? chunk.content : "";
+    if (!text) continue;
+    generation += text;
+    process.stdout.write(text);
+  }
+  process.stdout.write("\n");
 
-    return {
-        question: state.question,
-        k: state.k,
-        documents: state.documents,
-        generation,
-    };
+  return {
+    question: state.question,
+    k: state.k,
+    documents: state.documents,
+    generation,
+  };
 };
 
 const graph = new StateGraph(GraphState)
-    .addNode("retrieve", retrieveNode)
-    .addNode("generate", generateNode)
-    .addEdge(START, "retrieve")
-    .addEdge("retrieve", "generate")
-    .addEdge("generate", END)
-    .compile();
+  .addNode("retrieve", retrieveNode)
+  .addNode("generate", generateNode)
+  .addEdge(START, "retrieve")
+  .addEdge("retrieve", "generate")
+  .addEdge("generate", END)
+  .compile();
 
-asyncfunction main() {
-    const question = "阿朱的结局是什么？";
-    const kArg = 5;
+async function main() {
+  const question = "阿朱的结局是什么？";
+  const kArg = 5;
 
-    // 导出为 Mermaid：可复制到 https://mermaid.live 或 Markdown 的 ```mermaid 代码块
-    const drawable = await graph.getGraphAsync();
-    const mermaid = drawable.drawMermaid({ withStyles: true });
-    console.log(mermaid);
+  // 导出为 Mermaid：可复制到 https://mermaid.live 或 Markdown 的 ```mermaid 代码块
+  const drawable = await graph.getGraphAsync();
+  const mermaid = drawable.drawMermaid({ withStyles: true });
+  console.log(mermaid);
 
-    console.log("连接到 Milvus...");
-    vectorStore = await Milvus.fromExistingCollection(embeddings, {
-        collectionName: COLLECTION_NAME,
-        url: "localhost:19530",
-        textField: "content",
-        primaryField: "id",
-        vectorField: "vector",
-        indexCreateOptions: {
-            metric_type: "COSINE",
-            index_type: "HNSW",
-            params: { M: 16, efConstruction: 200 },
-            search_params: { ef: 64 },
-        },
+  console.log("连接到 Milvus...");
+  vectorStore = await Milvus.fromExistingCollection(embeddings, {
+    collectionName: COLLECTION_NAME,
+    url: "localhost:19530",
+    textField: "content",
+    primaryField: "id",
+    vectorField: "vector",
+    indexCreateOptions: {
+      metric_type: "COSINE",
+      index_type: "HNSW",
+      params: { M: 16, efConstruction: 200 },
+      search_params: { ef: 64 },
+    },
+  });
+  vectorStore.indexSearchParams = {
+    metric_type: "COSINE",
+    params: JSON.stringify({ ef: 64 }),
+  };
+  console.log("✓ 已连接\n");
+
+  try {
+    await vectorStore.client.loadCollection({
+      collection_name: COLLECTION_NAME,
     });
-    vectorStore.indexSearchParams = { metric_type: "COSINE", params: JSON.stringify({ ef: 64 }) };
-    console.log("✓ 已连接\n");
-
-    try {
-        await vectorStore.client.loadCollection({ collection_name: COLLECTION_NAME });
-        console.log(`✓ 集合 ${COLLECTION_NAME} 已加载\n`);
-    } catch (error) {
-        if (!error.message.includes("already loaded")) {
-            throw error;
-        }
-        console.log(`✓ 集合 ${COLLECTION_NAME} 已处于加载状态\n`);
+    console.log(`✓ 集合 ${COLLECTION_NAME} 已加载\n`);
+  } catch (error) {
+    if (!error.message.includes("already loaded")) {
+      throw error;
     }
+    console.log(`✓ 集合 ${COLLECTION_NAME} 已处于加载状态\n`);
+  }
 
-    console.log("=".repeat(80));
-    console.log(`问题: ${question}`);
-    console.log("=".repeat(80));
+  console.log("=".repeat(80));
+  console.log(`问题: ${question}`);
+  console.log("=".repeat(80));
 
-    const result = await graph.invoke({
-        question,
-        k: Number.isFinite(kArg) ? kArg : TOP_K,
-        documents: [],
-        generation: "",
+  const result = await graph.invoke({
+    question,
+    k: Number.isFinite(kArg) ? kArg : TOP_K,
+    documents: [],
+    generation: "",
+  });
+
+  console.log("\n【检索相关内容】");
+  if (result.documents.length === 0) {
+    console.log("未找到相关内容");
+    console.log("\n【AI 回答】");
+    console.log("抱歉，我没有找到相关的《天龙八部》内容。");
+    return;
+  } else {
+    result.documents.forEach((item, i) => {
+      console.log(`\n[片段 ${i + 1}] 相似度: ${item.score.toFixed(4)}`);
+      console.log(`书籍: ${item.book_id}`);
+      console.log(`章节: 第 ${item.chapter_num} 章`);
+      console.log(`片段索引: ${item.index}`);
+      console.log(
+        `内容: ${item.content.substring(0, 200)}${item.content.length > 200 ? "..." : ""}`,
+      );
     });
+  }
 
-    console.log("\n【检索相关内容】");
-    if (result.documents.length === 0) {
-        console.log("未找到相关内容");
-        console.log("\n【AI 回答】");
-        console.log("抱歉，我没有找到相关的《天龙八部》内容。");
-        return;
-    } else {
-        result.documents.forEach((item, i) => {
-            console.log(`\n[片段 ${i + 1}] 相似度: ${item.score.toFixed(4)}`);
-            console.log(`书籍: ${item.book_id}`);
-            console.log(`章节: 第 ${item.chapter_num} 章`);
-            console.log(`片段索引: ${item.index}`);
-            console.log(
-                `内容: ${item.content.substring(0, 200)}${item.content.length > 200 ? "..." : ""}`,
-            );
-        });
-    }
-
-    if (!result.generation) {
-        console.log("\n【AI 回答】");
-        console.log("模型未返回内容。");
-    }
+  if (!result.generation) {
+    console.log("\n【AI 回答】");
+    console.log("模型未返回内容。");
+  }
 }
 
-main()
+main();
 ```
 
 RAG 是一个线性的流程，之前用 LCEL 的链写过，这次用 langgraph 来写：
 
-![image-20260727221017135](https://img.xiaojunnan.cn/image-20260727221017135.png)
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%        
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        retrieve(retrieve)
+        generate(generate)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> retrieve;
+        generate --> __end__;
+        retrieve --> generate;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
+```
 
-
-
-检索节点就是把 query 向量化从 Milvus 里检索相关文档：
+**检索节点**就是把 query 向量化从 Milvus 里检索相关文档：
 
 ![image-20260727220901226](https://img.xiaojunnan.cn/image-20260727220901226.png)
 
 
 
-生成节点是把检索的文档放到 prompt 里，调用大模型生成回答：
+**生成节点**是把检索的文档放到 prompt 里，调用大模型生成回答：
 
 ![image-20260727220910900](https://img.xiaojunnan.cn/image-20260727220910900.png)
 
@@ -274,48 +290,51 @@ src/rag-query-router.mjs
 
 ```js
 import "dotenv/config";
-import { z } from"zod";
-import { ChatOpenAI, OpenAIEmbeddings } from"@langchain/openai";
-import { Annotation, END, START, StateGraph } from"@langchain/langgraph";
-import { Milvus } from"@langchain/community/vectorstores/milvus";
+import { z } from "zod";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
+import { Milvus } from "@langchain/community/vectorstores/milvus";
 
 const llm = new ChatOpenAI({
-temperature: 0,
-model: "qwen-plus",
-configuration: {
-      baseURL: process.env.OPENAI_BASE_URL,
+  temperature: 0,
+  model: "qwen-plus",
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
   },
-apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const embeddings = new OpenAIEmbeddings({
-model: "text-embedding-v3",
-dimensions: 1024,
-configuration: { 
-    baseURL: process.env.OPENAI_BASE_URL 
+  model: "text-embedding-v3",
+  dimensions: 1024,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
   },
-apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const RouteSchema = z.object({
-strategy: z.enum(["simple", "complex"]),
-reason: z.string(),
+  strategy: z.enum(["simple", "complex"]),
+  reason: z.string(),
 });
 
 const GraphState = Annotation.Root({
-question: Annotation,
-k: Annotation,
-strategy: Annotation,
-routeReason: Annotation,
-documents: Annotation,
-generation: Annotation,
+  question: Annotation,
+  k: Annotation,
+  strategy: Annotation,
+  routeReason: Annotation,
+  documents: Annotation,
+  generation: Annotation,
 });
 
 let vectorStore;
 
-asyncfunction retrieveRelevantContent(question, k) {
-try {
-    const docsWithScores = await vectorStore.similaritySearchWithScore(question, k);
+async function retrieveRelevantContent(question, k) {
+  try {
+    const docsWithScores = await vectorStore.similaritySearchWithScore(
+      question,
+      k,
+    );
     return docsWithScores.map(([doc, score]) => ({
       score,
       content: doc.pageContent,
@@ -331,9 +350,9 @@ try {
 }
 
 const routeQuestionNode = async (state) => {
-console.log("---ROUTE_QUESTION---");
-const router = llm.withStructuredOutput(RouteSchema);
-const route = await router.invoke(`
+  console.log("---ROUTE_QUESTION---");
+  const router = llm.withStructuredOutput(RouteSchema);
+  const route = await router.invoke(`
 你是问答路由器。请判断用户问题是否需要外部检索。
 
 规则：
@@ -343,8 +362,8 @@ const route = await router.invoke(`
 用户问题：${state.question}
 `);
 
-console.log(`路由策略: ${route.strategy} (${route.reason})`);
-return {
+  console.log(`路由策略: ${route.strategy} (${route.reason})`);
+  return {
     question: state.question,
     k: state.k,
     strategy: route.strategy,
@@ -353,22 +372,24 @@ return {
 };
 
 const retrieveNode = async (state) => {
-console.log("---RETRIEVE---");
-const documents = await retrieveRelevantContent(state.question, state.k);
-if (documents.length === 0) {
+  console.log("---RETRIEVE---");
+  const documents = await retrieveRelevantContent(state.question, state.k);
+  if (documents.length === 0) {
     console.log("RETRIEVE结果: 未命中文档");
   } else {
     console.log(`RETRIEVE结果: 命中 ${documents.length} 条`);
     documents.forEach((item, i) => {
       const preview =
-        item.content.length > 120 ? `${item.content.substring(0, 120)}...` : item.content;
+        item.content.length > 120
+          ? `${item.content.substring(0, 120)}...`
+          : item.content;
       console.log(
         `[R${i + 1}] score=${Number(item.score).toFixed(4)} chapter=${item.chapter_num} index=${item.index}`,
       );
       console.log(`      ${preview}`);
     });
   }
-return {
+  return {
     question: state.question,
     k: state.k,
     strategy: state.strategy,
@@ -378,21 +399,21 @@ return {
 };
 
 const directAnswerNode = async (state) => {
-console.log("---DIRECT_ANSWER---");
+  console.log("---DIRECT_ANSWER---");
   process.stdout.write("\n【AI 回答（流式）】\n");
-let generation = "";
-const stream = await llm.stream(`你是一个中文问答助手，请直接简洁回答问题。
+  let generation = "";
+  const stream = await llm.stream(`你是一个中文问答助手，请直接简洁回答问题。
 
 问题：${state.question}
 `);
-forawait (const chunk of stream) {
+  for await (const chunk of stream) {
     const text = typeof chunk.content === "string" ? chunk.content : "";
     if (!text) continue;
     generation += text;
     process.stdout.write(text);
   }
   process.stdout.write("\n");
-return {
+  return {
     question: state.question,
     k: state.k,
     strategy: state.strategy,
@@ -403,8 +424,8 @@ return {
 };
 
 const ragGenerateNode = async (state) => {
-console.log("---RAG_GENERATE---");
-const context = state.documents
+  console.log("---RAG_GENERATE---");
+  const context = state.documents
     .map(
       (item, i) =>
         `[片段 ${i + 1}]
@@ -413,8 +434,9 @@ const context = state.documents
     )
     .join("\n\n━━━━━\n\n");
   process.stdout.write("\n【AI 回答（流式）】\n");
-let generation = "";
-const stream = await llm.stream(`你是一个专业的《天龙八部》小说助手。基于小说内容回答问题，用准确、详细的语言。
+  let generation = "";
+  const stream =
+    await llm.stream(`你是一个专业的《天龙八部》小说助手。基于小说内容回答问题，用准确、详细的语言。
 
 请根据以下《天龙八部》小说片段内容回答问题：
 ${context || "（未检索到相关内容）"}
@@ -429,7 +451,7 @@ ${context || "（未检索到相关内容）"}
 5. 可以引用原文内容来支持你的回答
 
 AI 助手的回答:`);
-forawait (const chunk of stream) {
+  for await (const chunk of stream) {
     const text = typeof chunk.content === "string" ? chunk.content : "";
     if (!text) continue;
     generation += text;
@@ -437,7 +459,7 @@ forawait (const chunk of stream) {
   }
   process.stdout.write("\n");
 
-return {
+  return {
     question: state.question,
     k: state.k,
     strategy: state.strategy,
@@ -448,7 +470,7 @@ return {
 };
 
 function decideNext(state) {
-return state.strategy === "simple" ? "direct_answer" : "retrieve";
+  return state.strategy === "simple" ? "direct_answer" : "retrieve";
 }
 
 const graph = new StateGraph(GraphState)
@@ -466,16 +488,16 @@ const graph = new StateGraph(GraphState)
   .addEdge("rag_generate", END)
   .compile();
 
-asyncfunction main() {
-const question = "阿朱的结局是什么？";
-const k = 5;
+async function main() {
+  const question = "阿朱的结局是什么？";
+  const k = 5;
 
-// 导出为 Mermaid：可复制到 https://mermaid.live 或 Markdown 的 ```mermaid 代码块
-const drawable = await graph.getGraphAsync();
-const mermaid = drawable.drawMermaid({ withStyles: true });
-console.log(mermaid);
+  // 导出为 Mermaid：可复制到 https://mermaid.live 或 Markdown 的 ```mermaid 代码块
+  const drawable = await graph.getGraphAsync();
+  const mermaid = drawable.drawMermaid({ withStyles: true });
+  console.log(mermaid);
 
-console.log("连接到 Milvus...");
+  console.log("连接到 Milvus...");
   vectorStore = await Milvus.fromExistingCollection(embeddings, {
     collectionName: "ebook_collection",
     url: "localhost:19530",
@@ -489,11 +511,16 @@ console.log("连接到 Milvus...");
       search_params: { ef: 64 },
     },
   });
-  vectorStore.indexSearchParams = { metric_type: "COSINE", params: JSON.stringify({ ef: 64 }) };
-console.log("✓ 已连接\n");
+  vectorStore.indexSearchParams = {
+    metric_type: "COSINE",
+    params: JSON.stringify({ ef: 64 }),
+  };
+  console.log("✓ 已连接\n");
 
-try {
-    await vectorStore.client.loadCollection({ collection_name: "ebook_collection" });
+  try {
+    await vectorStore.client.loadCollection({
+      collection_name: "ebook_collection",
+    });
     console.log("✓ 集合 ebook_collection 已加载\n");
   } catch (error) {
     if (!error.message.includes("already loaded")) {
@@ -502,11 +529,11 @@ try {
     console.log("✓ 集合 ebook_collection 已处于加载状态\n");
   }
 
-console.log("=".repeat(80));
-console.log(`问题: ${question}`);
-console.log("=".repeat(80));
+  console.log("=".repeat(80));
+  console.log(`问题: ${question}`);
+  console.log("=".repeat(80));
 
-const result = await graph.invoke({
+  const result = await graph.invoke({
     question,
     k: Number.isFinite(k) ? k : 5,
     strategy: "",
@@ -515,7 +542,7 @@ const result = await graph.invoke({
     generation: "",
   });
 
-if (result.strategy === "complex") {
+  if (result.strategy === "complex") {
     console.log("\n【检索相关内容】");
     if (result.documents.length === 0) {
       console.log("未找到相关内容");
@@ -532,18 +559,36 @@ if (result.strategy === "complex") {
     }
   }
 
-console.log(`\n最终策略: ${result.strategy}`);
-if (!result.generation?.trim()) {
+  console.log(`\n最终策略: ${result.strategy}`);
+  if (!result.generation?.trim()) {
     console.log("模型未返回内容。");
   }
 }
 
-main()
+main();
 ```
 
 现在的 graph 如下：
 
-![image-20260727221002065](https://img.xiaojunnan.cn/image-20260727221002065.png)
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        route_question(route_question)
+        direct_answer(direct_answer)
+        retrieve(retrieve)
+        rag_generate(rag_generate)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> route_question;
+        direct_answer --> __end__;
+        rag_generate --> __end__;
+        retrieve --> rag_generate;
+        route_question -.-> direct_answer;
+        route_question -.-> retrieve;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
+```
 
 我们加了一个对问题做路由的节点：
 
@@ -577,54 +622,57 @@ src/rag-multihop.mjs
 
 ```js
 import "dotenv/config";
-import { z } from"zod";
-import { ChatOpenAI, OpenAIEmbeddings } from"@langchain/openai";
-import { Annotation, END, START, StateGraph } from"@langchain/langgraph";
-import { Milvus } from"@langchain/community/vectorstores/milvus";
+import { z } from "zod";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
+import { Milvus } from "@langchain/community/vectorstores/milvus";
 
 const llm = new ChatOpenAI({
-temperature: 0,
-model: "qwen-plus",
-configuration: {
+  temperature: 0,
+  model: "qwen-plus",
+  configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const embeddings = new OpenAIEmbeddings({
-model: "text-embedding-v3",
-dimensions: 1024,
-configuration: {
+  model: "text-embedding-v3",
+  dimensions: 1024,
+  configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 /**
  * complex：先拆解子问题序列，再按序检索
  */
 const GraphState = Annotation.Root({
-question: Annotation,
-k: Annotation,
-strategy: Annotation,
-routeReason: Annotation,
-/** 拆解得到的有序子问题，仅用于检索 */
-subQuestions: Annotation,
-/** 下一轮 retrieve 要用的下标（指向 subQuestions 中尚未检索的那一条） */
-nextSubIdx: Annotation,
-documents: Annotation,
-currentQuery: Annotation,
-retrievalCount: Annotation,
-maxRetrievals: Annotation,
-plannedNext: Annotation,
-generation: Annotation,
+  question: Annotation,
+  k: Annotation,
+  strategy: Annotation,
+  routeReason: Annotation,
+  /** 拆解得到的有序子问题，仅用于检索 */
+  subQuestions: Annotation,
+  /** 下一轮 retrieve 要用的下标（指向 subQuestions 中尚未检索的那一条） */
+  nextSubIdx: Annotation,
+  documents: Annotation,
+  currentQuery: Annotation,
+  retrievalCount: Annotation,
+  maxRetrievals: Annotation,
+  plannedNext: Annotation,
+  generation: Annotation,
 });
 
 let vectorStore;
 
-asyncfunction retrieveRelevantContent(question, k) {
-try {
-    const docsWithScores = await vectorStore.similaritySearchWithScore(question, k);
+async function retrieveRelevantContent(question, k) {
+  try {
+    const docsWithScores = await vectorStore.similaritySearchWithScore(
+      question,
+      k,
+    );
     return docsWithScores.map(([doc, score]) => ({
       score,
       content: doc.pageContent,
@@ -641,36 +689,38 @@ try {
 
 /** 按 id 合并；同 id 保留更高 score */
 function mergeUnique(existingDocs, newDocs) {
-const map = newMap();
-for (const d of [...existingDocs, ...newDocs]) {
+  const map = newMap();
+  for (const d of [...existingDocs, ...newDocs]) {
     const key = String(d.id);
     const prev = map.get(key);
     if (!prev || Number(d.score) > Number(prev.score)) {
       map.set(key, d);
     }
   }
-returnArray.from(map.values()).sort((a, b) =>Number(b.score) - Number(a.score));
+  returnArray
+    .from(map.values())
+    .sort((a, b) => Number(b.score) - Number(a.score));
 }
 
 const RouteSchema = z.object({
-strategy: z.enum(["simple", "complex"]),
-reason: z.string(),
+  strategy: z.enum(["simple", "complex"]),
+  reason: z.string(),
 });
 
 const DecomposeSchema = z.object({
-sub_questions: z.array(z.string()).min(1).max(8),
-reason: z.string(),
+  sub_questions: z.array(z.string()).min(1).max(8),
+  reason: z.string(),
 });
 
 const NextStepSchema = z.object({
-nextAction: z.enum(["retrieve", "generate"]),
-reason: z.string(),
+  nextAction: z.enum(["retrieve", "generate"]),
+  reason: z.string(),
 });
 
 const routeQuestionNode = async (state) => {
-console.log("---ROUTE_QUESTION---");
-const router = llm.withStructuredOutput(RouteSchema);
-const route = await router.invoke(`
+  console.log("---ROUTE_QUESTION---");
+  const router = llm.withStructuredOutput(RouteSchema);
+  const route = await router.invoke(`
 你是问答路由器。请判断用户问题是否需要外部检索。
 
 规则：
@@ -680,8 +730,8 @@ const route = await router.invoke(`
 用户问题：${state.question}
 `);
 
-console.log(`路由策略: ${route.strategy} (${route.reason})`);
-return {
+  console.log(`路由策略: ${route.strategy} (${route.reason})`);
+  return {
     strategy: route.strategy,
     routeReason: route.reason,
     retrievalCount: 0,
@@ -694,9 +744,10 @@ return {
 };
 
 const decomposeQuestionNode = async (state) => {
-console.log("---DECOMPOSE_QUESTION---");
-const decomposer = llm.withStructuredOutput(DecomposeSchema);
-const out = await decomposer.invoke(`你是《天龙八部》多跳问答的「子问题拆解器」。
+  console.log("---DECOMPOSE_QUESTION---");
+  const decomposer = llm.withStructuredOutput(DecomposeSchema);
+  const out =
+    await decomposer.invoke(`你是《天龙八部》多跳问答的「子问题拆解器」。
 
 用户原始问题：
 ${state.question}
@@ -710,17 +761,17 @@ ${state.question}
 
 请输出 sub_questions 与简短 reason。`);
 
-const subQuestions = out.sub_questions.map((s) => s.trim()).filter(Boolean);
-if (subQuestions.length === 0) {
+  const subQuestions = out.sub_questions.map((s) => s.trim()).filter(Boolean);
+  if (subQuestions.length === 0) {
     thrownewError("decompose_question: sub_questions 为空");
   }
 
-console.log(`拆解 ${subQuestions.length} 条子问题 (${out.reason})`);
+  console.log(`拆解 ${subQuestions.length} 条子问题 (${out.reason})`);
   subQuestions.forEach((q, i) => {
     console.log(`  [${i + 1}] ${q}`);
   });
 
-return {
+  return {
     subQuestions,
     nextSubIdx: 0,
     currentQuery: subQuestions[0],
@@ -728,27 +779,35 @@ return {
 };
 
 const retrieveNode = async (state) => {
-const subs = state.subQuestions ?? [];
-const idx = state.nextSubIdx ?? 0;
-const q = subs[idx]?.trim();
-if (!q) {
-    thrownewError(`retrieve: 子问题下标 ${idx} 无有效文本（共 ${subs.length} 条）`);
+  const subs = state.subQuestions ?? [];
+  const idx = state.nextSubIdx ?? 0;
+  const q = subs[idx]?.trim();
+  if (!q) {
+    thrownewError(
+      `retrieve: 子问题下标 ${idx} 无有效文本（共 ${subs.length} 条）`,
+    );
   }
 
-const round = state.retrievalCount + 1;
-console.log(`---RETRIEVE (第 ${round} 轮，子问题 ${idx + 1}/${subs.length})---`);
-console.log(`查询: ${q}`);
+  const round = state.retrievalCount + 1;
+  console.log(
+    `---RETRIEVE (第 ${round} 轮，子问题 ${idx + 1}/${subs.length})---`,
+  );
+  console.log(`查询: ${q}`);
 
-const newDocs = await retrieveRelevantContent(q, state.k);
-const merged = mergeUnique(state.documents ?? [], newDocs);
+  const newDocs = await retrieveRelevantContent(q, state.k);
+  const merged = mergeUnique(state.documents ?? [], newDocs);
 
-if (newDocs.length === 0) {
+  if (newDocs.length === 0) {
     console.log("本轮未命中文档");
   } else {
-    console.log(`本轮命中 ${newDocs.length} 条，累计去重后 ${merged.length} 条`);
+    console.log(
+      `本轮命中 ${newDocs.length} 条，累计去重后 ${merged.length} 条`,
+    );
     newDocs.forEach((item, i) => {
       const preview =
-        item.content.length > 120 ? `${item.content.substring(0, 120)}...` : item.content;
+        item.content.length > 120
+          ? `${item.content.substring(0, 120)}...`
+          : item.content;
       console.log(
         `[R${i + 1}] score=${Number(item.score).toFixed(4)} chapter=${item.chapter_num} index=${item.index}`,
       );
@@ -756,7 +815,7 @@ if (newDocs.length === 0) {
     });
   }
 
-return {
+  return {
     documents: merged,
     retrievalCount: round,
     nextSubIdx: idx + 1,
@@ -765,14 +824,19 @@ return {
 };
 
 const planNextStepNode = async (state) => {
-console.log("---PLAN_NEXT_STEP---");
-const subs = state.subQuestions ?? [];
-const nextIdx = state.nextSubIdx ?? 0;
-const remaining = subs.length - nextIdx;
+  console.log("---PLAN_NEXT_STEP---");
+  const subs = state.subQuestions ?? [];
+  const nextIdx = state.nextSubIdx ?? 0;
+  const remaining = subs.length - nextIdx;
 
-const subList = subs.map((s, i) =>`${i + 1}. ${s}${i < nextIdx ? " （已检索）" : i === nextIdx ? " （下一轮将检索，若选择继续）" : " （未检索）"}`).join("\n");
+  const subList = subs
+    .map(
+      (s, i) =>
+        `${i + 1}. ${s}${i < nextIdx ? " （已检索）" : i === nextIdx ? " （下一轮将检索，若选择继续）" : " （未检索）"}`,
+    )
+    .join("\n");
 
-const docStr =
+  const docStr =
     state.documents.length === 0
       ? "（尚无检索结果）"
       : state.documents
@@ -783,7 +847,7 @@ const docStr =
           )
           .join("\n\n");
 
-const prompt = `你是多跳 RAG 规划器。检索查询已由前置步骤拆解为**有序子问题**；若需继续检索，下一轮将自动使用「下一条子问题」做向量检索，你**不要**自拟新的检索句。
+  const prompt = `你是多跳 RAG 规划器。检索查询已由前置步骤拆解为**有序子问题**；若需继续检索，下一轮将自动使用「下一条子问题」做向量检索，你**不要**自拟新的检索句。
 
 用户原始问题：${state.question}
 
@@ -804,49 +868,51 @@ ${docStr}
 - 若剩余未检索子问题条数为 0，必须 nextAction=generate。
 - 若已检索轮数已达到或超过最大检索轮数，必须 nextAction=generate。`;
 
-const model = llm.withStructuredOutput(NextStepSchema);
-const { nextAction, reason } = await model.invoke(prompt);
+  const model = llm.withStructuredOutput(NextStepSchema);
+  const { nextAction, reason } = await model.invoke(prompt);
 
-let finalNext = nextAction;
-if (state.retrievalCount >= state.maxRetrievals) finalNext = "generate";
-if (remaining <= 0) finalNext = "generate";
+  let finalNext = nextAction;
+  if (state.retrievalCount >= state.maxRetrievals) finalNext = "generate";
+  if (remaining <= 0) finalNext = "generate";
 
-console.log(`[决策] plannedNext=${finalNext} (模型建议=${nextAction}) (${reason})`);
+  console.log(
+    `[决策] plannedNext=${finalNext} (模型建议=${nextAction}) (${reason})`,
+  );
 
-return {
+  return {
     plannedNext: finalNext,
   };
 };
 
 function afterRoute(state) {
-return state.strategy === "simple" ? "direct_answer" : "decompose_question";
+  return state.strategy === "simple" ? "direct_answer" : "decompose_question";
 }
 
 function afterPlan(state) {
-return state.plannedNext === "retrieve" ? "retrieve" : "generate";
+  return state.plannedNext === "retrieve" ? "retrieve" : "generate";
 }
 
 const directAnswerNode = async (state) => {
-console.log("---DIRECT_ANSWER---");
+  console.log("---DIRECT_ANSWER---");
   process.stdout.write("\n【AI 回答（流式）】\n");
-let generation = "";
-const stream = await llm.stream(`你是一个中文问答助手，请直接简洁回答问题。
+  let generation = "";
+  const stream = await llm.stream(`你是一个中文问答助手，请直接简洁回答问题。
 
 问题：${state.question}
 `);
-forawait (const chunk of stream) {
+  for await (const chunk of stream) {
     const text = typeof chunk.content === "string" ? chunk.content : "";
     if (!text) continue;
     generation += text;
     process.stdout.write(text);
   }
   process.stdout.write("\n");
-return { generation };
+  return { generation };
 };
 
 const generateNode = async (state) => {
-console.log("---GENERATE---");
-const context = state.documents
+  console.log("---GENERATE---");
+  const context = state.documents
     .map(
       (item, i) =>
         `[片段 ${i + 1}]
@@ -855,8 +921,9 @@ const context = state.documents
     )
     .join("\n\n━━━━━\n\n");
   process.stdout.write("\n【AI 回答（流式）】\n");
-let generation = "";
-const stream = await llm.stream(`你是一个专业的《天龙八部》小说助手。基于小说内容回答问题，用准确、详细的语言。
+  let generation = "";
+  const stream =
+    await llm.stream(`你是一个专业的《天龙八部》小说助手。基于小说内容回答问题，用准确、详细的语言。
 
 请根据以下《天龙八部》小说片段内容回答问题：
 ${context || "（未检索到相关内容）"}
@@ -871,14 +938,14 @@ ${context || "（未检索到相关内容）"}
 5. 可以引用原文内容来支持你的回答
 
 AI 助手的回答:`);
-forawait (const chunk of stream) {
+  for await (const chunk of stream) {
     const text = typeof chunk.content === "string" ? chunk.content : "";
     if (!text) continue;
     generation += text;
     process.stdout.write(text);
   }
   process.stdout.write("\n");
-return { generation };
+  return { generation };
 };
 
 const graph = new StateGraph(GraphState)
@@ -903,15 +970,15 @@ const graph = new StateGraph(GraphState)
   .addEdge("generate", END)
   .compile();
 
-asyncfunction main() {
-const question =
+async function main() {
+  const question =
     "《天龙八部》中「四大恶人」排行第二的是谁？此人之子在身世揭晓前，其生父在武林中的公开身份是什么？";
-const k = 5;
+  const k = 5;
 
-const drawable = await graph.getGraphAsync();
-console.log(drawable.drawMermaid({ withStyles: true }));
+  const drawable = await graph.getGraphAsync();
+  console.log(drawable.drawMermaid({ withStyles: true }));
 
-console.log("连接到 Milvus...");
+  console.log("连接到 Milvus...");
   vectorStore = await Milvus.fromExistingCollection(embeddings, {
     collectionName: "ebook_collection",
     url: "localhost:19530",
@@ -925,11 +992,16 @@ console.log("连接到 Milvus...");
       search_params: { ef: 64 },
     },
   });
-  vectorStore.indexSearchParams = { metric_type: "COSINE", params: JSON.stringify({ ef: 64 }) };
-console.log("✓ 已连接\n");
+  vectorStore.indexSearchParams = {
+    metric_type: "COSINE",
+    params: JSON.stringify({ ef: 64 }),
+  };
+  console.log("✓ 已连接\n");
 
-try {
-    await vectorStore.client.loadCollection({ collection_name: "ebook_collection" });
+  try {
+    await vectorStore.client.loadCollection({
+      collection_name: "ebook_collection",
+    });
     console.log("✓ 集合 ebook_collection 已加载\n");
   } catch (error) {
     if (!error.message.includes("already loaded")) {
@@ -938,11 +1010,11 @@ try {
     console.log("✓ 集合 ebook_collection 已处于加载状态\n");
   }
 
-console.log("=".repeat(80));
-console.log(`问题: ${question}`);
-console.log("=".repeat(80));
+  console.log("=".repeat(80));
+  console.log(`问题: ${question}`);
+  console.log("=".repeat(80));
 
-const result = await graph.invoke({
+  const result = await graph.invoke({
     question,
     k: Number.isFinite(k) ? k : 5,
     strategy: "",
@@ -957,17 +1029,19 @@ const result = await graph.invoke({
     generation: "",
   });
 
-if (result.strategy === "complex") {
+  if (result.strategy === "complex") {
     if (result.subQuestions?.length) {
       console.log("\n【子问题序列】");
-      result.subQuestions.forEach((s, i) =>console.log(`  ${i + 1}. ${s}`));
+      result.subQuestions.forEach((s, i) => console.log(`  ${i + 1}. ${s}`));
     }
     console.log("\n【检索相关内容（累计）】");
     if (result.documents.length === 0) {
       console.log("未找到相关内容");
     } else {
       result.documents.forEach((item, i) => {
-        console.log(`\n[片段 ${i + 1}] 相似度: ${Number(item.score).toFixed(4)}`);
+        console.log(
+          `\n[片段 ${i + 1}] 相似度: ${Number(item.score).toFixed(4)}`,
+        );
         console.log(`书籍: ${item.book_id}`);
         console.log(`章节: 第 ${item.chapter_num} 章`);
         console.log(`片段索引: ${item.index}`);
@@ -976,24 +1050,49 @@ if (result.strategy === "complex") {
         );
       });
     }
-    console.log(`\n检索轮数: ${result.retrievalCount} / ${result.maxRetrievals}`);
+    console.log(
+      `\n检索轮数: ${result.retrievalCount} / ${result.maxRetrievals}`,
+    );
   }
 
-console.log(`\n最终策略: ${result.strategy}`);
-if (!result.generation?.trim()) {
+  console.log(`\n最终策略: ${result.strategy}`);
+  if (!result.generation?.trim()) {
     console.log("模型未返回内容。");
   }
 }
 
 main().catch((err) => {
-console.error("运行失败:", err);
+  console.error("运行失败:", err);
   process.exit(1);
 });
 ```
 
 整体流程如图：
 
-![image-20260727221209998](https://img.xiaojunnan.cn/image-20260727221209998.png)
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__([<p>__start__</p>]):::first 
+        route_question(route_question)        
+        direct_answer(direct_answer)
+        decompose_question(decompose_question)
+        retrieve(retrieve)
+        plan_next_step(plan_next_step)
+        generate(generate)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> route_question;
+        decompose_question --> retrieve;
+        direct_answer --> __end__;
+        generate --> __end__;
+        retrieve --> plan_next_step;
+        route_question -.-> direct_answer;
+        route_question -.-> decompose_question;
+        plan_next_step -.-> retrieve;
+        plan_next_step -.-> generate;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
+```
 
 首先拆分成多个子问题：
 
@@ -1027,42 +1126,45 @@ src/rag-webfallback.mjs
 
 ```js
 import "dotenv/config";
-import { z } from"zod";
-import { ChatOpenAI, OpenAIEmbeddings } from"@langchain/openai";
-import { Annotation, END, START, StateGraph } from"@langchain/langgraph";
-import { Milvus } from"@langchain/community/vectorstores/milvus";
+import { z } from "zod";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
+import { Milvus } from "@langchain/community/vectorstores/milvus";
 
 const llm = new ChatOpenAI({
-temperature: 0,
-model: "qwen-plus",
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
-apiKey: process.env.OPENAI_API_KEY,
+  temperature: 0,
+  model: "qwen-plus",
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const embeddings = new OpenAIEmbeddings({
-model: "text-embedding-v3",
-dimensions: 1024,
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
-apiKey: process.env.OPENAI_API_KEY,
+  model: "text-embedding-v3",
+  dimensions: 1024,
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const GraphState = Annotation.Root({
-question: Annotation,
-k: Annotation,
-strategy: Annotation,
-routeReason: Annotation,
-retrievedDocs: Annotation,
-localContext: Annotation,
-webContext: Annotation,
-evaluation: Annotation,
-generation: Annotation,
+  question: Annotation,
+  k: Annotation,
+  strategy: Annotation,
+  routeReason: Annotation,
+  retrievedDocs: Annotation,
+  localContext: Annotation,
+  webContext: Annotation,
+  evaluation: Annotation,
+  generation: Annotation,
 });
 
 let vectorStore;
 
-asyncfunction retrieveRelevantContent(query, k) {
-try {
-    const docsWithScores = await vectorStore.similaritySearchWithScore(query, k);
+async function retrieveRelevantContent(query, k) {
+  try {
+    const docsWithScores = await vectorStore.similaritySearchWithScore(
+      query,
+      k,
+    );
     return docsWithScores.map(([doc, score]) => ({
       score,
       content: doc.pageContent,
@@ -1078,14 +1180,14 @@ try {
 }
 
 const RouteSchema = z.object({
-strategy: z.enum(["simple", "complex"]),
-reason: z.string(),
+  strategy: z.enum(["simple", "complex"]),
+  reason: z.string(),
 });
 
 const routeQuestionNode = async (state) => {
-console.log("---ROUTE_QUESTION---");
-const router = llm.withStructuredOutput(RouteSchema);
-const route = await router.invoke(`
+  console.log("---ROUTE_QUESTION---");
+  const router = llm.withStructuredOutput(RouteSchema);
+  const route = await router.invoke(`
 你是问答路由器。请判断用户问题是否需要外部检索。
 
 规则：
@@ -1094,8 +1196,8 @@ const route = await router.invoke(`
 
 用户问题：${state.question}
 `);
-console.log(`路由策略: ${route.strategy} (${route.reason})`);
-return {
+  console.log(`路由策略: ${route.strategy} (${route.reason})`);
+  return {
     strategy: route.strategy,
     routeReason: route.reason,
     retrievedDocs: [],
@@ -1107,46 +1209,49 @@ return {
 };
 
 const directAnswerNode = async (state) => {
-console.log("---DIRECT_ANSWER---");
+  console.log("---DIRECT_ANSWER---");
   process.stdout.write("\n【AI 回答（流式）】\n");
-let generation = "";
-const stream = await llm.stream(`你是一个中文问答助手，请直接简洁回答问题。
+  let generation = "";
+  const stream = await llm.stream(`你是一个中文问答助手，请直接简洁回答问题。
 
 问题：${state.question}
 `);
-forawait (const chunk of stream) {
+  for await (const chunk of stream) {
     const text = typeof chunk.content === "string" ? chunk.content : "";
     if (!text) continue;
     generation += text;
     process.stdout.write(text);
   }
   process.stdout.write("\n");
-return { generation };
+  return { generation };
 };
 
 const retrieveLocalNode = async (state) => {
-console.log("---LOCAL_RETRIEVE---");
-const retrievedDocs = await retrieveRelevantContent(state.question, state.k);
-console.log(`本地检索命中: ${retrievedDocs.length} 条`);
-const localContext = (retrievedDocs ?? []).map((d) => d.content).join("\n\n");
-return {
+  console.log("---LOCAL_RETRIEVE---");
+  const retrievedDocs = await retrieveRelevantContent(state.question, state.k);
+  console.log(`本地检索命中: ${retrievedDocs.length} 条`);
+  const localContext = (retrievedDocs ?? []).map((d) => d.content).join("\n\n");
+  return {
     retrievedDocs,
     localContext,
   };
 };
 
 const EvaluateSchema = z.object({
-enough: z.boolean(),
-missing: z.array(z.string()).max(6),
-reason: z.string(),
-web_query: z.string().optional(),
+  enough: z.boolean(),
+  missing: z.array(z.string()).max(6),
+  reason: z.string(),
+  web_query: z.string().optional(),
 });
 
 const evaluateNode = async (state) => {
-const hasWeb = Boolean(state.webContext && String(state.webContext).trim());
-console.log(hasWeb ? "---EVALUATE_CONTEXT_WITH_WEB---" : "---EVALUATE_LOCAL_CONTEXT---");
-const evaluator = llm.withStructuredOutput(EvaluateSchema);
-const out = await evaluator.invoke(`你是信息充分性评估器。判断当前上下文是否足以回答用户问题。
+  const hasWeb = Boolean(state.webContext && String(state.webContext).trim());
+  console.log(
+    hasWeb ? "---EVALUATE_CONTEXT_WITH_WEB---" : "---EVALUATE_LOCAL_CONTEXT---",
+  );
+  const evaluator = llm.withStructuredOutput(EvaluateSchema);
+  const out =
+    await evaluator.invoke(`你是信息充分性评估器。判断当前上下文是否足以回答用户问题。
 
 用户问题：${state.question}
 
@@ -1162,11 +1267,13 @@ ${hasWeb ? `联网搜索结果：\n${state.webContext || "（空）"}\n` : ""}
 ${hasWeb ? "" : "- web_query: 若不够，给出一个适合联网搜索的中文查询句（完整句，不用代词；为空也可）"}
 `);
 
-console.log(`${hasWeb ? "二次评估" : "评估"}: enough=${out.enough} (${out.reason})`);
-if (!out.enough && out.missing?.length) {
-    out.missing.forEach((m, i) =>console.log(`  缺失${i + 1}: ${m}`));
+  console.log(
+    `${hasWeb ? "二次评估" : "评估"}: enough=${out.enough} (${out.reason})`,
+  );
+  if (!out.enough && out.missing?.length) {
+    out.missing.forEach((m, i) => console.log(`  缺失${i + 1}: ${m}`));
   }
-return {
+  return {
     evaluation: JSON.stringify(out),
   };
 };
@@ -1174,21 +1281,23 @@ return {
 /**
  * Call Bocha Web Search API
  */
-asyncfunction bochaWebSearch(query, count) {
-const apiKey = process.env.BOCHA_API_KEY;
-if (!apiKey) {
-    thrownewError("Bocha Web Search 的 API Key 未配置（环境变量 BOCHA_API_KEY）。");
+async function bochaWebSearch(query, count) {
+  const apiKey = process.env.BOCHA_API_KEY;
+  if (!apiKey) {
+    thrownewError(
+      "Bocha Web Search 的 API Key 未配置（环境变量 BOCHA_API_KEY）。",
+    );
   }
-const url = "https://api.bochaai.com/v1/web-search";
-const body = {
+  const url = "https://api.bochaai.com/v1/web-search";
+  const body = {
     query,
     freshness: "noLimit",
     summary: true,
     count: count ?? 10,
   };
 
-let response;
-try {
+  let response;
+  try {
     response = await fetch(url, {
       method: "POST",
       headers: {
@@ -1201,30 +1310,32 @@ try {
     thrownewError(`搜索 API 请求失败（网络错误）：${error.message}`);
   }
 
-if (!response.ok) {
-    const errorText = await response.text().catch(() =>"");
-    thrownewError(`搜索 API 请求失败，状态码: ${response.status}, 错误信息: ${errorText}`);
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    thrownewError(
+      `搜索 API 请求失败，状态码: ${response.status}, 错误信息: ${errorText}`,
+    );
   }
 
-let json;
-try {
+  let json;
+  try {
     json = await response.json();
   } catch (error) {
     thrownewError(`搜索结果解析失败：${error.message}`);
   }
 
-if (json?.code !== 200 || !json?.data) {
+  if (json?.code !== 200 || !json?.data) {
     thrownewError(`搜索 API 返回失败：${json?.msg ?? "未知错误"}`);
   }
 
-const webpages = json.data.webPages?.value ?? [];
-if (!webpages.length) {
-    return"未找到相关结果。";
+  const webpages = json.data.webPages?.value ?? [];
+  if (!webpages.length) {
+    return "未找到相关结果。";
   }
 
-return webpages
+  return webpages
     .map(
-      (page, idx) =>`引用: ${idx + 1}
+      (page, idx) => `引用: ${idx + 1}
 标题: ${page.name}
 URL: ${page.url}
 摘要: ${page.summary}
@@ -1236,27 +1347,30 @@ URL: ${page.url}
 }
 
 const webSearchNode = async (state) => {
-console.log("---WEB_SEARCH---");
-const parsed = (() => {
+  console.log("---WEB_SEARCH---");
+  const parsed = (() => {
     try {
       returnJSON.parse(state.evaluation || "{}");
     } catch {
       return {};
     }
   })();
-const query = (parsed.web_query ?? "").trim() || state.question;
-console.log(`联网查询: ${query}`);
-const webContext = await bochaWebSearch(query, 8);
-console.log(`联网结果长度: ${webContext.length}`);
-return { webContext };
+  const query = (parsed.web_query ?? "").trim() || state.question;
+  console.log(`联网查询: ${query}`);
+  const webContext = await bochaWebSearch(query, 8);
+  console.log(`联网结果长度: ${webContext.length}`);
+  return { webContext };
 };
 
 const generateNode = async (state) => {
-console.log("---GENERATE---");
-const context = [state.localContext, state.webContext].filter(Boolean).join("\n\n===== 联网补充 =====\n\n");
+  console.log("---GENERATE---");
+  const context = [state.localContext, state.webContext]
+    .filter(Boolean)
+    .join("\n\n===== 联网补充 =====\n\n");
   process.stdout.write("\n【AI 回答（流式）】\n");
-let generation = "";
-const stream = await llm.stream(`你是一个严谨的中文问答助手。优先依据上下文作答，不要编造。
+  let generation = "";
+  const stream =
+    await llm.stream(`你是一个严谨的中文问答助手。优先依据上下文作答，不要编造。
 
 上下文（本地知识库 + 可选联网补充）：
 ${context || "（空）"}
@@ -1269,32 +1383,32 @@ ${context || "（空）"}
 3. 不要输出表情符号。
 
 回答：`);
-forawait (const chunk of stream) {
+  for await (const chunk of stream) {
     const text = typeof chunk.content === "string" ? chunk.content : "";
     if (!text) continue;
     generation += text;
     process.stdout.write(text);
   }
   process.stdout.write("\n");
-return { generation };
+  return { generation };
 };
 
 function afterRoute(state) {
-return state.strategy === "simple" ? "direct_answer" : "local_retrieve";
+  return state.strategy === "simple" ? "direct_answer" : "local_retrieve";
 }
 
 function afterEvaluateLocal(state) {
-if (state.webContext && String(state.webContext).trim()) {
-    return"generate";
+  if (state.webContext && String(state.webContext).trim()) {
+    return "generate";
   }
-const parsed = (() => {
+  const parsed = (() => {
     try {
       returnJSON.parse(state.evaluation || "{}");
     } catch {
       return {};
     }
   })();
-return parsed.enough === true ? "generate" : "web_search";
+  return parsed.enough === true ? "generate" : "web_search";
 }
 
 const graph = new StateGraph(GraphState)
@@ -1319,15 +1433,15 @@ const graph = new StateGraph(GraphState)
   .addEdge("generate", END)
   .compile();
 
-asyncfunction main() {
-const question =
+async function main() {
+  const question =
     "请回答《天龙八部》小说里“雁门关事件”的主谋是谁，并说明其儿子的最终结局；另外请补充：在《天龙八部》2013 版电视剧中，这段“雁门关事件”主要出现在哪几集？请给出可核对的来源链接。";
-const k = 8;
+  const k = 8;
 
-const drawable = await graph.getGraphAsync();
-console.log(drawable.drawMermaid({ withStyles: true }));
+  const drawable = await graph.getGraphAsync();
+  console.log(drawable.drawMermaid({ withStyles: true }));
 
-console.log("连接到 Milvus...");
+  console.log("连接到 Milvus...");
   vectorStore = await Milvus.fromExistingCollection(embeddings, {
     collectionName: "ebook_collection",
     url: "localhost:19530",
@@ -1341,22 +1455,27 @@ console.log("连接到 Milvus...");
       search_params: { ef: 64 },
     },
   });
-  vectorStore.indexSearchParams = { metric_type: "COSINE", params: JSON.stringify({ ef: 64 }) };
-console.log("✓ 已连接\n");
+  vectorStore.indexSearchParams = {
+    metric_type: "COSINE",
+    params: JSON.stringify({ ef: 64 }),
+  };
+  console.log("✓ 已连接\n");
 
-try {
-    await vectorStore.client.loadCollection({ collection_name: "ebook_collection" });
+  try {
+    await vectorStore.client.loadCollection({
+      collection_name: "ebook_collection",
+    });
     console.log("✓ 集合 ebook_collection 已加载\n");
   } catch (error) {
     if (!error.message.includes("already loaded")) throw error;
     console.log("✓ 集合 ebook_collection 已处于加载状态\n");
   }
 
-console.log("=".repeat(80));
-console.log(`问题: ${question}`);
-console.log("=".repeat(80));
+  console.log("=".repeat(80));
+  console.log(`问题: ${question}`);
+  console.log("=".repeat(80));
 
-const result = await graph.invoke({
+  const result = await graph.invoke({
     question,
     k,
     strategy: "",
@@ -1368,18 +1487,41 @@ const result = await graph.invoke({
     generation: "",
   });
 
-console.log(`\n最终策略: ${result.strategy}`);
-if (!result.generation?.trim()) {
+  console.log(`\n最终策略: ${result.strategy}`);
+  if (!result.generation?.trim()) {
     console.log("模型未返回内容。");
   }
 }
 
-main()
+main();
 ```
 
 现在的流程如下：
 
-![image-20260727221318436](https://img.xiaojunnan.cn/image-20260727221318436.png)
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        route_question(route_question)
+        direct_answer(direct_answer)
+        local_retrieve(local_retrieve)
+        evaluate_local(evaluate_local)
+        web_search(web_search)
+        generate(generate)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> route_question;
+        direct_answer --> __end__;
+        generate --> __end__;
+        local_retrieve --> evaluate_local;
+        web_search --> evaluate_local;
+        route_question -.-> direct_answer;
+        route_question -.-> local_retrieve;
+        evaluate_local -.-> generate;
+        evaluate_local -.-> web_search;
+        classDef default fill:#f2f0ff,line-height:1.2;
+        classDef first fill-opacity:0;
+        classDef last fill:#bfb6fc;
+```
 
 检索完向量数据库，会评估一下信息是否足够：
 
