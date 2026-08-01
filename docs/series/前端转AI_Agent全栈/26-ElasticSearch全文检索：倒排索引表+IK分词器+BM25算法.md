@@ -38,7 +38,7 @@ keywords: [AI]
 
 
 
-## 1
+## 了解ES
 
 首先安装下 ES：
 
@@ -55,31 +55,29 @@ npm init -y
 添加这个 docker-compose.yml
 
 ```yaml
-version: '3.8'
-
 services:
-# Elasticsearch 最新稳定版：8.17.0
+  # Elasticsearch 8.17.0 + IK 中文分词（内置到镜像）
   es:
-    image: elasticsearch:8.17.0
+    build: ./elasticsearch       # 从本地 Dockerfile 构建镜像（自带IK）
     container_name: es-dev
     ports:
-      - "9200:9200"# ES 对外提供服务的端口
+      - "9200:9200"               # ES 访问端口
     environment:
       - discovery.type=single-node  # 单节点运行（开发环境）
-      - xpack.security.enabled=false# 关闭安全认证，免密码访问
-      - xpack.security.http.ssl.enabled=false# 关闭 HTTPS 加密
-      - xpack.security.transport.ssl.enabled=false# 关闭节点传输加密
+      - xpack.security.enabled=false  # 关闭安全认证，免密码访问
+      - xpack.security.http.ssl.enabled=false  # 关闭 HTTPS 加密
+      - xpack.security.transport.ssl.enabled=false  # 关闭节点传输加密
       - ES_JAVA_OPTS=-Xms512m -Xmx512m  # JVM 内存配置，避免占用过高
     volumes:
-      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/es:/usr/share/elasticsearch/data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/es/data:/usr/share/elasticsearch/data
     restart: always
 
-# Kibana 最新稳定版：8.17.0（必须与 ES 版本完全一致）
+  # Kibana 最新稳定版：8.17.0（必须与 ES 版本完全一致）
   kibana:
     image: kibana:8.17.0
     container_name: kibana-dev
     ports:
-      - "5601:5601"# Kibana 网页控制台端口
+      - "5601:5601"  # Kibana 网页控制台端口
     environment:
       - ELASTICSEARCH_HOSTS=http://es:9200  # 连接 ES 容器内部地址
     volumes:
@@ -88,12 +86,75 @@ services:
     depends_on:
       - es  # 等待 ES 启动完成后再启动 Kibana
 
+  # Milvus 最新稳定版：2.5.0（必须与 ES 版本完全一致）# Milvus
+  etcd:
+    container_name: etcd-dev
+    image: quay.io/coreos/etcd:v3.5.18
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio:
+    container_name: minio-dev
+    image: minio/minio:RELEASE.2024-05-28T17-19-04Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "9001:9001"
+      - "9000:9000"
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  standalone:
+    container_name: standalone-dev
+    image: milvusdb/milvus:v2.5.25
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      MINIO_REGION: us-east-1
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      - "etcd"
+      - "minio"
+
 networks:
   default:
     name: common-network
 ```
 
-kibana 是 es 的一个可视化控制台
+kibana 是 es 的一个可视化控制台，跑一下
+
+【视频】
 
 mysql 是表和行，在 es 里就是索引和文档
 
@@ -103,7 +164,7 @@ es 没有 sql，都是一些 http 的接口
 
 我们试一下索引的创建和文档的增删改查：
 
-```
+```markdown
 # Elasticsearch 基础操作
 
 # 1. 查看所有索引
@@ -112,7 +173,7 @@ GET /_cat/indices?v&h=health,status,index,docs.count
 # 2. 创建索引
 PUT /article
 {
-"mappings": {
+  "mappings": {
     "properties": {
       "title": {
         "type": "text"
@@ -149,21 +210,21 @@ DELETE /article
 # 1. 新增文档（自动生成 ID）
 POST /article/_doc
 {
-"title": "Elasticsearch 全文检索入门",
-"content": "ES 基于倒排索引与 BM25 实现全文搜索，适用于文本检索场景",
-"author": "后端开发",
-"createTime": "2026-04-26",
-"viewCount": 128
+  "title": "Elasticsearch 全文检索入门",
+  "content": "ES 基于倒排索引与 BM25 实现全文搜索，适用于文本检索场景",
+  "author": "后端开发",
+  "createTime": "2026-04-26",
+  "viewCount": 128
 }
 
 # 2. 新增文档（指定自定义 ID）
 PUT /article/_doc/1001
 {
-"title": "RAG 混合检索实战",
-"content": "ES 负责关键词检索，Milvus 负责向量语义检索，结合使用效果更佳",
-"author": "AI开发",
-"createTime": "2026-04-26",
-"viewCount": 256
+  "title": "RAG 混合检索实战",
+  "content": "ES 负责关键词检索，Milvus 负责向量语义检索，结合使用效果更佳",
+  "author": "AI开发",
+  "createTime": "2026-04-26",
+  "viewCount": 256
 }
 
 # 3. 根据 ID 查询单条
@@ -172,7 +233,7 @@ GET /article/_doc/1001
 # 4. 查询全部文档
 GET /article/_search
 {
-"query": {
+  "query": {
     "match_all": {}
   }
 }
@@ -180,7 +241,7 @@ GET /article/_search
 # 5. 全文分词检索（text 字段）
 GET /article/_search
 {
-"query": {
+  "query": {
     "match": {
       "content": "RAG 向量 检索"
     }
@@ -190,7 +251,7 @@ GET /article/_search
 # 6. 精确匹配查询（keyword 字段）
 GET /article/_search
 {
-"query": {
+  "query": {
     "term": {
       "author": "AI开发"
     }
@@ -200,8 +261,8 @@ GET /article/_search
 # 7. 只返回指定字段
 GET /article/_search
 {
-"_source": ["title", "author"],
-"query": {
+  "_source": ["title", "author"],
+  "query": {
     "match_all": {}
   }
 }
@@ -209,12 +270,12 @@ GET /article/_search
 # 8. 分页 + 排序
 GET /article/_search
 {
-"from": 0,
-"size": 10,
-"sort": [
+  "from": 0,
+  "size": 10,
+  "sort": [
     {"viewCount": "desc"}
   ],
-"query": {
+  "query": {
     "match_all": {}
   }
 }
@@ -222,7 +283,7 @@ GET /article/_search
 # 9. 局部更新文档（推荐）
 POST /article/_update/1001
 {
-"doc": {
+  "doc": {
     "viewCount": 999,
     "title": "RAG 混合检索高级实战"
   }
@@ -231,11 +292,11 @@ POST /article/_update/1001
 # 10. 全量覆盖更新
 PUT /article/_doc/1001
 {
-"title": "全量覆盖测试",
-"content": "原始内容被替换",
-"author": "测试用户",
-"createTime": "2026-04-26",
-"viewCount": 66
+  "title": "全量覆盖测试",
+  "content": "原始内容被替换",
+  "author": "测试用户",
+  "createTime": "2026-04-26",
+  "viewCount": 66
 }
 
 # 11. 根据 ID 删除文档
@@ -244,7 +305,7 @@ DELETE /article/_doc/1001
 # 12. 条件批量删除
 POST /article/_delete_by_query
 {
-"query": {
+  "query": {
     "match": {
       "author": "后端开发"
     }
@@ -257,11 +318,13 @@ GET /article/_count
 # 14. 清空索引数据（保留表结构）
 POST /article/_delete_by_query
 {
-"query": {
+  "query": {
     "match_all": {}
   }
 }
 ```
+
+【视频】
 
 我们测了一遍索引的创建、文档的增删改查，整体比较简单。
 
@@ -332,22 +395,22 @@ RUN elasticsearch-plugin install --batch \
 
 ![image-20260727223322617](https://img.xiaojunnan.cn/image-20260727223322617.png)
 
-```
-# Elasticsearch 8.17.0 + IK 中文分词（内置到镜像）
-es:
-  build: ./elasticsearch       # 从本地 Dockerfile 构建镜像（自带IK）
-  container_name: es-dev
-  ports:
-    - "9200:9200"               # ES 访问端口
-  environment:
-    - discovery.type=single-node  # 单节点运行（开发环境）
-    - xpack.security.enabled=false# 关闭安全认证，免密码访问
-    - xpack.security.http.ssl.enabled=false# 关闭 HTTPS 加密
-    - xpack.security.transport.ssl.enabled=false# 关闭节点传输加密
-    - ES_JAVA_OPTS=-Xms512m -Xmx512m  # JVM 内存配置，避免占用过高
-  volumes:
-    - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/es/data:/usr/share/elasticsearch/data
-  restart: always
+```markdown
+  # Elasticsearch 8.17.0 + IK 中文分词（内置到镜像）
+  es:
+    build: ./elasticsearch       # 从本地 Dockerfile 构建镜像（自带IK）
+    container_name: es-dev
+    ports:
+      - "9200:9200"               # ES 访问端口
+    environment:
+      - discovery.type=single-node  # 单节点运行（开发环境）
+      - xpack.security.enabled=false  # 关闭安全认证，免密码访问
+      - xpack.security.http.ssl.enabled=false  # 关闭 HTTPS 加密
+      - xpack.security.transport.ssl.enabled=false  # 关闭节点传输加密
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m  # JVM 内存配置，避免占用过高
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/es/data:/usr/share/elasticsearch/data
+    restart: always
 ```
 
 试一下：
@@ -356,7 +419,9 @@ docker compose down
 docker compose up -d --build
 ```
 
-```
+【视频】
+
+```markdown
 # 1. 检查 ES 状态
 GET /
 
@@ -366,22 +431,22 @@ GET /_cat/plugins?v
 # 3. 原生 standard 分词
 POST /_analyze
 {
-"analyzer": "standard",
-"text": "Elasticsearch RAG 混合检索知识库"
+  "analyzer": "standard",
+  "text": "Elasticsearch RAG 混合检索知识库"
 }
 
 # 4. IK 细粒度分词（索引入库用）
 POST /_analyze
 {
-"analyzer": "ik_max_word",
-"text": "Elasticsearch RAG 混合检索知识库"
+  "analyzer": "ik_max_word",
+  "text": "Elasticsearch RAG 混合检索知识库"
 }
 
 # 5. IK 智能分词（搜索查询用）
 POST /_analyze
 {
-"analyzer": "ik_smart",
-"text": "Elasticsearch RAG 混合检索知识库"
+  "analyzer": "ik_smart",
+  "text": "Elasticsearch RAG 混合检索知识库"
 }
 ```
 
@@ -411,7 +476,7 @@ POST /_analyze
 
 用 ik_smart 来做检索的分词
 
-```
+```markdown
 # Elasticsearch IK分词版操作手册
 # 索引：life_note
 # 字段全部配置 IK分词：入库 ik_max_word  /  查询 ik_smart
@@ -422,7 +487,7 @@ GET /_cat/indices?v&h=health,status,index,docs.count
 # 2. 创建索引（生活笔记场景 + IK双分词）
 PUT /life_note
 {
-"mappings": {
+  "mappings": {
     "properties": {
       "title": {
         "type": "text",
@@ -463,21 +528,21 @@ DELETE /life_note
 # 1. 新增文档（自动生成 ID）
 POST /life_note/_doc
 {
-"title": "周末城市短途旅行攻略",
-"content": "周末适合周边短途出行，打卡公园、小吃街，放松日常工作压力，出行尽量避开早晚高峰",
-"type": "旅行生活",
-"author": "日常记录",
-"record_time": "2026-04-27"
+  "title": "周末城市短途旅行攻略",
+  "content": "周末适合周边短途出行，打卡公园、小吃街，放松日常工作压力，出行尽量避开早晚高峰",
+  "type": "旅行生活",
+  "author": "日常记录",
+  "record_time": "2026-04-27"
 }
 
 # 2. 新增文档（指定自定义 ID）
 PUT /life_note/_doc/3001
 {
-"title": "健康饮食与居家养生",
-"content": "规律作息、清淡饮食，多吃蔬菜水果，减少熬夜，合理运动才能保持身体健康",
-"type": "健康生活",
-"author": "生活达人",
-"record_time": "2026-04-27"
+  "title": "健康饮食与居家养生",
+  "content": "规律作息、清淡饮食，多吃蔬菜水果，减少熬夜，合理运动才能保持身体健康",
+  "type": "健康生活",
+  "author": "生活达人",
+  "record_time": "2026-04-27"
 }
 
 # 3. 根据 ID 查询单条
@@ -486,7 +551,7 @@ GET /life_note/_doc/3001
 # 4. 查询全部文档
 GET /life_note/_search
 {
-"query": {
+  "query": {
     "match_all": {}
   }
 }
@@ -494,7 +559,7 @@ GET /life_note/_search
 # 5. 全文分词检索（IK中文分词，搜：健康 作息 旅行）
 GET /life_note/_search
 {
-"query": {
+  "query": {
     "match": {
       "content": "健康 作息 旅行"
     }
@@ -504,7 +569,7 @@ GET /life_note/_search
 # 6. 精确匹配查询（keyword 分类字段）
 GET /life_note/_search
 {
-"query": {
+  "query": {
     "term": {
       "type": "健康生活"
     }
@@ -514,8 +579,8 @@ GET /life_note/_search
 # 7. 只返回指定字段
 GET /life_note/_search
 {
-"_source": ["title", "type", "author"],
-"query": {
+  "_source": ["title", "type", "author"],
+  "query": {
     "match_all": {}
   }
 }
@@ -523,12 +588,12 @@ GET /life_note/_search
 # 8. 分页 + 时间排序
 GET /life_note/_search
 {
-"from": 0,
-"size": 10,
-"sort": [
+  "from": 0,
+  "size": 10,
+  "sort": [
     {"record_time": "desc"}
   ],
-"query": {
+  "query": {
     "match_all": {}
   }
 }
@@ -536,7 +601,7 @@ GET /life_note/_search
 # 9. 局部更新文档（推荐）
 POST /life_note/_update/3001
 {
-"doc": {
+  "doc": {
     "title": "健康饮食与居家养生小技巧",
     "type": "居家生活"
   }
@@ -545,11 +610,11 @@ POST /life_note/_update/3001
 # 10. 全量覆盖更新
 PUT /life_note/_doc/3001
 {
-"title": "日常养生好习惯总结",
-"content": "早睡早起合理运动，少吃油腻辛辣食物，保持良好心态，提升生活幸福感",
-"type": "居家生活",
-"author": "生活达人",
-"record_time": "2026-04-27"
+  "title": "日常养生好习惯总结",
+  "content": "早睡早起合理运动，少吃油腻辛辣食物，保持良好心态，提升生活幸福感",
+  "type": "居家生活",
+  "author": "生活达人",
+  "record_time": "2026-04-27"
 }
 
 # 11. 根据 ID 删除文档
@@ -558,7 +623,7 @@ DELETE /life_note/_doc/3001
 # 12. 条件批量删除
 POST /life_note/_delete_by_query
 {
-"query": {
+  "query": {
     "match": {
       "author": "日常记录"
     }
@@ -571,7 +636,7 @@ GET /life_note/_count
 # 14. 清空索引数据（保留表结构）
 POST /life_note/_delete_by_query
 {
-"query": {
+  "query": {
     "match_all": {}
   }
 }
@@ -583,19 +648,19 @@ POST /life_note/_delete_by_query
 # IK 细粒度分词（入库存储使用）
 POST /_analyze
 {
-"analyzer": "ik_max_word",
-"text": "周末短途旅行 居家健康养生 日常美好生活记录"
+  "analyzer": "ik_max_word",
+  "text": "周末短途旅行 居家健康养生 日常美好生活记录"
 }
 
 # IK 智能分词（搜索查询使用）
 POST /_analyze
 {
-"analyzer": "ik_smart",
-"text": "周末短途旅行 居家健康养生 日常美好生活记录"
+  "analyzer": "ik_smart",
+  "text": "周末短途旅行 居家健康养生 日常美好生活记录"
 }
 ```
 
-
+【视频】
 
 这样，我们基于 ik 分词器实现了中文的关键词检索。
 

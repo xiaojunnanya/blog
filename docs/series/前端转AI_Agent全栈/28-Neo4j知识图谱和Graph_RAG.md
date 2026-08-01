@@ -153,6 +153,10 @@ MATCH (p:Product {name: "珍珠奶茶"})-[:适合]->(people)
 RETURN p.name, people.name
 ```
 
+跑一下
+
+【视频】
+
 这就是我们基于上面的概念创建的知识图谱：
 
 ![image-20260729173819815](https://img.xiaojunnan.cn/image-20260729173819815.png)
@@ -183,88 +187,90 @@ MATCH (n)
 DELETE n
 ```
 
-会用在图形界面增删改查节点、关系之后，我们再用代码来试一下：
+【视频】
+
+会用在图形界面增删改查节点、关系之后，我们再用代码来试一下
 
 安装依赖：`pnpm install neo4j-driver`
 
 创建 src/neo4j-test.mjs
 
 ```js
-import neo4j from'neo4j-driver'
+import neo4j from "neo4j-driver";
 
 // 连接信息（和你的 docker-compose 完全一致）
 const driver = neo4j.driver(
-'bolt://localhost:7687',
-  neo4j.auth.basic('neo4j', '12345678')
-)
+  "bolt://localhost:7687",
+  neo4j.auth.basic("neo4j", "12345678"),
+);
 
 // 获取会话
-const session = driver.session()
+const session = driver.session();
 
 // 1. 执行创建节点（示例）
-asyncfunction createData() {
-const result = await session.run(`
+async function createData() {
+  const result = await session.run(`
     CREATE (p:Product {name: "珍珠奶茶"})
     CREATE (i:Ingredient {name: "珍珠"})
-  `)
-console.log('创建成功')
+  `);
+  console.log("创建成功");
 }
 
 // 2. 执行创建关系（示例）
-asyncfunction createRelation() {
-await session.run(`
+async function createRelation() {
+  await session.run(`
     MATCH (p:Product {name: "珍珠奶茶"}), (i:Ingredient {name: "珍珠"})
     CREATE (p)-[:包含]->(i)
-  `)
-console.log('关系创建成功')
+  `);
+  console.log("关系创建成功");
 }
 
 // 3. 查询数据
-asyncfunction queryData() {
-const result = await session.run(`
+async function queryData() {
+  const result = await session.run(`
     MATCH (p:Product {name: "珍珠奶茶"})-[r]->(i)
     RETURN p, r, i
-  `)
+  `);
 
-  result.records.forEach(record => {
-    console.log('奶茶:', record.get('p').properties.name)
-    console.log('关系:', record.get('r').type)
-    console.log('配料:', record.get('i').properties.name)
-    console.log('--------------------------------')
-  })
+  result.records.forEach((record) => {
+    console.log("奶茶:", record.get("p").properties.name);
+    console.log("关系:", record.get("r").type);
+    console.log("配料:", record.get("i").properties.name);
+    console.log("--------------------------------");
+  });
 }
 
 // 4. 更新属性
-asyncfunction updateData() {
-await session.run(`
+async function updateData() {
+  await session.run(`
     MATCH (p:Product {name: "珍珠奶茶"})
     SET p.price = 15, p.calorie = "中高"
-  `)
-console.log('更新成功')
+  `);
+  console.log("更新成功");
 }
 
 // 5. 删除关系
-asyncfunction deleteRelation() {
-await session.run(`
+async function deleteRelation() {
+  await session.run(`
     MATCH (p:Product {name: "珍珠奶茶"})-[r:包含]->(i:Ingredient {name: "珍珠"})
     DELETE r
-  `)
-console.log('删除关系成功')
+  `);
+  console.log("删除关系成功");
 }
 
 // 6. 删除节点
-asyncfunction deleteNode() {
-await session.run(`
+async function deleteNode() {
+  await session.run(`
     MATCH (p:Product {name: "珍珠奶茶"})
     DELETE p
-  `)
-console.log('删除节点成功')
+  `);
+  console.log("删除节点成功");
 }
 
 // 执行（你想运行哪个就打开哪个）
 // createData()
 // createRelation()
-queryData()
+queryData();
 // updateData()
 // deleteRelation()
 // deleteNode()
@@ -281,58 +287,57 @@ queryData()
 然后创建  src/graphrag.mjs
 
 ```js
-import 'dotenv/config'
-import { Neo4jGraph } from'@langchain/community/graphs/neo4j_graph'
-import { ChatOpenAI } from'@langchain/openai'
-import { StateGraph, END, START } from'@langchain/langgraph'
-import { HumanMessage } from'@langchain/core/messages'
+import "dotenv/config";
+import { Neo4jGraph } from "@langchain/community/graphs/neo4j_graph";
+import { ChatOpenAI } from "@langchain/openai";
+import { StateGraph, END, START } from "@langchain/langgraph";
+import { HumanMessage } from "@langchain/core/messages";
 
 // ----------------------
 // 连接 Neo4j 知识图谱
 // ----------------------
 const graph = new Neo4jGraph({
-url: 'bolt://localhost:7687',
-username: 'neo4j',
-password: '12345678',
-})
+  url: "bolt://localhost:7687",
+  username: "neo4j",
+  password: "12345678",
+});
 
 // ----------------------
 // 大模型
 // ----------------------
 const llm = new ChatOpenAI({
-model: process.env.MODEL_NAME,
-temperature: 0,
-configuration: { baseURL: process.env.OPENAI_BASE_URL }
-})
+  model: process.env.MODEL_NAME,
+  temperature: 0,
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+});
 
 // ----------------------
 // 定义状态
 // ----------------------
 const state = {
-messages: {
-    value: (left, right) =>
-      left.concat(Array.isArray(right) ? right : [right]),
+  messages: {
+    value: (left, right) => left.concat(Array.isArray(right) ? right : [right]),
     default: () => [],
   },
-query: null,
-cypher: null,
-context: null,
-answer: null,
-}
+  query: null,
+  cypher: null,
+  context: null,
+  answer: null,
+};
 
 // ----------------------
 // 步骤1：解析问题
 // ----------------------
-asyncfunction parseQuestion(state) {
-const lastMessage = state.messages[state.messages.length - 1]
-return { query: lastMessage.content }
+async function parseQuestion(state) {
+  const lastMessage = state.messages[state.messages.length - 1];
+  return { query: lastMessage.content };
 }
 
 // ----------------------
 // 步骤2：生成 Cypher
 // ----------------------
-asyncfunction generateCypher(state) {
-    const prompt = `
+async function generateCypher(state) {
+  const prompt = `
       你是一个专业的 Neo4j Cypher 生成器。
       严格按照下面的结构生成正确语句，只返回纯 Cypher 代码，不要任何解释、不要标点、不要 markdown。
 
@@ -355,90 +360,90 @@ asyncfunction generateCypher(state) {
       3. 只返回最终可运行的 Cypher 语句
 
       用户问题：${state.query}
-    `
-    const res = await llm.invoke([new HumanMessage(prompt)])
-    return { cypher: res.content }
-  }
+    `;
+  const res = await llm.invoke([new HumanMessage(prompt)]);
+  return { cypher: res.content };
+}
 
 // ----------------------
 // 步骤3：执行图查询
 // ----------------------
-asyncfunction executeGraphQuery(state) {
-try {
-    const res = await graph.query(state.cypher)
-    return { context: JSON.stringify(res) }
+async function executeGraphQuery(state) {
+  try {
+    const res = await graph.query(state.cypher);
+    return { context: JSON.stringify(res) };
   } catch (e) {
-    return { context: '未查询到相关知识' }
+    return { context: "未查询到相关知识" };
   }
 }
 
 // ----------------------
 // 步骤4：生成答案
 // ----------------------
-asyncfunction generateAnswer(state) {
-const prompt = `
+async function generateAnswer(state) {
+  const prompt = `
     你是奶茶专家，根据下方「检索结果」回答用户问题；检索结果为空或不足时简要说明无法从图谱得到答案，不要编造。
     回答要求：
     - 直接列出事实，不要推断图谱里未出现的配料（如水、冰、添加剂等）。
 
     检索结果：${state.context}
     用户问题：${state.query}
-  `
-const res = await llm.invoke([new HumanMessage(prompt)])
-return { answer: res.content }
+  `;
+  const res = await llm.invoke([new HumanMessage(prompt)]);
+  return { answer: res.content };
 }
 
 // ----------------------
 // 构建 LangGraph 工作流
 // ----------------------
 const workflow = new StateGraph({ channels: state })
-  .addNode('parse', parseQuestion)
-  .addNode('generateCypher', generateCypher)
-  .addNode('executeGraph', executeGraphQuery)
-  .addNode('generateAnswer', generateAnswer)
-  .addEdge(START, 'parse')
-  .addEdge('parse', 'generateCypher')
-  .addEdge('generateCypher', 'executeGraph')
-  .addEdge('executeGraph', 'generateAnswer')
-  .addEdge('generateAnswer', END)
+  .addNode("parse", parseQuestion)
+  .addNode("generateCypher", generateCypher)
+  .addNode("executeGraph", executeGraphQuery)
+  .addNode("generateAnswer", generateAnswer)
+  .addEdge(START, "parse")
+  .addEdge("parse", "generateCypher")
+  .addEdge("generateCypher", "executeGraph")
+  .addEdge("executeGraph", "generateAnswer")
+  .addEdge("generateAnswer", END);
 
-const app = workflow.compile()
+const app = workflow.compile();
 
-asyncfunction printWorkflowMermaid() {
-const drawable = await app.getGraphAsync()
-const mermaid = drawable.drawMermaid({ withStyles: true })
-console.log('--- LangGraph 工作流 (Mermaid) ---')
-console.log(mermaid)
-console.log('-----------------------------------------------------------')
+async function printWorkflowMermaid() {
+  const drawable = await app.getGraphAsync();
+  const mermaid = drawable.drawMermaid({ withStyles: true });
+  console.log("--- LangGraph 工作流 (Mermaid) ---");
+  console.log(mermaid);
+  console.log("----------------------------------------------------------");
 }
 
 // ----------------------
 // 运行 GraphRAG
 // ----------------------
-asyncfunction runGraphRAG(question) {
-const res = await app.invoke({
+async function runGraphRAG(question) {
+  const res = await app.invoke({
     messages: [new HumanMessage(question)],
-  })
+  });
 
-console.log('======================================')
-console.log('用户问题：', question)
-console.log('生成 Cypher：', res.cypher)
-console.log('检索结果：', res.context)
-console.log('最终回答：', res.answer)
-console.log('======================================')
+  console.log("======================================");
+  console.log("用户问题：", question);
+  console.log("生成 Cypher：", res.cypher);
+  console.log("检索结果：", res.context);
+  console.log("最终回答：", res.answer);
+  console.log("======================================");
 }
 
 // ======================
 // 测试
 // ======================
-;(async () => {
-await printWorkflowMermaid()
-awaitPromise.all([
-    runGraphRAG('我们这款珍珠奶茶有哪些配料？'),
-    runGraphRAG('台式奶茶的饮品都有哪些配料？'),
-    runGraphRAG('珍珠奶茶适合哪些人群饮用？'),
-  ])
-})().catch(console.error)
+(async () => {
+  await printWorkflowMermaid();
+  awaitPromise.all([
+    runGraphRAG("我们这款珍珠奶茶有哪些配料？"),
+    runGraphRAG("台式奶茶的饮品都有哪些配料？"),
+    runGraphRAG("珍珠奶茶适合哪些人群饮用？"),
+  ]);
+})().catch(console.error);
 ```
 
 ![image-20260729174331283](https://img.xiaojunnan.cn/image-20260729174331283.png)

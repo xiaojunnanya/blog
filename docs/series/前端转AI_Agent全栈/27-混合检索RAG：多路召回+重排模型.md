@@ -39,13 +39,13 @@ keywords: [AI]
 在es-test里添加 src/create.mjs
 
 ```js
-import { Client } from '@elastic/elasticsearch';
+import { Client } from "@elastic/elasticsearch";
 
 const client = new Client({
-  node: 'http://localhost:9200'
+  node: "http://localhost:9200",
 });
 
-const INDEX_NAME = 'travel_journal';
+const INDEX_NAME = "travel_journal";
 
 async function createIndex() {
   const exists = await client.indices.exists({ index: INDEX_NAME });
@@ -58,15 +58,23 @@ async function createIndex() {
     index: INDEX_NAME,
     mappings: {
       properties: {
-        note_title: { type: 'text', analyzer: 'ik_max_word', search_analyzer: 'ik_smart' },
-        note_body: { type: 'text', analyzer: 'ik_max_word', search_analyzer: 'ik_smart' },
-        tags: { type: 'keyword' },
-        mood: { type: 'keyword' },
-        priority: { type: 'integer' },
-        created_at: { type: 'date' },
-        updated_at: { type: 'date' }
-      }
-    }
+        note_title: {
+          type: "text",
+          analyzer: "ik_max_word",
+          search_analyzer: "ik_smart",
+        },
+        note_body: {
+          type: "text",
+          analyzer: "ik_max_word",
+          search_analyzer: "ik_smart",
+        },
+        tags: { type: "keyword" },
+        mood: { type: "keyword" },
+        priority: { type: "integer" },
+        created_at: { type: "date" },
+        updated_at: { type: "date" },
+      },
+    },
   });
 
   console.log(`✅ 索引创建成功: ${INDEX_NAME}`);
@@ -76,35 +84,38 @@ async function seedData() {
   const now = new Date().toISOString();
   const docs = [
     {
-      note_title: '杭州西湖半日游',
-      note_body: '早上绕湖慢跑，中午吃片儿川，下午在断桥拍照放松。',
-      tags: ['旅行', '周末', '杭州'],
-      mood: 'relaxed',
+      note_title: "杭州西湖半日游",
+      note_body: "早上绕湖慢跑，中午吃片儿川，下午在断桥拍照放松。",
+      tags: ["旅行", "周末", "杭州"],
+      mood: "relaxed",
       priority: 2,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     },
     {
-      note_title: '城市骑行计划',
-      note_body: '周六沿江骑行 20 公里，带上水和简易修车工具。',
-      tags: ['运动', '骑行'],
-      mood: 'energetic',
+      note_title: "城市骑行计划",
+      note_body: "周六沿江骑行 20 公里，带上水和简易修车工具。",
+      tags: ["运动", "骑行"],
+      mood: "energetic",
       priority: 3,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     },
     {
-      note_title: '雨天宅家阅读',
-      note_body: '下雨天在家看书，整理本周笔记并做晚餐。',
-      tags: ['生活', '阅读'],
-      mood: 'calm',
+      note_title: "雨天宅家阅读",
+      note_body: "下雨天在家看书，整理本周笔记并做晚餐。",
+      tags: ["生活", "阅读"],
+      mood: "calm",
       priority: 1,
       created_at: now,
-      updated_at: now
-    }
+      updated_at: now,
+    },
   ];
 
-  const operations = docs.flatMap((doc) => [{ index: { _index: INDEX_NAME } }, doc]);
+  const operations = docs.flatMap((doc) => [
+    { index: { _index: INDEX_NAME } },
+    doc,
+  ]);
   await client.bulk({ refresh: true, operations });
   console.log(`✅ 初始化数据完成，共 ${docs.length} 条`);
 }
@@ -115,7 +126,7 @@ async function run() {
 }
 
 run().catch((err) => {
-  console.error('❌ 创建阶段失败:', err);
+  console.error("❌ 创建阶段失败:", err);
   process.exit(1);
 });
 ```
@@ -129,40 +140,40 @@ run().catch((err) => {
 src/operate.mjs
 
 ```js
-import { Client } from '@elastic/elasticsearch';
+import { Client } from "@elastic/elasticsearch";
 
 const client = new Client({
-  node: 'http://localhost:9200'
+  node: "http://localhost:9200",
 });
 
-const INDEX_NAME = 'travel_journal';
+const INDEX_NAME = "travel_journal";
 
 async function createDocument() {
   const now = new Date().toISOString();
   const res = await client.index({
     index: INDEX_NAME,
     document: {
-      note_title: '夜跑复盘',
-      note_body: '今天夜跑 5 公里，配速稳定，结束后做了拉伸。',
-      tags: ['运动', '夜跑'],
-      mood: 'focused',
+      note_title: "夜跑复盘",
+      note_body: "今天夜跑 5 公里，配速稳定，结束后做了拉伸。",
+      tags: ["运动", "夜跑"],
+      mood: "focused",
       priority: 2,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     },
-    refresh: true
+    refresh: true,
   });
 
-  console.log('✅ 新增成功，ID =', res._id);
+  console.log("✅ 新增成功，ID =", res._id);
   return res._id;
 }
 
 async function getDocument(docId) {
   const res = await client.get({
     index: INDEX_NAME,
-    id: docId
+    id: docId,
   });
-  console.log('📖 查询结果:', res._source);
+  console.log("📖 查询结果:", res._source);
 }
 
 async function updateDocument(docId) {
@@ -170,13 +181,13 @@ async function updateDocument(docId) {
     index: INDEX_NAME,
     id: docId,
     doc: {
-      note_body: '今天夜跑 6 公里，状态不错，拉伸后恢复很快。',
-      tags: ['运动', '夜跑', '训练'],
-      updated_at: new Date().toISOString()
+      note_body: "今天夜跑 6 公里，状态不错，拉伸后恢复很快。",
+      tags: ["运动", "夜跑", "训练"],
+      updated_at: new Date().toISOString(),
     },
-    refresh: true
+    refresh: true,
   });
-  console.log('🔄 更新成功');
+  console.log("🔄 更新成功");
 }
 
 async function searchDocuments() {
@@ -185,34 +196,34 @@ async function searchDocuments() {
     query: {
       match: {
         note_body: {
-          query: '慢跑以及骑行的数据',
-          analyzer: 'ik_smart'
-        }
-      }
-    }
+          query: "慢跑以及骑行的数据",
+          analyzer: "ik_smart",
+        },
+      },
+    },
   });
 
   const rows = res.hits.hits.map((item) => ({
     id: item._id,
-    ...item._source
+    ...item._source,
   }));
-  console.log('🔍 搜索结果:', rows);
+  console.log("🔍 搜索结果:", rows);
 }
 
 async function deleteDocument(docId) {
   await client.delete({
     index: INDEX_NAME,
     id: docId,
-    refresh: true
+    refresh: true,
   });
-  console.log('🗑️ 删除成功');
+  console.log("🗑️ 删除成功");
 }
 
 async function run() {
   // const docId = await createDocument();
   // await getDocument(docId);
   // console.log('docId', docId);
-  const docId = 'IeGE550BzfcVl_0hJv5m';
+  const docId = "IeGE550BzfcVl_0hJv5m";
   // await updateDocument(docId);
   // await getDocument(docId);
   // await searchDocuments();
@@ -221,7 +232,7 @@ async function run() {
 }
 
 run().catch((err) => {
-  console.error('❌ 操作阶段失败:', err);
+  console.error("❌ 操作阶段失败:", err);
   process.exit(1);
 });
 ```
@@ -333,7 +344,6 @@ import "dotenv/config";
 import { BaseDocumentCompressor } from "@langchain/core/retrievers/document_compressors";
 
 export class DashScopeRerank extends BaseDocumentCompressor {
-
   constructor({ apiKey, model = "qwen3-rerank", topN = 3, baseUrl } = {}) {
     super();
     this.apiKey = apiKey;
@@ -392,33 +402,34 @@ import { Document } from "@langchain/core/documents";
 import { DashScopeRerank } from "./dashscope-rerank.mjs";
 
 async function main() {
-    const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
 
-    const compressor = new DashScopeRerank({ apiKey, topN: 3 });
+  const compressor = new DashScopeRerank({ apiKey, topN: 3 });
 
-    const query = "什么是文本排序模型";
-    const docs = [
-        new Document({
-            pageContent:
-                "预训练语言模型的发展给文本排序模型带来了新的进展",
-        }),
-        new Document({
-            pageContent: "量子计算是计算科学的一个前沿领域",
-        }),
-        new Document({
-            pageContent: "文本排序模型广泛用于搜索引擎和推荐系统中…",
-        }),
-    ];
+  const query = "什么是文本排序模型";
+  const docs = [
+    new Document({
+      pageContent: "预训练语言模型的发展给文本排序模型带来了新的进展",
+    }),
+    new Document({
+      pageContent: "量子计算是计算科学的一个前沿领域",
+    }),
+    new Document({
+      pageContent: "文本排序模型广泛用于搜索引擎和推荐系统中…",
+    }),
+  ];
 
-    const ranked = await compressor.compressDocuments(docs, query);
-    console.log("重排后顺序（pageContent）：");
-    for (const d of ranked) {
-        console.log("-", d.pageContent);
-    }
+  const ranked = await compressor.compressDocuments(docs, query);
+  console.log("重排后顺序（pageContent）：");
+  for (const d of ranked) {
+    console.log("-", d.pageContent);
+  }
 }
 
-main()
+main();
 ```
+
+【视频】
 
 代码里调用es做关键词搜索，调用rerank模型来做问题和文档相关性排序“都实现了
 
@@ -852,7 +863,7 @@ async function main() {
 main();
 ```
 
-
+【视频】
 
 文档分别插入了ES的索引，Milvus的集合
 
@@ -900,7 +911,6 @@ function normalizeThreeQueries(original, list) {
   return out.slice(0, 3);
 }
 
-
 export async function augmentQuery(chatModel, query) {
   const structured = chatModel.withStructuredOutput(QueryAugmentationSchema);
   const chain = AUGMENT_PROMPT.pipe(structured);
@@ -939,10 +949,7 @@ import { Milvus } from "@langchain/community/vectorstores/milvus";
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
 import { DashScopeRerank } from "../rerank/dashscope-rerank.mjs";
-import {
-  augmentQuery,
-  retrievalQueryStrings,
-} from "./query-augment.mjs";
+import { augmentQuery, retrievalQueryStrings } from "./query-augment.mjs";
 
 const INDEX = "life_notes";
 
@@ -981,8 +988,7 @@ function dedupeDocsById(docs) {
   const out = [];
   for (const d of docs ?? []) {
     if (!d?.pageContent) continue;
-    const id =
-      d.metadata?.id != null ? String(d.metadata.id).trim() : "";
+    const id = d.metadata?.id != null ? String(d.metadata.id).trim() : "";
     if (!id) continue;
     if (seen.has(id)) continue;
     seen.add(id);
@@ -1008,7 +1014,8 @@ function printQueryRewrite(original, augmentation) {
 
   console.log(`\n--- 查询扩展（LLM 生成 ${qs.length} 条检索问句）---`);
   console.log("原始 query:", original ?? "");
-  for (let i = 0; i < qs.length; i++) console.log(`  [${i + 1}] ${qs[i] ?? ""}`);
+  for (let i = 0; i < qs.length; i++)
+    console.log(`  [${i + 1}] ${qs[i] ?? ""}`);
   console.log(
     `\n逐条 ES + Milvus（共 ${forRetrieval.length} 条检索串，含原始问题）:`,
   );
@@ -1033,7 +1040,9 @@ function formatDocsAsContext(docs) {
       const meta = d.metadata ?? {};
       const src = meta.source ?? "";
       const id = meta.id != null ? String(meta.id) : "";
-      const head = id ? `[${i + 1}] id=${id}${src ? ` source=${src}` : ""}` : `[${i + 1}]`;
+      const head = id
+        ? `[${i + 1}] id=${id}${src ? ` source=${src}` : ""}`
+        : `[${i + 1}]`;
       return `${head}\n${d.pageContent ?? ""}`;
     })
     .join("\n\n---\n\n");
@@ -1066,7 +1075,12 @@ const NO_CONTEXT_PROMPT = ChatPromptTemplate.fromMessages([
   ["human", "用户问题：{query}"],
 ]);
 
-export function compileHybridRetrievalGraph(esClient, milvus, reranker, chatModel) {
+export function compileHybridRetrievalGraph(
+  esClient,
+  milvus,
+  reranker,
+  chatModel,
+) {
   const ES_K = 15;
   const MILVUS_K = 15;
 
@@ -1115,7 +1129,10 @@ export function compileHybridRetrievalGraph(esClient, milvus, reranker, chatMode
     .addNode("rerank", async (state) => {
       const merged = state.merged ?? [];
       if (!merged.length) return { topDocuments: [] };
-      const topDocuments = await reranker.compressDocuments(merged, state.query);
+      const topDocuments = await reranker.compressDocuments(
+        merged,
+        state.query,
+      );
       return { topDocuments };
     })
     .addNode("generate_answer", async (state) => {
@@ -1170,8 +1187,7 @@ const chatModel = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   temperature: 0.2,
   configuration: {
-    baseURL:
-      process.env.OPENAI_BASE_URL
+    baseURL: process.env.OPENAI_BASE_URL,
   },
 });
 
@@ -1183,7 +1199,12 @@ const SAMPLE_QUERIES = [
   // "明火炖太久汤汁又黏又涩，起锅前要怎么处理才不腻",
 ];
 
-const graph = compileHybridRetrievalGraph(esClient, milvus, reranker, chatModel);
+const graph = compileHybridRetrievalGraph(
+  esClient,
+  milvus,
+  reranker,
+  chatModel,
+);
 
 const drawable = await graph.getGraphAsync();
 console.log(drawable.drawMermaid());

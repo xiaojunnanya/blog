@@ -57,13 +57,13 @@ LANGCHAIN_TRACING_V2 是开启追踪
 
 只要加上这几个环境变量跑，不需要做什么，就会自动上报 trace 数据：
 
-
+【视频】
 
 这个是 trigger-error.mjs
 
 ```js
 import "dotenv/config";
-import { Annotation, END, START, StateGraph } from"@langchain/langgraph";
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
 
 /**
  * 故意在图节点里抛错，用于验证 LangSmith / 本地日志是否能看到失败 run。
@@ -73,16 +73,16 @@ import { Annotation, END, START, StateGraph } from"@langchain/langgraph";
  * 仅保留 await graph.invoke(...)。
  */
 const StateAnnotation = Annotation.Root({
-text: Annotation({
+  text: Annotation({
     reducer: (_prev, next) => next,
-    default: () =>"",
+    default: () => "",
   }),
 });
 
 const stepOk = (state) => ({ text: `${state.text}[ok]` });
 
 const stepThrow = () => {
-thrownewError("DemoError: 节点内故意抛错（trigger-error.mjs）");
+  thrownewError("DemoError: 节点内故意抛错（trigger-error.mjs）");
 };
 
 const graph = new StateGraph(StateAnnotation)
@@ -94,10 +94,10 @@ const graph = new StateGraph(StateAnnotation)
   .compile();
 
 try {
-await graph.invoke({ text: "start" });
-console.log("不应执行到这里");
+  await graph.invoke({ text: "start" });
+  console.log("不应执行到这里");
 } catch (err) {
-console.error("已捕获:", err?.message ?? err);
+  console.error("已捕获:", err?.message ?? err);
   process.exitCode = 1;
 }
 ```
@@ -222,47 +222,52 @@ src/milvus_insert.mjs
 
 ```js
 import "dotenv/config";
-import { existsSync, readFileSync, readdirSync } from"fs";
-import { join } from"path";
-import { MilvusClient, DataType, IndexType, MetricType } from"@zilliz/milvus2-sdk-node";
-import { RecursiveCharacterTextSplitter } from"@langchain/textsplitters";
-import { OpenAIEmbeddings } from"@langchain/openai";
+import { existsSync, readFileSync, readdirSync } from "fs";
+import { join } from "path";
+import {
+  MilvusClient,
+  DataType,
+  IndexType,
+  MetricType,
+} from "@zilliz/milvus2-sdk-node";
+import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import { OpenAIEmbeddings } from "@langchain/openai";
 
 const COLLECTION = process.env.MILVUS_COLLECTION ?? "rag_docs";
 const MILVUS_ADDRESS =
   process.env.MILVUS_URI?.replace(/^https?:\/\//, "") ?? "localhost:19530";
 
 const embeddings = new OpenAIEmbeddings({
-apiKey: process.env.OPENAI_API_KEY,
-model: process.env.EMBEDDING_MODEL ?? "text-embedding-v3",
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  apiKey: process.env.OPENAI_API_KEY,
+  model: process.env.EMBEDDING_MODEL ?? "text-embedding-v3",
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
 });
 
 const client = new MilvusClient({ address: MILVUS_ADDRESS });
 
-asyncfunction loadChunks(dataDir = "./data") {
-if (!existsSync(dataDir)) {
+async function loadChunks(dataDir = "./data") {
+  if (!existsSync(dataDir)) {
     thrownewError(`数据目录不存在: ${dataDir}`);
   }
-const files = readdirSync(dataDir).filter((f) =>/\.(txt|md)$/i.test(f));
-if (files.length === 0) {
+  const files = readdirSync(dataDir).filter((f) => /\.(txt|md)$/i.test(f));
+  if (files.length === 0) {
     thrownewError(`目录内无 .txt/.md 文件: ${dataDir}`);
   }
 
-const docs = files.map((f) => ({
+  const docs = files.map((f) => ({
     pageContent: readFileSync(join(dataDir, f), "utf-8"),
     metadata: { source: f },
   }));
 
-const splitter = new RecursiveCharacterTextSplitter({
+  const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 500,
     chunkOverlap: 50,
   });
-return splitter.splitDocuments(docs);
+  return splitter.splitDocuments(docs);
 }
 
-asyncfunction main() {
-try {
+async function main() {
+  try {
     console.log("Connecting to Milvus...");
     await client.connectPromise;
     console.log("✓ Connected\n");
@@ -291,7 +296,11 @@ try {
           autoID: true,
         },
         { name: "langchain_vector", data_type: DataType.FloatVector, dim },
-        { name: "langchain_text", data_type: DataType.VarChar, max_length: 8000 },
+        {
+          name: "langchain_text",
+          data_type: DataType.VarChar,
+          max_length: 8000,
+        },
         { name: "source", data_type: DataType.VarChar, max_length: 256 },
       ],
     });
@@ -342,29 +351,29 @@ src/rag_agent.mjs
 
 ```js
 import "dotenv/config";
-import { Annotation, END, START, StateGraph } from"@langchain/langgraph";
-import { ChatPromptTemplate } from"@langchain/core/prompts";
-import { StringOutputParser } from"@langchain/core/output_parsers";
-import { RunnableSequence } from"@langchain/core/runnables";
-import { ChatOpenAI, OpenAIEmbeddings } from"@langchain/openai";
-import { Milvus } from"@langchain/community/vectorstores/milvus";
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { RunnableSequence } from "@langchain/core/runnables";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { Milvus } from "@langchain/community/vectorstores/milvus";
 
 const embeddings = new OpenAIEmbeddings({
-apiKey: process.env.OPENAI_API_KEY,
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
-model: process.env.EMBEDDING_MODEL ?? "text-embedding-v3",
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  model: process.env.EMBEDDING_MODEL ?? "text-embedding-v3",
 });
 
 const llm = new ChatOpenAI({
-apiKey: process.env.OPENAI_API_KEY,
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
-model: process.env.MODEL_NAME ?? "qwen-plus",
-temperature: 0,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  model: process.env.MODEL_NAME ?? "qwen-plus",
+  temperature: 0,
 });
 
 const vectorStore = await Milvus.fromExistingCollection(embeddings, {
-collectionName: process.env.MILVUS_COLLECTION ?? "rag_docs",
-url: process.env.MILVUS_URI ?? "http://localhost:19530",
+  collectionName: process.env.MILVUS_COLLECTION ?? "rag_docs",
+  url: process.env.MILVUS_URI ?? "http://localhost:19530",
 });
 
 const retriever = vectorStore.asRetriever({ k: 4 });
@@ -380,23 +389,23 @@ const prompt = ChatPromptTemplate.fromMessages([
 const chain = RunnableSequence.from([prompt, llm, new StringOutputParser()]);
 
 const GraphState = Annotation.Root({
-question: Annotation,
-context: Annotation,
-answer: Annotation,
+  question: Annotation,
+  context: Annotation,
+  answer: Annotation,
 });
 
-asyncfunction retrieve(state) {
-const docs = await retriever.invoke(state.question);
-return { context: docs };
+async function retrieve(state) {
+  const docs = await retriever.invoke(state.question);
+  return { context: docs };
 }
 
-asyncfunction generate(state) {
-const contextText = state.context.map((d) => d.pageContent).join("\n\n");
-const answer = await chain.invoke({
+async function generate(state) {
+  const contextText = state.context.map((d) => d.pageContent).join("\n\n");
+  const answer = await chain.invoke({
     context: contextText,
     question: state.question,
   });
-return { answer };
+  return { answer };
 }
 
 const workflow = new StateGraph(GraphState)
@@ -406,11 +415,11 @@ const workflow = new StateGraph(GraphState)
   .addEdge("retrieve", "generate")
   .addEdge("generate", END);
 
-exportconst ragApp = workflow.compile();
+export const ragApp = workflow.compile();
 
-exportasyncfunction ask(question) {
-const result = await ragApp.invoke({ question });
-return {
+export async function ask(question) {
+  const result = await ragApp.invoke({ question });
+  return {
     answer: result.answer,
     context: result.context ?? [],
   };
@@ -423,42 +432,42 @@ return {
 
 ```js
 import "dotenv/config";
-import { ask } from"./rag_agent.mjs";
+import { ask } from "./rag_agent.mjs";
 
 const DEFAULT_QUESTIONS = [
-"无理由退货要在几天内？",
-"满多少元包邮？",
-"金卡会员有什么折扣？",
-"电子发票多久能开好？",
-"手机保修多久？",
-"紧急问题怎么联系客服？",
+  "无理由退货要在几天内？",
+  "满多少元包邮？",
+  "金卡会员有什么折扣？",
+  "电子发票多久能开好？",
+  "手机保修多久？",
+  "紧急问题怎么联系客服？",
 ];
 
 const args = process.argv.slice(2);
 const questions = args.length > 0 ? [args.join(" ")] : DEFAULT_QUESTIONS;
 
 function printContext(context) {
-if (!context.length) {
+  if (!context.length) {
     console.log("\n引用片段: （无）");
     return;
   }
-// console.log("\n引用片段:");
-// context.forEach((doc, i) => {
-//   const source = doc.metadata?.source ?? "未知";
-//   const text = doc.pageContent.replace(/\s+/g, " ").trim();
-//   const preview = text.length > 100 ? `${text.slice(0, 100)}…` : text;
-//   console.log(`  [${i + 1}] ${source}`);
-//   console.log(`      ${preview}`);
-// });
+  // console.log("\n引用片段:");
+  // context.forEach((doc, i) => {
+  //   const source = doc.metadata?.source ?? "未知";
+  //   const text = doc.pageContent.replace(/\s+/g, " ").trim();
+  //   const preview = text.length > 100 ? `${text.slice(0, 100)}…` : text;
+  //   console.log(`  [${i + 1}] ${source}`);
+  //   console.log(`      ${preview}`);
+  // });
 }
 
 for (let i = 0; i < questions.length; i++) {
-const question = questions[i];
-console.log(`\n${"=".repeat(50)}`);
-console.log(`问题 ${i + 1}: ${question}`);
+  const question = questions[i];
+  console.log(`\n${"=".repeat(50)}`);
+  console.log(`问题 ${i + 1}: ${question}`);
 
-const { answer, context } = await ask(question);
-console.log(`\n答: ${answer}`);
+  const { answer, context } = await ask(question);
+  console.log(`\n答: ${answer}`);
   printContext(context);
 }
 
@@ -492,9 +501,9 @@ RAG 的 Agent 跑通后，我们来做一下 RAG 的评估。
 
 src/eval/build_dataset.mjs
 
-```
+```js
 import "dotenv/config";
-import { Client } from"langsmith";
+import { Client } from "langsmith";
 
 const DATASET_NAME = "rag-eval-v1";
 
@@ -513,7 +522,9 @@ const EXAMPLES = [
   },
   {
     inputs: { question: "客服工作时间是什么？" },
-    outputs: { answer: "周一至周五 9:00-18:00，周六 10:00-17:00，法定节假日顺延。" },
+    outputs: {
+      answer: "周一至周五 9:00-18:00，周六 10:00-17:00，法定节假日顺延。",
+    },
   },
   {
     inputs: { question: "满多少元包邮？" },
@@ -526,7 +537,8 @@ const EXAMPLES = [
   {
     inputs: { question: "支持哪些支付方式？" },
     outputs: {
-      answer: "支持微信支付、支付宝、银联云闪付、花呗/信用卡分期（满 500 元可选 3/6/12 期）。",
+      answer:
+        "支持微信支付、支付宝、银联云闪付、花呗/信用卡分期（满 500 元可选 3/6/12 期）。",
     },
   },
   {
@@ -551,11 +563,11 @@ const EXAMPLES = [
   },
 ];
 
-asyncfunction main() {
-const client = new Client({ apiKey: process.env.LANGCHAIN_API_KEY });
+async function main() {
+  const client = new Client({ apiKey: process.env.LANGCHAIN_API_KEY });
 
-let dataset;
-try {
+  let dataset;
+  try {
     dataset = await client.readDataset({ datasetName: DATASET_NAME });
     console.log(`数据集已存在: ${DATASET_NAME}`);
   } catch {
@@ -565,7 +577,7 @@ try {
     console.log(`已创建数据集: ${DATASET_NAME}`);
   }
 
-const created = await client.createExamples(
+  const created = await client.createExamples(
     EXAMPLES.map((e) => ({
       dataset_id: dataset.id,
       inputs: e.inputs,
@@ -573,11 +585,11 @@ const created = await client.createExamples(
     })),
   );
 
-console.log(`已创建 ${created.length} 条样例`);
+  console.log(`已创建 ${created.length} 条样例`);
 }
 
 main().catch((err) => {
-console.error(err);
+  console.error(err);
   process.exit(1);
 });
 ```
@@ -585,6 +597,8 @@ console.error(err);
 安装 langsmith 包：`pnpm install langsmith`
 
 跑一下
+
+【视频】
 
 然后我们来创建 evaluator 跑下评估
 
@@ -603,59 +617,59 @@ import {
   RAG_GROUNDEDNESS_PROMPT,
   RAG_HELPFULNESS_PROMPT,
   RAG_RETRIEVAL_RELEVANCE_PROMPT,
-} from"openevals";
-import { ChatOpenAI } from"@langchain/openai";
+} from "openevals";
+import { ChatOpenAI } from "@langchain/openai";
 
 const judge = new ChatOpenAI({
-apiKey: process.env.OPENAI_API_KEY,
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
-model: process.env.MODEL_NAME ?? "qwen-plus",
-temperature: 0,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  model: process.env.MODEL_NAME ?? "qwen-plus",
+  temperature: 0,
 });
 
 // RAG_GROUNDEDNESS_PROMPT —— 忠实度：答案是否被检索上下文支撑，有无幻觉
 const ragGroundednessJudge = createLLMAsJudge({
-prompt: RAG_GROUNDEDNESS_PROMPT,
-feedbackKey: "rag_groundedness",
+  prompt: RAG_GROUNDEDNESS_PROMPT,
+  feedbackKey: "rag_groundedness",
   judge,
-continuous: true,
+  continuous: true,
 });
 
 // RAG_HELPFULNESS_PROMPT —— 回答有用性：是否切题、是否答非所问
 const ragHelpfulnessJudge = createLLMAsJudge({
-prompt: RAG_HELPFULNESS_PROMPT,
-feedbackKey: "rag_helpfulness",
+  prompt: RAG_HELPFULNESS_PROMPT,
+  feedbackKey: "rag_helpfulness",
   judge,
-continuous: true,
+  continuous: true,
 });
 
 // RAG_RETRIEVAL_RELEVANCE_PROMPT —— 检索相关性：召回片段与问题是否相关
 const ragRetrievalRelevanceJudge = createLLMAsJudge({
-prompt: RAG_RETRIEVAL_RELEVANCE_PROMPT,
-feedbackKey: "rag_retrieval_relevance",
+  prompt: RAG_RETRIEVAL_RELEVANCE_PROMPT,
+  feedbackKey: "rag_retrieval_relevance",
   judge,
-continuous: true,
+  continuous: true,
 });
 
-exportasyncfunction ragGroundednessEvaluator({ outputs }) {
-return ragGroundednessJudge({
+export async function ragGroundednessEvaluator({ outputs }) {
+  return ragGroundednessJudge({
     context: { documents: outputs.context },
     outputs: { answer: outputs.answer },
   });
 }
 
-exportasyncfunction ragHelpfulnessEvaluator({ inputs, outputs }) {
-return ragHelpfulnessJudge({ inputs, outputs: { answer: outputs.answer } });
+export async function ragHelpfulnessEvaluator({ inputs, outputs }) {
+  return ragHelpfulnessJudge({ inputs, outputs: { answer: outputs.answer } });
 }
 
-exportasyncfunction ragRetrievalRelevanceEvaluator({ inputs, outputs }) {
-return ragRetrievalRelevanceJudge({
+export async function ragRetrievalRelevanceEvaluator({ inputs, outputs }) {
+  return ragRetrievalRelevanceJudge({
     inputs,
     context: { documents: outputs.context },
   });
 }
 
-exportconst ragEvaluators = [
+export const ragEvaluators = [
   ragGroundednessEvaluator,
   ragHelpfulnessEvaluator,
   ragRetrievalRelevanceEvaluator,
@@ -676,26 +690,26 @@ src/evals/run_eval.mjs
 /**
  * RAG 评测入口：dataset（问题+标准答案） + evaluate
  */
-import"dotenv/config";
-import { Client } from"langsmith";
-import { evaluate } from"langsmith/evaluation";
-import { ask } from"../rag_agent.mjs";
-import { ragEvaluators } from"./evaluators.mjs";
+import "dotenv/config";
+import { Client } from "langsmith";
+import { evaluate } from "langsmith/evaluation";
+import { ask } from "../rag_agent.mjs";
+import { ragEvaluators } from "./evaluators.mjs";
 
 const DATASET_NAME = "rag-eval-v1";
 const client = new Client({ apiKey: process.env.LANGCHAIN_API_KEY });
 
 /** 被评测的 RAG Agent */
-asyncfunction runRagAgent(inputs) {
-const { answer, context } = await ask(inputs.question);
-return {
+async function runRagAgent(inputs) {
+  const { answer, context } = await ask(inputs.question);
+  return {
     answer,
     context: context.map((d) => d.pageContent),
   };
 }
 
-asyncfunction main() {
-const result = await evaluate(runRagAgent, {
+async function main() {
+  const result = await evaluate(runRagAgent, {
     data: DATASET_NAME,
     evaluators: ragEvaluators,
     client,
@@ -703,24 +717,24 @@ const result = await evaluate(runRagAgent, {
     maxConcurrency: 2,
   });
 
-// 等待全部样例跑完
-forawait (const _row of result) {
+  // 等待全部样例跑完
+  for await (const _row of result) {
     /* drain */
   }
 
-const project = process.env.LANGCHAIN_PROJECT ?? "default";
-console.log("✅ 评测完成");
-console.log("实验名:", result.experimentName);
-console.log(
+  const project = process.env.LANGCHAIN_PROJECT ?? "default";
+  console.log("✅ 评测完成");
+  console.log("实验名:", result.experimentName);
+  console.log(
     "指标: rag_groundedness | rag_helpfulness | rag_retrieval_relevance",
   );
-console.log(
+  console.log(
     `报告: https://smith.langchain.com/o/default/projects/p/${encodeURIComponent(project)}`,
   );
 }
 
 main().catch((err) => {
-console.error(err);
+  console.error(err);
   process.exit(1);
 });
 ```
@@ -735,11 +749,11 @@ console.error(err);
 
 这样跑一次评估叫做一次实验 experiment
 
-
+【视频】
 
 RAG 的量化评估，写简历必备的点。
 
-
+【视频】
 
 ## 总结
 
