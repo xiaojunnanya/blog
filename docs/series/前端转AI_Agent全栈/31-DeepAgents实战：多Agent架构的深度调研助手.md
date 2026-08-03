@@ -56,6 +56,8 @@ BOCHA_API_KEY=sk-xx
 
 这里用到网络搜索，配置下博查的apikey
 
+https://open.bochaai.com/api-keys
+
 
 
 ### 网络搜索的tool
@@ -145,7 +147,9 @@ export const webSearch = tool(
       query: z
         .string()
         .min(1)
-        .describe("搜索关键词，优先使用中文，例如：2026年 AI Agent 框架对比、LangGraph 最新动态"),
+        .describe(
+          "搜索关键词，优先使用中文，例如：2026年 AI Agent 框架对比、LangGraph 最新动态",
+        ),
       count: z
         .number()
         .int()
@@ -156,6 +160,7 @@ export const webSearch = tool(
     }),
   },
 );
+
 ```
 
 这个就是网络搜索的tool
@@ -328,7 +333,6 @@ export function createIntelligenceDeskAgent() {
     virtualMode: true,
   });
 
-  
   const chatModel = new ChatOpenAI({
     model,
     temperature: 0,
@@ -352,7 +356,7 @@ export function createIntelligenceDeskAgent() {
     backend,
     memory: [path.join(projectDir, "AGENTS.md")],
     skills: ["/skills/"],
-    subagents: [researcherSubAgent, editorSubAgent, analystSubAgent]
+    subagents: [researcherSubAgent, editorSubAgent, analystSubAgent],
   });
 }
 
@@ -467,7 +471,9 @@ function parseArgs(args) {
 function previewText(text, maxLen) {
   const oneLine = String(text).replace(/\s+/g, " ").trim();
   if (!oneLine) return "(empty)";
-  return oneLine.length <= maxLen ? oneLine : `${oneLine.slice(0, maxLen - 1)}…`;
+  return oneLine.length <= maxLen
+    ? oneLine
+    : `${oneLine.slice(0, maxLen - 1)}…`;
 }
 
 function trackEvalCalls(data, pendingEval) {
@@ -603,7 +609,9 @@ async function main() {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes("Recursion limit")) {
-      console.error(`\n❌ recursion limit (${recursionLimit}) — set RECURSION_LIMIT in .env`);
+      console.error(
+        `\n❌ recursion limit (${recursionLimit}) — set RECURSION_LIMIT in .env`,
+      );
     } else {
       console.error("\n❌", err);
     }
@@ -762,19 +770,15 @@ src/todo-middleware-test.mjs
 ```js
 import "dotenv/config";
 import { ChatOpenAI } from "@langchain/openai";
-import {
-  createAgent,
-  HumanMessage,
-  todoListMiddleware,
-} from "langchain";
+import { createAgent, HumanMessage, todoListMiddleware } from "langchain";
 
 const model = new ChatOpenAI({
   model: process.env.OPENAI_MODEL,
   apiKey: process.env.OPENAI_API_KEY,
   temperature: 0,
-  configuration: { 
-    baseURL: process.env.OPENAI_BASE_URL
-  }
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
 });
 
 const agent = createAgent({

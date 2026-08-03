@@ -616,59 +616,441 @@ export { users, conversations, messages };
 
 重点是语义检索这部分
 
-。。。。
+![image-20260802214845829](https://img.xiaojunnan.cn/image-20260802214845829.png)
+
+核心就是根据传入的向量和这个向量字段做相似度判断，排序后取前几条就可以了。
+
+其次是多表的关联查询：
+
+查询某个用户的所有会话：
+
+![image-20260802214900677](https://img.xiaojunnan.cn/image-20260802214900677.png)
+
+某个会话的所有消息：
+
+![image-20260802214909735](https://img.xiaojunnan.cn/image-20260802214909735.png)
 
 
 
+当然，这些 sql 不需要记住，大概理解就行，我们一般都是通过 ORM 框架才操作数据库。
+
+比如前面讲过的 TypeORM。
 
 
 
+## nest 试试
+
+```
+nest new typeorm-pg-crud
+
+pnpm install --save @nestjs/typeorm typeorm pg
+```
+
+在 AppModule 引入 typeorm：
+
+```js
+TypeOrmModule.forRoot({
+  	type: 'postgres',
+    host: 'localhost',
+    port: 5432,
+    username: 'user',
+    password: '123456',
+    database: 'hello_pg',
+    synchronize: true,
+    logging: true,
+    entities: []
+})
+```
+
+指定数据库连接信息、database
+
+然后分别创建 conversations 模块
+
+```
+nest g res conversations --no-spec
+```
+
+生成 CRUD 代码
+
+现在只有 conversation 的 Entity，我们补全entity
+
+entities/user.entity.ts
+
+```ts
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from'typeorm';
+import { Conversation } from'./conversation.entity';
+
+@Entity('users')
+exportclass User {
+  @PrimaryGeneratedColumn()
+id: number;
+
+  @Column({ type: 'text' })
+name: string;
+
+  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
+createdAt: Date;
+
+  @OneToMany(() => Conversation, (conversation) => conversation.user)
+conversations: Conversation[];
+}
+```
+
+entities/conversation.entity.ts
+
+```ts
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from'typeorm';
+import { User } from'./user.entity';
+import { Message } from'./message.entity';
+
+@Entity('conversations')
+exportclass Conversation {
+  @PrimaryGeneratedColumn()
+id: number;
+
+  @Column({ name: 'user_id' })
+userId: number;
+
+  @Column({ type: 'text', nullable: true })
+title: string | null;
+
+  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
+createdAt: Date;
+
+  @ManyToOne(() => User, (user) => user.conversations, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+user: User;
+
+  @OneToMany(() => Message, (message) => message.conversation)
+messages: Message[];
+}
+```
+
+entities/message.entity.ts
+
+```ts
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from'typeorm';
+import { Conversation } from'./conversation.entity';
+
+export enum MessageRole {
+  USER = 'user',
+  ASSISTANT = 'assistant',
+  SYSTEM = 'system',
+}
+
+@Entity('messages')
+exportclass Message {
+  @PrimaryGeneratedColumn()
+id: number;
+
+  @Column({ name: 'conversation_id' })
+conversationId: number;
+
+  @Column({
+    type: 'text',
+    enum: MessageRole,
+  })
+role: MessageRole;
+
+  @Column({ type: 'text' })
+content: string;
+
+  @Column('vector', { length: 1024, nullable: true })
+embedding: number[] | null;
+
+  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
+createdAt: Date;
+
+  @ManyToOne(() => Conversation, (conversation) => conversation.messages, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'conversation_id' })
+conversation: Conversation;
+}
+```
+
+这里主要是一对多关系的映射，需要用到 @OneToMany、@ManyToOne 的装饰器
+
+【视频】
+
+做好了表、列、一对多关系的映射
+
+在 entities 数组里引入下：
+
+![image-20260802215421191](https://img.xiaojunnan.cn/image-20260802215421191.png)
+
+这样我们就可以用 typeorm 做三个实体的 crud 了
+
+语义检索要用到嵌入模型
+
+改一下 conversations.service.ts
+
+```js
+import 'dotenv/config';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from'@nestjs/common';
+import { InjectEntityManager } from'@nestjs/typeorm';
+import { OpenAIEmbeddings } from'@langchain/openai';
+import { EntityManager } from'typeorm';
+import { User } from'./entities/user.entity';
+import { Conversation } from'./entities/conversation.entity';
+
+export interface SemanticSearchResult {
+id: number;
+  conversation_id: number;
+  role: string;
+  content: string;
+  created_at: Date;
+  similarity: number;
+}
+
+@Injectable()
+exportclass ConversationsService {
+  private embeddings: OpenAIEmbeddings | null = null;
+
+constructor(
+    @InjectEntityManager()
+    private readonly em: EntityManager,
+  ) {}
+
+/** 用户 → 会话（一对多） */
+async findConversationsByUserId(userId: number) {
+    const user = awaitthis.em.findOne(User, {
+      where: { id: userId },
+      relations: { conversations: true },
+      order: { conversations: { createdAt: 'DESC' } },
+    });
+
+    if (!user) {
+      thrownew NotFoundException(`User #${userId} not found`);
+    }
+
+    return user;
+  }
+
+/** 会话 → 消息（一对多） */
+async findMessagesByConversationId(conversationId: number) {
+    const conversation = awaitthis.em.findOne(Conversation, {
+      where: { id: conversationId },
+      relations: { messages: true },
+      order: { messages: { createdAt: 'ASC' } },
+    });
+
+    if (!conversation) {
+      thrownew NotFoundException(`Conversation #${conversationId} not found`);
+    }
+
+    return {
+      id: conversation.id,
+      userId: conversation.userId,
+      title: conversation.title,
+      createdAt: conversation.createdAt,
+      messages: conversation.messages.map(
+        ({ id, conversationId, role, content, createdAt }) => ({
+          id,
+          conversationId,
+          role,
+          content,
+          createdAt,
+        }),
+      ),
+    };
+  }
+
+/** 会话内语义检索（pgvector 余弦距离） */
+async searchSimilarMessages(
+    conversationId: number,
+    searchText: string,
+    limit = 5,
+  ): Promise<SemanticSearchResult[]> {
+    const conversation = awaitthis.em.findOne(Conversation, {
+      where: { id: conversationId },
+    });
+
+    if (!conversation) {
+      thrownew NotFoundException(`Conversation #${conversationId} not found`);
+    }
+
+    const vector = awaitthis.embedQuery(searchText);
+
+    const rows: SemanticSearchResult[] = awaitthis.em.query(
+      `SELECT id, conversation_id, role, content, created_at,
+              1 - (embedding <=> $1::vector) AS similarity
+       FROM messages
+       WHERE conversation_id = $2 AND embedding IS NOT NULL
+       ORDER BY embedding <=> $1::vector
+       LIMIT $3`,
+      [JSON.stringify(vector), conversationId, limit],
+    );
+
+    return rows.map((row) => ({
+      ...row,
+      similarity: Number(row.similarity),
+    }));
+  }
+
+  private getEmbeddings(): OpenAIEmbeddings {
+    if (!this.embeddings) {
+      if (!process.env.OPENAI_API_KEY) {
+        thrownew BadRequestException(
+          '语义检索需要配置 OPENAI_API_KEY（与 pgsql-test 相同）',
+        );
+      }
+      this.embeddings = new OpenAIEmbeddings({
+        model: process.env.EMBEDDING_MODEL || 'text-embedding-v3',
+        apiKey: process.env.OPENAI_API_KEY,
+        configuration: {
+          baseURL: process.env.OPENAI_BASE_URL,
+        },
+      });
+    }
+    returnthis.embeddings;
+  }
+
+  private async embedQuery(text: string): Promise<number[]> {
+    returnthis.getEmbeddings().embedQuery(text);
+  }
+}
+```
+
+这里实现了查询用户的所有会话、查询某个会话的所有消息的关联查询。
+
+只要加上 relations 就可以关联查询了：
+
+![image-20260802215515457](https://img.xiaojunnan.cn/image-20260802215515457.png)
+
+要注意的是向量检索是扩展的 sql 语法，所以得用 sql 写查询：
+
+![image-20260802215540274](https://img.xiaojunnan.cn/image-20260802215540274.png)
+
+流程和之前一样。
+
+然后改下 controller 加一下三个接口：
+
+```ts
+import {
+  Body,
+  Controller,
+  DefaultValuePipe,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+} from'@nestjs/common';
+import { ConversationsService } from'./conversations.service';
+import { SemanticSearchDto } from'./dto/semantic-search.dto';
+
+@Controller('conversations')
+exportclass ConversationsController {
+constructor(private readonly conversationsService: ConversationsService) {}
+
+/** GET /conversations/users/:userId — 用户的会话列表 */
+  @Get('users/:userId')
+  findByUser(@Param('userId', ParseIntPipe) userId: number) {
+    returnthis.conversationsService.findConversationsByUserId(userId);
+  }
+
+/** GET /conversations/:id/messages — 会话的消息列表 */
+  @Get(':id/messages')
+  findMessages(@Param('id', ParseIntPipe) id: number) {
+    returnthis.conversationsService.findMessagesByConversationId(id);
+  }
+
+/** POST /conversations/:id/search — 会话内语义检索 */
+  @Post(':id/search')
+  search(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: SemanticSearchDto,
+    @Query('limit', new DefaultValuePipe(5), ParseIntPipe) queryLimit?: number,
+  ) {
+    const limit = dto.limit ?? queryLimit ?? 5;
+    returnthis.conversationsService.searchSimilarMessages(
+      id,
+      dto.query,
+      limit,
+    );
+  }
+}
+```
+
+还要创建用到的接受参数的 dto
+
+dto/semantic-search.dto.ts
+
+```ts
+export class SemanticSearchDto {
+  query: string;
+  limit?: number;
+}
+```
+
+跑一下：`pnpm run start:dev`
+
+我们准备一些 curl：
+
+```
+// 用户 → 会话（一对多）
+curl -s http://localhost:3005/conversations/users/2 | jq
+// 会话 → 消息（一对多）
+curl -s http://localhost:3005/conversations/2/messages | jq
+// 语义检索
+curl -s -X POST http://localhost:3005/conversations/2/search \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"向量相似度怎么查","limit":3}' | jq
+
+curl -s -X POST 'http://localhost:3005/conversations/2/search?limit=5' \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"PostgreSQL 支持哪些数据类型"}' | jq
+```
+
+试一下：
+
+【视频】
+
+这样我们就实现了基于 ORM 实现 PostgreSQL 的一对多关联查询，以及向量语义检索。
 
 
 
+## 总结
 
+PostgreSQL 在 AI 时代比 MySQL 更有优势，它可以通过 pgvector 插件实现向量字段，以及语义检索。
 
+我们可以在 sql 里关联多个表查询，并且做语义检索。
 
+相比 MySQL + Milvus 结合的方式，简化了不少。
 
+我们用 docker compose 跑了 PostgreSQL 和它的 UI 界面。
 
+之后在 node 代码里通过 sql 做了 CRUD、语义检索。
 
+并且又用 TypeORM + Nest 用 ORM 的方式实现了一对多关联查询，但语义检索还是得用 sql，因为是扩展语法。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+至此，我们就用 PostgreSQL 可以在业务里面直接实现关联查询 + 语义检索了，不再需要 MySQL + Milvus。
 
 
 

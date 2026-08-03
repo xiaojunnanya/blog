@@ -38,9 +38,9 @@ DeepAgents 适合快速落地复杂 Agent 应用，比如深度调研、代码�
 
 
 
-## DeepAgents
+## langchain 功能
 
-### 试一下
+### 中间件 middleware
 
 先来试一下 middleware，这个是 langchain 的功能：
 
@@ -48,32 +48,32 @@ DeepAgents 适合快速落地复杂 Agent 应用，比如深度调研、代码�
 
 ```js
 import "dotenv/config";
-import { z } from"zod";
-import { ChatOpenAI } from"@langchain/openai";
+import { z } from "zod";
+import { ChatOpenAI } from "@langchain/openai";
 import {
   createAgent,
   createMiddleware,
   HumanMessage,
   AIMessage,
-} from"langchain";
+} from "langchain";
 
 // --- 自定义 Middleware ---
 
 /** 日志 + 模型调用次数统计 */
 const loggingMiddleware = createMiddleware({
-name: "LoggingMiddleware",
-stateSchema: z.object({
+  name: "LoggingMiddleware",
+  stateSchema: z.object({
     modelCallCount: z.number().default(0),
   }),
-beforeAgent: (state) => {
+  beforeAgent: (state) => {
     console.log("\n[Logging] agent 开始，消息数:", state.messages.length);
   },
-beforeModel: (state) => {
+  beforeModel: (state) => {
     console.log(
-      `[Logging] 即将调用模型，当前消息数: ${state.messages.length}，已调用: ${state.modelCallCount} 次`
+      `[Logging] 即将调用模型，当前消息数: ${state.messages.length}，已调用: ${state.modelCallCount} 次`,
     );
   },
-afterModel: (state) => {
+  afterModel: (state) => {
     const last = state.messages.at(-1);
     const preview =
       typeof last?.content === "string"
@@ -82,36 +82,36 @@ afterModel: (state) => {
     console.log(`[Logging] 模型返回: ${preview}...`);
     return { modelCallCount: state.modelCallCount + 1 };
   },
-afterAgent: (state) => {
+  afterAgent: (state) => {
     console.log(
-      `[Logging] agent 结束，累计模型调用: ${state.modelCallCount} 次\n`
+      `[Logging] agent 结束，累计模型调用: ${state.modelCallCount} 次\n`,
     );
   },
 });
 
 /** 在每次模型调用前追加 system 上下文 */
 const addContextMiddleware = createMiddleware({
-name: "AddContextMiddleware",
-wrapModelCall: async (request, handler) => {
+  name: "AddContextMiddleware",
+  wrapModelCall: async (request, handler) => {
     console.log("[AddContext] 注入额外 system 上下文");
     return handler({
       ...request,
-      systemMessage: request.systemMessage.concat(
-        "\n\n 请用一句话简洁回答。"
-      ),
+      systemMessage: request.systemMessage.concat("\n\n 请用一句话简洁回答。"),
     });
   },
 });
 
 /** 拦截敏感词，直接结束 agent */
 const blockedContentMiddleware = createMiddleware({
-name: "BlockedContentMiddleware",
-beforeModel: {
+  name: "BlockedContentMiddleware",
+  beforeModel: {
     canJumpTo: ["end"],
     hook: (state) => {
       const last = state.messages.at(-1);
       const text =
-        typeof last?.content === "string" ? last.content : String(last?.content ?? "");
+        typeof last?.content === "string"
+          ? last.content
+          : String(last?.content ?? "");
       if (text.includes("BLOCKED")) {
         console.log("[Blocked] 检测到 BLOCKED，短路结束");
         return {
@@ -126,19 +126,19 @@ beforeModel: {
 // --- Agent ---
 
 const model = new ChatOpenAI({
-model: process.env.MODEL_NAME,
-apiKey: process.env.OPENAI_API_KEY,
-configuration: {
+  model: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-temperature: 0,
+  temperature: 0,
 });
 
 const agent = createAgent({
   model,
-tools: [],
-systemPrompt: "你是一个助手。",
-middleware: [
+  tools: [],
+  systemPrompt: "你是一个助手。",
+  middleware: [
     loggingMiddleware,
     addContextMiddleware,
     blockedContentMiddleware,
@@ -146,15 +146,15 @@ middleware: [
 });
 
 for (const text of [
-"用中文说：middleware 是什么？",
-"这句话包含 BLOCKED 关键词",
+  "用中文说：middleware 是什么？",
+  "这句话包含 BLOCKED 关键词",
 ]) {
-console.log("\n用户:", text);
-const { messages, modelCallCount } = await agent.invoke({
+  console.log("\n用户:", text);
+  const { messages, modelCallCount } = await agent.invoke({
     messages: [new HumanMessage(text)],
   });
-console.log("回复:", messages.at(-1)?.content);
-console.log("modelCallCount:", modelCallCount);
+  console.log("回复:", messages.at(-1)?.content);
+  console.log("modelCallCount:", modelCallCount);
 }
 ```
 
@@ -163,6 +163,8 @@ createAgent 这个 api 提供了 middleware 的扩展机制：
 ![image-20260729175509013](https://img.xiaojunnan.cn/image-20260729175509013.png)
 
 可以在 agent 运行前后、model 调用前后加一些逻辑，以及控制 model 要不要调用，可以提前结束流程
+
+【视频】
 
 
 
@@ -174,36 +176,36 @@ createAgent 这个 api 提供了 middleware 的扩展机制：
 
 ```js
 import "dotenv/config";
-import { Command } from"@langchain/langgraph";
-import { z } from"zod";
-import { ChatOpenAI } from"@langchain/openai";
+import { Command } from "@langchain/langgraph";
+import { z } from "zod";
+import { ChatOpenAI } from "@langchain/openai";
 import {
   createAgent,
   createMiddleware,
   HumanMessage,
   ToolMessage,
   tool,
-} from"langchain";
+} from "langchain";
 
-const getCurrentTime = tool(() =>newDate().toISOString(), {
-name: "get_current_time",
-description: "返回当前 UTC 时间的 ISO 8601 字符串",
-schema: z.object({}),
+const getCurrentTime = tool(() => newDate().toISOString(), {
+  name: "get_current_time",
+  description: "返回当前 UTC 时间的 ISO 8601 字符串",
+  schema: z.object({}),
 });
 
 /** 通过 middleware 注册工具，并用 wrapToolCall 包装执行 */
 const extendedToolsMiddleware = createMiddleware({
-name: "ExtendedToolsMiddleware",
-stateSchema: z.object({
+  name: "ExtendedToolsMiddleware",
+  stateSchema: z.object({
     toolInvocationCount: z.number().default(0),
   }),
-tools: [getCurrentTime],
-wrapToolCall: async (request, handler) => {
+  tools: [getCurrentTime],
+  wrapToolCall: async (request, handler) => {
     const toolName = request.tool?.name ?? request.toolCall.name;
     console.log(
       `[Tools] 即将执行: ${toolName}`,
       "args:",
-      request.toolCall.args ?? {}
+      request.toolCall.args ?? {},
     );
     const result = await handler(request);
     if (!ToolMessage.isInstance(result)) return result;
@@ -217,48 +219,45 @@ wrapToolCall: async (request, handler) => {
       `[Tools] 执行完成: ${toolName}`,
       typeof wrapped.content === "string"
         ? wrapped.content.slice(0, 120)
-        : wrapped
+        : wrapped,
     );
-    returnnew Command({
+    return new Command({
       update: {
         toolInvocationCount: request.state.toolInvocationCount + 1,
         messages: [wrapped],
       },
     });
   },
-afterAgent: (state) => {
+  afterAgent: (state) => {
     console.log(
-      `[Tools] agent 结束，middleware 统计工具调用: ${state.toolInvocationCount} 次`
+      `[Tools] agent 结束，middleware 统计工具调用: ${state.toolInvocationCount} 次`,
     );
   },
 });
 
 const model = new ChatOpenAI({
-model: process.env.MODEL_NAME,
-apiKey: process.env.OPENAI_API_KEY,
-configuration: {
+  model: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: {
     baseURL: process.env.OPENAI_BASE_URL,
   },
-temperature: 0,
+  temperature: 0,
 });
 
 const agent = createAgent({
   model,
-tools: [],
-systemPrompt:
-    "你是一个助手。",
-middleware: [extendedToolsMiddleware],
+  tools: [],
+  systemPrompt: "你是一个助手。",
+  middleware: [extendedToolsMiddleware],
 });
 
-for (const text of [
-"给我当前时间",
-]) {
-console.log("\n用户:", text);
-const { messages, toolInvocationCount } = await agent.invoke({
+for (const text of ["给我当前时间"]) {
+  console.log("\n用户:", text);
+  const { messages, toolInvocationCount } = await agent.invoke({
     messages: [new HumanMessage(text)],
   });
-console.log("回复:", messages.at(-1)?.content);
-console.log("toolInvocationCount:", toolInvocationCount);
+  console.log("回复:", messages.at(-1)?.content);
+  console.log("toolInvocationCount:", toolInvocationCount);
 }
 ```
 
@@ -266,11 +265,64 @@ console.log("toolInvocationCount:", toolInvocationCount);
 
 
 
+## DeepAgents
+
 ### 现成的中间件
 
 deepagents 里就有很多现成的中间件可以用：
 
 ![image-20260729175534402](https://img.xiaojunnan.cn/image-20260729175534402.png)
+
+
+
+### FilesystemBackend
+
+#### 1. 基础定义
+
+`FilesystemBackend` = **文件系统后端存储驱动**，是 DeepAgents 框架里负责对接本地磁盘文件、管理文件读写、权限校验、文件沙箱隔离的核心底层模块，你上面那段 `permissions` 权限配置，就是专门给它用的。
+
+#### 2. 核心四大作用
+
+（1）接管 Agent 的全部文件 IO 操作
+
+AI 智能体（Agent）执行读写文件、创建目录、删除、遍历文件、读取文本等操作时，不会直接操作系统原生 fs，全部转发给 `FilesystemBackend` 统一处理：
+
+- Agent 调用 `read_file` / `write_file` / `list_dir` 工具
+- 请求路由到 FilesystemBackend
+- 后端完成磁盘真实读写，再把结果返回给 AI
+
+（2）承载你写的权限规则 permissions 校验（最关键）
+
+就是你前面那段权限数组的执行载体：
+
+1. 每次文件操作前，Backend 自动拿「操作类型 (read/write)+ 文件路径」顺序匹配权限规则；
+2. 匹配到第一条规则就执行 allow/deny；
+3. 无匹配规则默认放行；
+4. 命中 `deny` 直接抛出权限拒绝错误，阻止 AI 访问敏感文件（比如 `/secret.txt`）。
+
+（3）沙箱隔离，限制 AI 访问范围
+
+FilesystemBackend 支持配置**根目录沙箱**：
+
+- 限定 Agent 只能操作指定文件夹内的文件；
+- 拦截路径穿越攻击（`../` 上级目录逃逸）；
+- 防止 AI 读取系统隐私文件、配置、密钥。
+
+（4）统一抽象文件存储，可切换底层
+
+Backend 是分层抽象设计：
+
+- 默认实现：本地磁盘 FilesystemBackend；
+- 可替换：云端对象存储后端（OSS/S3）、内存虚拟文件后端；
+
+
+
+#### 3. 典型使用场景
+
+1. 限制 AI 智能体不能修改重要配置文件；
+2. 给不同 Agent 分配独立文件目录，互相隔离；
+3. 防止 AI 读取本地密钥、隐私文档；
+4. 统一管控 AI 所有文件操作，日志记录所有读写行为（FilesystemBackend 自带操作日志埋点）。
 
 
 
@@ -282,44 +334,51 @@ deepagents 里就有很多现成的中间件可以用：
 
 ```js
 import "dotenv/config";
-import fs from"node:fs";
-import path from"node:path";
-import { fileURLToPath } from"node:url";
-import { ChatOpenAI } from"@langchain/openai";
-import { createAgent, HumanMessage } from"langchain";
-import { createFilesystemMiddleware, FilesystemBackend } from"deepagents";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { ChatOpenAI } from "@langchain/openai";
+import { createAgent, HumanMessage } from "langchain";
+import { createFilesystemMiddleware, FilesystemBackend } from "deepagents";
 
 const workspaceDir = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
-"workspace"
+  "workspace",
 );
 
 /** 先匹配先生效；未命中任何规则则默认允许 */
 const permissions = [
-  { operations: ["read"], paths: ["/secret.txt"], mode: "deny" },
-  { operations: ["write"], paths: ["/todo.md"], mode: "allow" },
-  { operations: ["write"], paths: ["/**"], mode: "deny" },
+  { operations: ["read"], paths: ["/secret.txt"], mode: "deny" }, // 禁止读取 secret.txt
+  { operations: ["write"], paths: ["/todo.md"], mode: "allow" }, // 允许写入 todo.md
+  { operations: ["write"], paths: ["/**"], mode: "deny" }, // 禁止写入所有路径
 ];
 
 fs.rmSync(workspaceDir, { recursive: true, force: true });
 fs.mkdirSync(workspaceDir);
-fs.writeFileSync(path.join(workspaceDir, "secret.txt"), "机密：不得读取", "utf8");
+fs.writeFileSync(
+  path.join(workspaceDir, "secret.txt"),
+  "机密：不得读取",
+  "utf8",
+);
 
 const model = new ChatOpenAI({
-model: process.env.MODEL_NAME,
-apiKey: process.env.OPENAI_API_KEY,
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
-temperature: 0,
+  model: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  temperature: 0,
 });
 
 const agent = createAgent({
   model,
-tools: [],
-systemPrompt:
+  tools: [],
+  systemPrompt:
     "工作区根路径为 /。用 ls、read_file、write_file、edit_file 操作文件，路径以 / 开头。中文回答。",
-middleware: [
+  middleware: [
     createFilesystemMiddleware({
-      backend: new FilesystemBackend({ rootDir: workspaceDir, virtualMode: true }),
+      backend: new FilesystemBackend({
+        rootDir: workspaceDir,
+        virtualMode: true,
+      }),
       permissions,
     }),
   ],
@@ -328,22 +387,25 @@ middleware: [
 console.log("工作区:", workspaceDir);
 console.log("权限:", JSON.stringify(permissions, null, 2));
 
-asyncfunction run(label, prompt) {
-console.log(`\n=== ${label} ===\n`, prompt, "\n");
-const { messages } = await agent.invoke(
+async function run(label, prompt) {
+  console.log(`\n=== ${label} ===\n`, prompt, "\n");
+  const { messages } = await agent.invoke(
     { messages: [new HumanMessage(prompt)] },
-    { recursionLimit: 20 }
+    { recursionLimit: 20 },
   );
-for (const m of messages) {
+  for (const m of messages) {
     for (const t of m.tool_calls ?? []) console.log("→", t.name);
   }
-console.log("回复:", messages.at(-1)?.content);
+  console.log("回复:", messages.at(-1)?.content);
 }
 
-asyncfunction expectDenied(label, prompt) {
-console.log(`\n=== ${label}（预期拒绝）===\n`, prompt, "\n");
-try {
-    await agent.invoke({ messages: [new HumanMessage(prompt)] }, { recursionLimit: 5 });
+async function expectDenied(label, prompt) {
+  console.log(`\n=== ${label}（预期拒绝）===\n`, prompt, "\n");
+  try {
+    await agent.invoke(
+      { messages: [new HumanMessage(prompt)] },
+      { recursionLimit: 5 },
+    );
     console.log("未触发拒绝（异常）");
   } catch (e) {
     const msg = e.cause?.message ?? e.message;
@@ -352,8 +414,8 @@ try {
 }
 
 await run(
-"允许的操作",
-"write_file 创建 /todo.md（三条待办），edit_file 把第一条标为完成，ls /，一句话总结。"
+  "允许的操作",
+  "write_file 创建 /todo.md（三条待办），edit_file 把第一条标为完成，ls /，一句话总结。",
 );
 
 await expectDenied("禁止读", "只调用 read_file，路径 /secret.txt。");
@@ -376,84 +438,85 @@ await expectDenied("禁止写", "只调用 write_file，路径 /hack.txt，内�
 
 ```js
 import "dotenv/config";
-import { existsSync, mkdirSync } from"node:fs";
-import { ChatOpenAI } from"@langchain/openai";
-import { createAgent, HumanMessage } from"langchain";
+import { existsSync, mkdirSync } from "node:fs";
+import { ChatOpenAI } from "@langchain/openai";
+import { createAgent, HumanMessage } from "langchain";
 import {
   LocalShellBackend,
   createFilesystemMiddleware,
   createSkillsMiddleware,
-} from"deepagents";
+} from "deepagents";
 
 const skills = "/.agents/skills/";
 const output = "src/deepagents/output/deepagents-skills-flow.excalidraw";
 
 if (!existsSync(".agents/skills/excalidraw-diagram-generator/SKILL.md")) {
-thrownewError(
-    "未找到 excalidraw-diagram-generator，请先: npx skills add github/awesome-copilot --skill excalidraw-diagram-generator -y"
+  thrownewError(
+    "未找到 excalidraw-diagram-generator，请先: npx skills add github/awesome-copilot --skill excalidraw-diagram-generator -y",
   );
 }
 
 mkdirSync("src/deepagents/output", { recursive: true });
 
 const model = new ChatOpenAI({
-model: process.env.MODEL_NAME,
-apiKey: process.env.OPENAI_API_KEY,
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
-temperature: 0,
-streaming: true,
+  model: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  temperature: 0,
+  streaming: true,
 });
 
 const backend = await LocalShellBackend.create({
-rootDir: ".",
-virtualMode: true,
-inheritEnv: true,
+  rootDir: ".",
+  virtualMode: true,
+  inheritEnv: true,
 });
 
 const agent = createAgent({
   model,
-tools: [],
-systemPrompt: "按 skills 库完成任务，需要时 read_file 对应 SKILL.md。中文回答。",
-middleware: [
+  tools: [],
+  systemPrompt:
+    "按 skills 库完成任务，需要时 read_file 对应 SKILL.md。中文回答。",
+  middleware: [
     createSkillsMiddleware({ backend, sources: [skills] }),
     createFilesystemMiddleware({ backend }),
   ],
 });
 
 const prompt = [
-"画一张流程图，描述本项目的 skills-agent 工作流：",
-"用户 Prompt → createAgent → createSkillsMiddleware → createFilesystemMiddleware → 模型回复。",
-`保存为 ${output}。要求：`,
-"- 顶部大标题 + 副标题",
-"- 每个主节点 numbered（①②…）且框内 2～3 行中文说明",
-"- 右侧一列「说明：…」补充细节",
-"- 箭头上标注阶段名（如 invoke、wrapModelCall）",
-"- 底部图例（颜色含义 + 如何运行 demo）",
+  "画一张流程图，描述本项目的 skills-agent 工作流：",
+  "用户 Prompt → createAgent → createSkillsMiddleware → createFilesystemMiddleware → 模型回复。",
+  `保存为 ${output}。要求：`,
+  "- 顶部大标题 + 副标题",
+  "- 每个主节点 numbered（①②…）且框内 2～3 行中文说明",
+  "- 右侧一列「说明：…」补充细节",
+  "- 箭头上标注阶段名（如 invoke、wrapModelCall）",
+  "- 底部图例（颜色含义 + 如何运行 demo）",
 ].join("\n");
 
 console.log("用户:", prompt);
 
 function chunkText(chunk) {
-if (!chunk?.content) return"";
-if (typeof chunk.content === "string") return chunk.content;
-if (Array.isArray(chunk.content)) {
+  if (!chunk?.content) return "";
+  if (typeof chunk.content === "string") return chunk.content;
+  if (Array.isArray(chunk.content)) {
     return chunk.content
       .map((p) => (typeof p === "string" ? p : (p?.text ?? "")))
       .join("");
   }
-return"";
+  return "";
 }
 
 const stream = await agent.streamEvents(
   { messages: [new HumanMessage(prompt)] },
-  { recursionLimit: 100 }
+  { recursionLimit: 100 },
 );
 
 let skillsMetadata;
 console.log("\n--- 流式输出 ---\n");
 
 try {
-forawait (const event of stream) {
+  for await (const event of stream) {
     if (event.event === "on_chat_model_stream") {
       const text = chunkText(event.data?.chunk);
       if (text) process.stdout.write(text);
@@ -467,17 +530,20 @@ forawait (const event of stream) {
     }
   }
 } catch (e) {
-console.error("\n\n[错误]", e.cause?.message ?? e.message);
-throw e;
+  console.error("\n\n[错误]", e.cause?.message ?? e.message);
+  throw e;
 }
 
 console.log("\n");
-console.log("skills:", skillsMetadata?.map((s) => s.name));
+console.log(
+  "skills:",
+  skillsMetadata?.map((s) => s.name),
+);
 if (existsSync(output)) {
-console.log("图表:", output);
-console.log("打开: https://excalidraw.com → Open → 选择该文件");
+  console.log("图表:", output);
+  console.log("打开: https://excalidraw.com → Open → 选择该文件");
 } else {
-console.log("未生成:", output);
+  console.log("未生成:", output);
 }
 
 await backend.close();
@@ -499,14 +565,14 @@ SubAgentMiddleware 这个是创建多 Agent 用的
 
 ```js
 import "dotenv/config";
-import { z } from"zod";
-import { ChatOpenAI } from"@langchain/openai";
-import { createAgent, HumanMessage, tool } from"langchain";
-import { createSubAgentMiddleware } from"deepagents";
+import { z } from "zod";
+import { ChatOpenAI } from "@langchain/openai";
+import { createAgent, HumanMessage, tool } from "langchain";
+import { createSubAgentMiddleware } from "deepagents";
 
 /** 四则运算 */
 const calc = tool(
-({ a, b, op }) => {
+  ({ a, b, op }) => {
     const ops = {
       add: a + b,
       subtract: a - b,
@@ -529,14 +595,16 @@ const calc = tool(
     schema: z.object({
       a: z.number().describe("左操作数"),
       b: z.number().describe("右操作数"),
-      op: z.enum(["add", "subtract", "multiply", "divide"]).describe("运算类型"),
+      op: z
+        .enum(["add", "subtract", "multiply", "divide"])
+        .describe("运算类型"),
     }),
-  }
+  },
 );
 
 /** 平均分：总数 ÷ 份数 */
 const divideEvenly = tool(
-({ total, parts }) => {
+  ({ total, parts }) => {
     if (parts <= 0) {
       returnJSON.stringify({ error: "份数须大于 0" });
     }
@@ -559,12 +627,12 @@ const divideEvenly = tool(
       total: z.number().nonnegative().describe("总数"),
       parts: z.number().int().positive().describe("分成几份"),
     }),
-  }
+  },
 );
 
 /** 按模板生成同类练习题（只改数字） */
 const makeSimilarProblem = tool(
-({ template, seed }) => {
+  ({ template, seed }) => {
     const n = (seed % 7) + 3;
     const problems = {
       divide_then_add: {
@@ -593,15 +661,15 @@ const makeSimilarProblem = tool(
         .describe("题目模板"),
       seed: z.number().int().describe("随机种子，用于变换数字"),
     }),
-  }
+  },
 );
 
 const model = new ChatOpenAI({
-model: process.env.MODEL_NAME,
-apiKey: process.env.OPENAI_API_KEY,
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
-temperature: 0,
-streaming: true,
+  model: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  temperature: 0,
+  streaming: true,
 });
 
 const subagents = [
@@ -642,13 +710,13 @@ const subagents = [
 
 const agent = createAgent({
   model,
-tools: [],
-systemPrompt: [
+  tools: [],
+  systemPrompt: [
     "你是小学数学辅导主 Agent，通过 task 委派子 Agent，自己不解题、不讲题、不出题。",
     "按顺序：① math-solver ② kid-tutor（把 solver 完整过程写进 description）③ practice-maker。",
     "最后向家长汇总：答案、辅导要点、两道练习题。中文。",
   ].join("\n"),
-middleware: [
+  middleware: [
     createSubAgentMiddleware({
       defaultModel: model,
       subagents,
@@ -658,22 +726,22 @@ middleware: [
 });
 
 const prompt = [
-"孩子遇到这道题：",
-"「小明有 24 块糖，平均分给 6 个同学；",
-"妈妈又买了 3 包糖，每包 5 块。每个同学现在一共有多少块？」",
-"请先 math-solver 解题，再 kid-tutor 教家长怎么讲，",
-"最后 practice-maker 出 2 道类似练习题，并汇总给我。",
+  "孩子遇到这道题：",
+  "「小明有 24 块糖，平均分给 6 个同学；",
+  "妈妈又买了 3 包糖，每包 5 块。每个同学现在一共有多少块？」",
+  "请先 math-solver 解题，再 kid-tutor 教家长怎么讲，",
+  "最后 practice-maker 出 2 道类似练习题，并汇总给我。",
 ].join("");
 
 function chunkText(chunk) {
-if (!chunk?.content) return"";
-if (typeof chunk.content === "string") return chunk.content;
-if (Array.isArray(chunk.content)) {
+  if (!chunk?.content) return "";
+  if (typeof chunk.content === "string") return chunk.content;
+  if (Array.isArray(chunk.content)) {
     return chunk.content
       .map((p) => (typeof p === "string" ? p : (p?.text ?? "")))
       .join("");
   }
-return"";
+  return "";
 }
 
 console.log("场景: 小学应用题辅导（解题 → 讲题 → 出题）");
@@ -688,11 +756,11 @@ console.log("--- 流式输出 ---\n");
 
 const stream = await agent.streamEvents(
   { messages: [new HumanMessage(prompt)] },
-  { recursionLimit: 60 }
+  { recursionLimit: 60 },
 );
 
 try {
-forawait (const event of stream) {
+  for await (const event of stream) {
     if (event.event === "on_chat_model_stream") {
       const t = chunkText(event.data?.chunk);
       if (t) process.stdout.write(t);
@@ -703,8 +771,8 @@ forawait (const event of stream) {
     }
   }
 } catch (e) {
-console.error("\n\n[错误]", e.cause?.message ?? e.message);
-throw e;
+  console.error("\n\n[错误]", e.cause?.message ?? e.message);
+  throw e;
 }
 
 console.log("\n");
@@ -724,16 +792,16 @@ console.log("\n");
 
 ```js
 import "dotenv/config";
-import fs from"node:fs";
-import path from"node:path";
-import { fileURLToPath } from"node:url";
-import { ChatOpenAI } from"@langchain/openai";
-import { createAgent, HumanMessage } from"langchain";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { ChatOpenAI } from "@langchain/openai";
+import { createAgent, HumanMessage } from "langchain";
 import {
   createFilesystemMiddleware,
   createMemoryMiddleware,
   FilesystemBackend,
-} from"deepagents";
+} from "deepagents";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workspaceDir = path.join(__dirname, "workspace-memory");
@@ -741,28 +809,28 @@ const projectMemoryPath = "/AGENTS.md";
 const preferencesMemoryPath = "/memory/preferences.md";
 
 const model = new ChatOpenAI({
-model: process.env.MODEL_NAME,
-apiKey: process.env.OPENAI_API_KEY,
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
-temperature: 0,
+  model: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  temperature: 0,
 });
 
 const backend = new FilesystemBackend({
-rootDir: workspaceDir,
-virtualMode: true,
+  rootDir: workspaceDir,
+  virtualMode: true,
 });
 
 const agent = createAgent({
   model,
-tools: [],
-systemPrompt: [
+  tools: [],
+  systemPrompt: [
     "你是项目助手。工作区根路径为 /，可用 ls、read_file、write_file、edit_file。",
     "根据 <agent_memory> 回答；用户要求记住时，必须立刻 edit_file，且按类型写入对应文件：",
     `- ${projectMemoryPath}：项目说明、技术栈、架构、仓库约定等`,
     `- ${preferencesMemoryPath}：用户个人偏好（语言、包管理器、回答风格等）`,
     "不要混写：项目事实不要写入 preferences，个人偏好不要写入 AGENTS.md。",
   ].join("\n"),
-middleware: [
+  middleware: [
     createFilesystemMiddleware({ backend }),
     createMemoryMiddleware({
       backend,
@@ -772,26 +840,26 @@ middleware: [
 });
 
 const prompts = [
-"根据记忆，这个项目是做什么的？只答一句。",
-`请记住：我常用的包管理器是 pnpm。`,
-`请记住：本仓库主入口脚本是 src/deepagents/memory-agent.mjs。`,
-"我常用什么包管理器？本 demo 主入口脚本路径是什么？各用一行回答。",
+  "根据记忆，这个项目是做什么的？只答一句。",
+  `请记住：我常用的包管理器是 pnpm。`,
+  `请记住：本仓库主入口脚本是 src/deepagents/memory-agent.mjs。`,
+  "我常用什么包管理器？本 demo 主入口脚本路径是什么？各用一行回答。",
 ];
 
 let messages = [];
 
 for (const prompt of prompts) {
-console.log("\n用户:", prompt);
+  console.log("\n用户:", prompt);
   ({ messages } = await agent.invoke(
     { messages: [...messages, new HumanMessage(prompt)] },
-    { recursionLimit: 30 }
+    { recursionLimit: 30 },
   ));
-console.log("回复:", messages.at(-1)?.content);
+  console.log("回复:", messages.at(-1)?.content);
 }
 
 for (const p of [projectMemoryPath, preferencesMemoryPath]) {
-const file = path.join(workspaceDir, p.replace(/^\//, ""));
-console.log(`\n--- ${p} ---\n`, fs.readFileSync(file, "utf8"));
+  const file = path.join(workspaceDir, p.replace(/^\//, ""));
+  console.log(`\n--- ${p} ---\n`, fs.readFileSync(file, "utf8"));
 }
 ```
 
@@ -811,12 +879,12 @@ console.log(`\n--- ${p} ---\n`, fs.readFileSync(file, "utf8"));
 
 ```js
 import "dotenv/config";
-import fs from"node:fs";
-import path from"node:path";
-import { fileURLToPath } from"node:url";
-import { ChatOpenAI } from"@langchain/openai";
-import { createAgent, HumanMessage } from"langchain";
-import { createSummarizationMiddleware, FilesystemBackend } from"deepagents";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { ChatOpenAI } from "@langchain/openai";
+import { createAgent, HumanMessage } from "langchain";
+import { createSummarizationMiddleware, FilesystemBackend } from "deepagents";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workspaceDir = path.join(__dirname, "workspace-summarization");
@@ -838,23 +906,23 @@ fs.rmSync(workspaceDir, { recursive: true, force: true });
 fs.mkdirSync(workspaceDir, { recursive: true });
 
 const model = new ChatOpenAI({
-model: process.env.MODEL_NAME,
-apiKey: process.env.OPENAI_API_KEY,
-configuration: { baseURL: process.env.OPENAI_BASE_URL },
-temperature: 0,
+  model: process.env.MODEL_NAME,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: { baseURL: process.env.OPENAI_BASE_URL },
+  temperature: 0,
 });
 
 const backend = new FilesystemBackend({
-rootDir: workspaceDir,
-virtualMode: true,
+  rootDir: workspaceDir,
+  virtualMode: true,
 });
 
 const agent = createAgent({
   model,
-tools: [],
-systemPrompt:
+  tools: [],
+  systemPrompt:
     "你是会话助手。记住用户提到的关键事实，中文简短回答。若看到「此前对话摘要」，请据此继续对话。",
-middleware: [
+  middleware: [
     createSummarizationMiddleware({
       model,
       backend,
@@ -868,35 +936,38 @@ middleware: [
 });
 
 const prompts = [
-"请记住：我的宠物猫叫小橘。",
-"请记住：我住在北京。",
-"请记住：我喜欢喝拿铁。",
-"请记住：我的生日是 5 月 1 日。",
-"根据我们聊过的内容，我的猫叫什么、住哪、喜欢喝什么、生日是哪天？每项一行。",
+  "请记住：我的宠物猫叫小橘。",
+  "请记住：我住在北京。",
+  "请记住：我喜欢喝拿铁。",
+  "请记住：我的生日是 5 月 1 日。",
+  "根据我们聊过的内容，我的猫叫什么、住哪、喜欢喝什么、生日是哪天？每项一行。",
 ];
 
-const historyDir = path.join(workspaceDir, historyPathPrefix.replace(/^\//, ""));
+const historyDir = path.join(
+  workspaceDir,
+  historyPathPrefix.replace(/^\//, ""),
+);
 
 function listHistoryFiles() {
-if (!fs.existsSync(historyDir)) return [];
-return fs.readdirSync(historyDir);
+  if (!fs.existsSync(historyDir)) return [];
+  return fs.readdirSync(historyDir);
 }
 
 let messages = [];
 let knownHistory = newSet(listHistoryFiles());
 
 for (const prompt of prompts) {
-console.log("\n用户:", prompt);
+  console.log("\n用户:", prompt);
   ({ messages } = await agent.invoke(
     { messages: [...messages, new HumanMessage(prompt)] },
-    { recursionLimit: 30 }
+    { recursionLimit: 30 },
   ));
 
-console.log("回复:", messages.at(-1)?.content);
-console.log("当前消息数:", messages.length);
+  console.log("回复:", messages.at(-1)?.content);
+  console.log("当前消息数:", messages.length);
 
-const historyFiles = listHistoryFiles();
-for (const file of historyFiles) {
+  const historyFiles = listHistoryFiles();
+  for (const file of historyFiles) {
     if (!knownHistory.has(file)) {
       knownHistory.add(file);
       console.log("已触发摘要，历史已写入:", `${historyPathPrefix}/${file}`);
@@ -905,12 +976,15 @@ for (const file of historyFiles) {
 }
 
 if (knownHistory.size > 0) {
-for (const file of knownHistory) {
+  for (const file of knownHistory) {
     const filePath = path.join(historyDir, file);
-    console.log(`\n--- ${historyPathPrefix}/${file} ---\n`, fs.readFileSync(filePath, "utf8"));
+    console.log(
+      `\n--- ${historyPathPrefix}/${file} ---\n`,
+      fs.readFileSync(filePath, "utf8"),
+    );
   }
 } else {
-console.log("\n未生成 conversation_history（可能未触发摘要阈值）");
+  console.log("\n未生成 conversation_history（可能未触发摘要阈值）");
 }
 ```
 
