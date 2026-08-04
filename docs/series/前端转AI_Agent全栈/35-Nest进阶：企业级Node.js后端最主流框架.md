@@ -42,6 +42,8 @@ Nest 并不是从零写的新框架。它底层默认封装的就是 Express，�
 
 相当于 Nest 站在了 Express 的肩膀上，保留了它的生态，又补上了它缺失的架构、规范和工程化能力。
 
+![image-20260803232330528](https://img.xiaojunnan.cn/image-20260803232330528.png)
+
 
 
 ## 学习nest
@@ -101,7 +103,16 @@ Nest 的 AOP 可以在不修改原始代码的情况下，像“插件”一样�
 比如这样：
 
 ```ts
-@Controller('orders')@UseGuards(RolesGuard) // 这一行即实现了 AOP，为该类所有接口挂载了权限切面export class OrdersController {  @Get()  @UseInterceptors(LoggingInterceptor) // 为单个接口挂载日志切面  findAll() {    // 这里只关心业务逻辑，不需要知道谁在校验权限，谁在记录日志    return this.ordersService.findAll();  }}
+@Controller('orders')
+@UseGuards(RolesGuard) // 这一行即实现了 AOP，为该类所有接口挂载了权限切面
+export class OrdersController {  
+    @Get()  
+    @UseInterceptors(LoggingInterceptor) // 为单个接口挂载日志切面  
+    findAll() {  
+        // 这里只关心业务逻辑，不需要知道谁在校验权限，谁在记录日志  
+        return this.ordersService.findAll();  
+    }
+}
 ```
 
 通过 @UseGuards 装饰器给这个类所有接口加上了权限校验逻辑
@@ -189,27 +200,125 @@ pnpm install @nestjs/jwt
 jwt-test.module.ts
 
 ```ts
-import { Module } from'@nestjs/common';import { JwtModule } from'@nestjs/jwt';import { JwtTestController } from'./jwt-test.controller';import { JwtTestService } from'./jwt-test.service';@Module({imports: [    JwtModule.register({      secret: 'jwt-test-secret-key',      signOptions: { expiresIn: '1h' },    }),  ],controllers: [JwtTestController],providers: [JwtTestService],})exportclass JwtTestModule {}
+import { Module } from'@nestjs/common';
+import { JwtModule } from'@nestjs/jwt';
+import { JwtTestController } from'./jwt-test.controller';
+import { JwtTestService } from'./jwt-test.service';
+
+@Module({
+    imports: [    
+        JwtModule.register({     
+            secret: 'jwt-test-secret-key',      
+            signOptions: { expiresIn: '1h' },    
+        }),  
+    ],
+    controllers: [JwtTestController],
+    providers: [JwtTestService]
+})
+
+export class JwtTestModule {}
 ```
 
 jwt-test.service.ts
 
 ```ts
-import { Injectable, UnauthorizedException } from'@nestjs/common';import { JwtService } from'@nestjs/jwt';export interface JwtTestPayload {sub: number;  username: string;}@Injectable()exportclass JwtTestService {constructor(private readonly jwtService: JwtService) {}  sign(payload: JwtTestPayload): string {    returnthis.jwtService.sign(payload);  }  verify(token: string): JwtTestPayload {    try {      returnthis.jwtService.verify<JwtTestPayload>(token);    } catch {      thrownew UnauthorizedException('Token 无效或已过期');    }  }}
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+
+export interface JwtTestPayload {
+  sub: number;
+  username: string;
+}
+
+@Injectable()
+export class JwtTestService {
+  constructor(private readonly jwtService: JwtService) {}
+
+  sign(payload: JwtTestPayload): string {
+    return this.jwtService.sign(payload);
+  }
+
+  verify(token: string): JwtTestPayload {
+    try {
+      return this.jwtService.verify<JwtTestPayload>(token);
+    } catch {
+      throw new UnauthorizedException('Token 无效或已过期');
+    }
+  }
+}
 ```
 
 jwt-test.controller.ts
 
 ```ts
-import {  Body,  Controller,  Get,  Headers,  Post,  UnauthorizedException,} from'@nestjs/common';import { JwtTestService } from'./jwt-test.service';import type { JwtTestPayload } from'./jwt-test.service';@Controller('jwt-test')exportclass JwtTestController {constructor(private readonly jwtTestService: JwtTestService) {}/** 签发 JWT */  @Post('sign')  sign(@Body() payload: JwtTestPayload) {    const accessToken = this.jwtTestService.sign(payload);    return { access_token: accessToken };  }/** 校验 JWT 并返回 payload */  @Get('verify')  verify(@Headers('authorization') authorization?: string) {    const token = this.extractBearerToken(authorization);    if (!token) {      thrownew UnauthorizedException('请携带 Bearer Token');    }    returnthis.jwtTestService.verify(token);  }  private extractBearerToken(authorization?: string): string | null {    if (!authorization) {      returnnull;    }    const [type, token] = authorization.split(' ');    if (type !== 'Bearer' || !token) {      returnnull;    }    return token;  }}
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Post,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtTestService } from './jwt-test.service';
+import type { JwtTestPayload } from './jwt-test.service';
+
+@Controller('jwt-test')
+export class JwtTestController {
+  constructor(private readonly jwtTestService: JwtTestService) {}
+
+  /** 签发 JWT */
+  @Post('sign')
+  sign(@Body() payload: JwtTestPayload) {
+    const accessToken = this.jwtTestService.sign(payload);
+    return { access_token: accessToken };
+  }
+
+  /** 校验 JWT 并返回 payload */
+  @Get('verify')
+  verify(@Headers('authorization') authorization?: string) {
+    const token = this.extractBearerToken(authorization);
+    if (!token) {
+      throw new UnauthorizedException('请携带 Bearer Token');
+    }
+
+    return this.jwtTestService.verify(token);
+  }
+
+  private extractBearerToken(authorization?: string): string | null {
+    if (!authorization) {
+      return null;
+    }
+
+    const [type, token] = authorization.split(' ');
+    if (type !== 'Bearer' || !token) {
+      return null;
+    }
+
+    return token;
+  }
+}
 ```
 
 和之前的 JWT 流程一样， 不过这次是用真正的 token
 
 curl-test2.md
 
-```ts
-# 1. 签发 JWT → 200curl -X POST http://localhost:3000/jwt-test/sign \  -H "Content-Type: application/json" \  -d '{"sub": 1, "username": "testuser"}'# 2. 校验 JWT → 200（把 <token> 换成第 1 步返回的 access_token）curl http://localhost:3000/jwt-test/verify \  -H "Authorization: Bearer <token>"# 3. 未携带 Token → 401curl http://localhost:3000/jwt-test/verify# 4. Token 无效 → 401curl http://localhost:3000/jwt-test/verify \  -H "Authorization: Bearer invalid-token"
+```markdown
+# 1. 签发 JWT → 200
+curl -X POST http://localhost:3000/jwt-test/sign \
+  -H "Content-Type: application/json" \
+  -d '{"sub": 1, "username": "testuser"}'
+
+# 2. 校验 JWT → 200（把 <token> 换成第 1 步返回的 access_token）
+curl http://localhost:3000/jwt-test/verify \
+  -H "Authorization: Bearer <token>"
+
+# 3. 未携带 Token → 401
+curl http://localhost:3000/jwt-test/verify
+
+# 4. Token 无效 → 401
+curl http://localhost:3000/jwt-test/verify \
+  -H "Authorization: Bearer invalid-token"
 ```
 
 测一下：

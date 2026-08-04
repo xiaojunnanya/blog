@@ -229,16 +229,16 @@ src/db.mjs
 
 ```js
 import "dotenv/config";
-import pg from"pg";
+import pg from "pg";
 
 const { Pool } = pg;
 
 const pool = new Pool({
-connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL,
 });
 
-asyncfunction query(text, params) {
-return pool.query(text, params);
+async function query(text, params) {
+  return pool.query(text, params);
 }
 
 export { pool, query };
@@ -249,46 +249,40 @@ export { pool, query };
 src/users.mjs
 
 ```js
-import { query } from"./db.mjs";
+import { query } from "./db.mjs";
 
-asyncfunction createUser(name) {
-const { rows } = await query(
+async function createUser(name) {
+  const { rows } = await query(
     "INSERT INTO users (name) VALUES ($1) RETURNING *",
-    [name]
+    [name],
   );
-return rows[0];
+  return rows[0];
 }
 
-asyncfunction getUserById(id) {
-const { rows } = await query("SELECT * FROM users WHERE id = $1", [id]);
-return rows[0] ?? null;
+async function getUserById(id) {
+  const { rows } = await query("SELECT * FROM users WHERE id = $1", [id]);
+  return rows[0] ?? null;
 }
 
-asyncfunction getAllUsers() {
-const { rows } = await query("SELECT * FROM users ORDER BY id");
-return rows;
+async function getAllUsers() {
+  const { rows } = await query("SELECT * FROM users ORDER BY id");
+  return rows;
 }
 
-asyncfunction updateUser(id, name) {
-const { rows } = await query(
+async function updateUser(id, name) {
+  const { rows } = await query(
     "UPDATE users SET name = $1 WHERE id = $2 RETURNING *",
-    [name, id]
+    [name, id],
   );
-return rows[0] ?? null;
+  return rows[0] ?? null;
 }
 
-asyncfunction deleteUser(id) {
-const { rowCount } = await query("DELETE FROM users WHERE id = $1", [id]);
-return rowCount > 0;
+async function deleteUser(id) {
+  const { rowCount } = await query("DELETE FROM users WHERE id = $1", [id]);
+  return rowCount > 0;
 }
 
-export {
-  createUser,
-  getUserById,
-  getAllUsers,
-  updateUser,
-  deleteUser,
-};
+export { createUser, getUserById, getAllUsers, updateUser, deleteUser };
 ```
 
 用户表的 CRUD 代码
@@ -296,53 +290,51 @@ export {
 src/conversations.mjs
 
 ```js
-import { query } from"./db.mjs";
+import { query } from "./db.mjs";
 
-asyncfunction createConversation(userId, title = null) {
-const { rows } = await query(
+async function createConversation(userId, title = null) {
+  const { rows } = await query(
     "INSERT INTO conversations (user_id, title) VALUES ($1, $2) RETURNING *",
-    [userId, title]
+    [userId, title],
   );
-return rows[0];
+  return rows[0];
 }
 
-asyncfunction getConversationById(id) {
-const { rows } = await query(
-    "SELECT * FROM conversations WHERE id = $1",
-    [id]
-  );
-return rows[0] ?? null;
+async function getConversationById(id) {
+  const { rows } = await query("SELECT * FROM conversations WHERE id = $1", [
+    id,
+  ]);
+  return rows[0] ?? null;
 }
 
-asyncfunction getConversationsByUserId(userId) {
-const { rows } = await query(
+async function getConversationsByUserId(userId) {
+  const { rows } = await query(
     "SELECT * FROM conversations WHERE user_id = $1 ORDER BY created_at DESC",
-    [userId]
+    [userId],
   );
-return rows;
+  return rows;
 }
 
-asyncfunction getAllConversations() {
-const { rows } = await query(
-    "SELECT * FROM conversations ORDER BY created_at DESC"
+async function getAllConversations() {
+  const { rows } = await query(
+    "SELECT * FROM conversations ORDER BY created_at DESC",
   );
-return rows;
+  return rows;
 }
 
-asyncfunction updateConversation(id, { title }) {
-const { rows } = await query(
+async function updateConversation(id, { title }) {
+  const { rows } = await query(
     "UPDATE conversations SET title = $1 WHERE id = $2 RETURNING *",
-    [title, id]
+    [title, id],
   );
-return rows[0] ?? null;
+  return rows[0] ?? null;
 }
 
-asyncfunction deleteConversation(id) {
-const { rowCount } = await query(
-    "DELETE FROM conversations WHERE id = $1",
-    [id]
-  );
-return rowCount > 0;
+async function deleteConversation(id) {
+  const { rowCount } = await query("DELETE FROM conversations WHERE id = $1", [
+    id,
+  ]);
+  return rowCount > 0;
 }
 
 export {
@@ -363,15 +355,15 @@ src/messages.mjs
 
 ```js
 import "dotenv/config";
-import { OpenAIEmbeddings } from"@langchain/openai";
-import { query } from"./db.mjs";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { query } from "./db.mjs";
 
 const VALID_ROLES = ["user", "assistant", "system"];
 
 let embeddings;
 
 function getEmbeddings() {
-if (!embeddings) {
+  if (!embeddings) {
     embeddings = new OpenAIEmbeddings({
       model: process.env.EMBEDDING_MODEL || "text-embedding-v3",
       apiKey: process.env.OPENAI_API_KEY,
@@ -380,91 +372,96 @@ if (!embeddings) {
       },
     });
   }
-return embeddings;
+  return embeddings;
 }
 
-asyncfunction createMessage(conversationId, role, content, withEmbedding = false) {
-if (!VALID_ROLES.includes(role)) {
+async function createMessage(
+  conversationId,
+  role,
+  content,
+  withEmbedding = false,
+) {
+  if (!VALID_ROLES.includes(role)) {
     thrownewError(`role 必须是 ${VALID_ROLES.join("、")} 之一`);
   }
 
-if (withEmbedding) {
+  if (withEmbedding) {
     const vector = await getEmbeddings().embedQuery(content);
     const { rows } = await query(
       `INSERT INTO messages (conversation_id, role, content, embedding)
        VALUES ($1, $2, $3, $4::vector)
        RETURNING id, conversation_id, role, content, created_at`,
-      [conversationId, role, content, JSON.stringify(vector)]
+      [conversationId, role, content, JSON.stringify(vector)],
     );
     return rows[0];
   }
 
-const { rows } = await query(
+  const { rows } = await query(
     `INSERT INTO messages (conversation_id, role, content)
      VALUES ($1, $2, $3)
      RETURNING *`,
-    [conversationId, role, content]
+    [conversationId, role, content],
   );
-return rows[0];
+  return rows[0];
 }
 
-asyncfunction getMessageById(id) {
-const { rows } = await query(
+async function getMessageById(id) {
+  const { rows } = await query(
     `SELECT id, conversation_id, role, content, created_at
      FROM messages WHERE id = $1`,
-    [id]
+    [id],
   );
-return rows[0] ?? null;
+  return rows[0] ?? null;
 }
 
-asyncfunction getMessagesByConversationId(conversationId) {
-const { rows } = await query(
+async function getMessagesByConversationId(conversationId) {
+  const { rows } = await query(
     `SELECT id, conversation_id, role, content, created_at
      FROM messages
      WHERE conversation_id = $1
      ORDER BY created_at ASC`,
-    [conversationId]
+    [conversationId],
   );
-return rows;
+  return rows;
 }
 
-asyncfunction updateMessage(id, content, withEmbedding = false) {
-if (withEmbedding) {
+async function updateMessage(id, content, withEmbedding = false) {
+  if (withEmbedding) {
     const vector = await getEmbeddings().embedQuery(content);
     const { rows } = await query(
       `UPDATE messages
        SET content = $1, embedding = $2::vector
        WHERE id = $3
        RETURNING id, conversation_id, role, content, created_at`,
-      [content, JSON.stringify(vector), id]
+      [content, JSON.stringify(vector), id],
     );
     return rows[0] ?? null;
   }
 
-const { rows } = await query(
+  const { rows } = await query(
     `UPDATE messages SET content = $1 WHERE id = $2 RETURNING *`,
-    [content, id]
+    [content, id],
   );
-return rows[0] ?? null;
+  return rows[0] ?? null;
 }
 
-asyncfunction deleteMessage(id) {
-const { rowCount } = await query("DELETE FROM messages WHERE id = $1", [id]);
-return rowCount > 0;
+async function deleteMessage(id) {
+  const { rowCount } = await query("DELETE FROM messages WHERE id = $1", [id]);
+  return rowCount > 0;
 }
 
-asyncfunction searchSimilarMessages(conversationId, searchText, limit = 5) {
-const vector = await getEmbeddings().embedQuery(searchText);
-const { rows } = await query(
+async function searchSimilarMessages(conversationId, searchText, limit = 5) {
+  const vector = await getEmbeddings().embedQuery(searchText);
+  const { rows } = await query(
     `SELECT id, conversation_id, role, content, created_at,
             1 - (embedding <=> $1::vector) AS similarity
      FROM messages
      WHERE conversation_id = $2 AND embedding IS NOT NULL
      ORDER BY embedding <=> $1::vector
      LIMIT $3`,
-    [JSON.stringify(vector), conversationId, limit]
+    [JSON.stringify(vector), conversationId, limit],
   );
-return rows;
+  return rows;
 }
 
 export {
@@ -482,72 +479,72 @@ export {
 然后在 src/index.mjs 里用一下：
 
 ```js
-import { pool } from"./db.mjs";
-import * as users from"./users.mjs";
-import * as conversations from"./conversations.mjs";
-import * as messages from"./messages.mjs";
+import { pool } from "./db.mjs";
+import * as users from "./users.mjs";
+import * as conversations from "./conversations.mjs";
+import * as messages from "./messages.mjs";
 
-asyncfunction run() {
-console.log("=== 用户 CRUD ===");
+async function run() {
+  console.log("=== 用户 CRUD ===");
 
-const user = await users.createUser("张三");
-console.log("创建用户:", user);
+  const user = await users.createUser("张三");
+  console.log("创建用户:", user);
 
-const fetchedUser = await users.getUserById(user.id);
-console.log("查询用户:", fetchedUser);
+  const fetchedUser = await users.getUserById(user.id);
+  console.log("查询用户:", fetchedUser);
 
-const updatedUser = await users.updateUser(user.id, "李四");
-console.log("更新用户:", updatedUser);
+  const updatedUser = await users.updateUser(user.id, "李四");
+  console.log("更新用户:", updatedUser);
 
-console.log("\n=== 会话 CRUD ===");
+  console.log("\n=== 会话 CRUD ===");
 
-const conversation = await conversations.createConversation(
+  const conversation = await conversations.createConversation(
     user.id,
-    "第一次对话"
+    "第一次对话",
   );
-console.log("创建会话:", conversation);
+  console.log("创建会话:", conversation);
 
-const userConversations = await conversations.getConversationsByUserId(
-    user.id
+  const userConversations = await conversations.getConversationsByUserId(
+    user.id,
   );
-console.log("用户的会话列表:", userConversations);
+  console.log("用户的会话列表:", userConversations);
 
-const updatedConversation = await conversations.updateConversation(
+  const updatedConversation = await conversations.updateConversation(
     conversation.id,
-    { title: "更新后的标题" }
+    { title: "更新后的标题" },
   );
-console.log("更新会话:", updatedConversation);
+  console.log("更新会话:", updatedConversation);
 
-console.log("\n=== 消息 CRUD ===");
+  console.log("\n=== 消息 CRUD ===");
 
-const userMessage = await messages.createMessage(
+  const userMessage = await messages.createMessage(
     conversation.id,
     "user",
-    "你好，请介绍一下 PostgreSQL"
+    "你好，请介绍一下 PostgreSQL",
   );
-console.log("创建用户消息:", userMessage);
+  console.log("创建用户消息:", userMessage);
 
-const assistantMessage = await messages.createMessage(
+  const assistantMessage = await messages.createMessage(
     conversation.id,
     "assistant",
-    "PostgreSQL 是一个功能强大的开源关系型数据库。"
+    "PostgreSQL 是一个功能强大的开源关系型数据库。",
   );
-console.log("创建 AI 消息:", assistantMessage);
+  console.log("创建 AI 消息:", assistantMessage);
 
-const conversationMessages = await messages.getMessagesByConversationId(
-    conversation.id
+  const conversationMessages = await messages.getMessagesByConversationId(
+    conversation.id,
   );
-console.log("会话消息列表:", conversationMessages);
+  console.log("会话消息列表:", conversationMessages);
 
-const updatedMessage = await messages.updateMessage(
+  const updatedMessage = await messages.updateMessage(
     userMessage.id,
-    "你好，请介绍一下 pgvector"
+    "你好，请介绍一下 pgvector",
   );
-console.log("更新消息:", updatedMessage);
+  console.log("更新消息:", updatedMessage);
 
-console.log("\n=== 语义检索 ===");
+  console.log("\n=== 语义检索 ===");
 
-const seedMessages = [
+  const seedMessages = [
     { role: "user", content: "PostgreSQL 支持哪些数据类型？" },
     {
       role: "assistant",
@@ -562,24 +559,19 @@ const seedMessages = [
     },
   ];
 
-for (const msg of seedMessages) {
-    await messages.createMessage(
-      conversation.id,
-      msg.role,
-      msg.content,
-      true
-    );
+  for (const msg of seedMessages) {
+    await messages.createMessage(conversation.id, msg.role, msg.content, true);
   }
-console.log(`已写入 ${seedMessages.length} 条带 embedding 的消息`);
+  console.log(`已写入 ${seedMessages.length} 条带 embedding 的消息`);
 
-const searchQueries = ["向量相似度怎么查", "关系型数据库有哪些类型"];
+  const searchQueries = ["向量相似度怎么查", "关系型数据库有哪些类型"];
 
-for (const searchText of searchQueries) {
+  for (const searchText of searchQueries) {
     console.log(`\n搜索: "${searchText}"`);
     const results = await messages.searchSimilarMessages(
       conversation.id,
       searchText,
-      3
+      3,
     );
     if (results.length === 0) {
       console.log("  无匹配结果");
@@ -587,19 +579,19 @@ for (const searchText of searchQueries) {
     }
     for (const [i, row] of results.entries()) {
       console.log(
-        `  ${i + 1}. [${row.role}] ${row.content} (similarity: ${Number(row.similarity).toFixed(4)})`
+        `  ${i + 1}. [${row.role}] ${row.content} (similarity: ${Number(row.similarity).toFixed(4)})`,
       );
     }
   }
 
-// console.log("\n=== 清理 ===");
+  // console.log("\n=== 清理 ===");
 
-// await messages.deleteMessage(assistantMessage.id);
-// await messages.deleteMessage(updatedMessage.id);
-// await conversations.deleteConversation(conversation.id);
-// await users.deleteUser(user.id);
+  // await messages.deleteMessage(assistantMessage.id);
+  // await messages.deleteMessage(updatedMessage.id);
+  // await conversations.deleteConversation(conversation.id);
+  // await users.deleteUser(user.id);
 
-// console.log("演示数据已清理");
+  // console.log("演示数据已清理");
 }
 
 run()
@@ -683,22 +675,22 @@ import {
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
-} from'typeorm';
-import { Conversation } from'./conversation.entity';
+} from 'typeorm'
+import { Conversation } from './conversation.entity'
 
 @Entity('users')
-exportclass User {
+export class User {
   @PrimaryGeneratedColumn()
-id: number;
+  id: number
 
   @Column({ type: 'text' })
-name: string;
+  name: string
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
-createdAt: Date;
+  createdAt: Date
 
   @OneToMany(() => Conversation, (conversation) => conversation.user)
-conversations: Conversation[];
+  conversations: Conversation[]
 }
 ```
 
@@ -713,30 +705,30 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-} from'typeorm';
-import { User } from'./user.entity';
-import { Message } from'./message.entity';
+} from 'typeorm'
+import { User } from './user.entity'
+import { Message } from './message.entity'
 
 @Entity('conversations')
-exportclass Conversation {
+export class Conversation {
   @PrimaryGeneratedColumn()
-id: number;
+  id: number
 
   @Column({ name: 'user_id' })
-userId: number;
+  userId: number
 
   @Column({ type: 'text', nullable: true })
-title: string | null;
+  title: string | null
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
-createdAt: Date;
+  createdAt: Date
 
   @ManyToOne(() => User, (user) => user.conversations, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-user: User;
+  user: User
 
   @OneToMany(() => Message, (message) => message.conversation)
-messages: Message[];
+  messages: Message[]
 }
 ```
 
@@ -750,8 +742,8 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-} from'typeorm';
-import { Conversation } from'./conversation.entity';
+} from 'typeorm'
+import { Conversation } from './conversation.entity'
 
 export enum MessageRole {
   USER = 'user',
@@ -760,33 +752,33 @@ export enum MessageRole {
 }
 
 @Entity('messages')
-exportclass Message {
+export class Message {
   @PrimaryGeneratedColumn()
-id: number;
+  id: number
 
   @Column({ name: 'conversation_id' })
-conversationId: number;
+  conversationId: number
 
   @Column({
     type: 'text',
     enum: MessageRole,
   })
-role: MessageRole;
+  role: MessageRole
 
   @Column({ type: 'text' })
-content: string;
+  content: string
 
   @Column('vector', { length: 1024, nullable: true })
-embedding: number[] | null;
+  embedding: number[] | null
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
-createdAt: Date;
+  createdAt: Date
 
   @ManyToOne(() => Conversation, (conversation) => conversation.messages, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'conversation_id' })
-conversation: Conversation;
+  conversation: Conversation
 }
 ```
 
@@ -807,61 +799,61 @@ conversation: Conversation;
 改一下 conversations.service.ts
 
 ```js
-import 'dotenv/config';
+import 'dotenv/config'
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from'@nestjs/common';
-import { InjectEntityManager } from'@nestjs/typeorm';
-import { OpenAIEmbeddings } from'@langchain/openai';
-import { EntityManager } from'typeorm';
-import { User } from'./entities/user.entity';
-import { Conversation } from'./entities/conversation.entity';
+} from '@nestjs/common'
+import { InjectEntityManager } from '@nestjs/typeorm'
+import { OpenAIEmbeddings } from '@langchain/openai'
+import { EntityManager } from 'typeorm'
+import { User } from './entities/user.entity'
+import { Conversation } from './entities/conversation.entity'
 
 export interface SemanticSearchResult {
-id: number;
-  conversation_id: number;
-  role: string;
-  content: string;
-  created_at: Date;
-  similarity: number;
+  id: number
+  conversation_id: number
+  role: string
+  content: string
+  created_at: Date
+  similarity: number
 }
 
 @Injectable()
-exportclass ConversationsService {
-  private embeddings: OpenAIEmbeddings | null = null;
+export class ConversationsService {
+  private embeddings: OpenAIEmbeddings | null = null
 
-constructor(
+  constructor(
     @InjectEntityManager()
     private readonly em: EntityManager,
   ) {}
 
-/** 用户 → 会话（一对多） */
-async findConversationsByUserId(userId: number) {
-    const user = awaitthis.em.findOne(User, {
+  /** 用户 → 会话（一对多） */
+  async findConversationsByUserId(userId: number) {
+    const user = await this.em.findOne(User, {
       where: { id: userId },
       relations: { conversations: true },
       order: { conversations: { createdAt: 'DESC' } },
-    });
+    })
 
     if (!user) {
-      thrownew NotFoundException(`User #${userId} not found`);
+      throw new NotFoundException(`User #${userId} not found`)
     }
 
-    return user;
+    return user
   }
 
-/** 会话 → 消息（一对多） */
-async findMessagesByConversationId(conversationId: number) {
-    const conversation = awaitthis.em.findOne(Conversation, {
+  /** 会话 → 消息（一对多） */
+  async findMessagesByConversationId(conversationId: number) {
+    const conversation = await this.em.findOne(Conversation, {
       where: { id: conversationId },
       relations: { messages: true },
       order: { messages: { createdAt: 'ASC' } },
-    });
+    })
 
     if (!conversation) {
-      thrownew NotFoundException(`Conversation #${conversationId} not found`);
+      throw new NotFoundException(`Conversation #${conversationId} not found`)
     }
 
     return {
@@ -878,26 +870,26 @@ async findMessagesByConversationId(conversationId: number) {
           createdAt,
         }),
       ),
-    };
+    }
   }
 
-/** 会话内语义检索（pgvector 余弦距离） */
-async searchSimilarMessages(
+  /** 会话内语义检索（pgvector 余弦距离） */
+  async searchSimilarMessages(
     conversationId: number,
     searchText: string,
     limit = 5,
   ): Promise<SemanticSearchResult[]> {
-    const conversation = awaitthis.em.findOne(Conversation, {
+    const conversation = await this.em.findOne(Conversation, {
       where: { id: conversationId },
-    });
+    })
 
     if (!conversation) {
-      thrownew NotFoundException(`Conversation #${conversationId} not found`);
+      throw new NotFoundException(`Conversation #${conversationId} not found`)
     }
 
-    const vector = awaitthis.embedQuery(searchText);
+    const vector = await this.embedQuery(searchText)
 
-    const rows: SemanticSearchResult[] = awaitthis.em.query(
+    const rows: SemanticSearchResult[] = await this.em.query(
       `SELECT id, conversation_id, role, content, created_at,
               1 - (embedding <=> $1::vector) AS similarity
        FROM messages
@@ -905,20 +897,20 @@ async searchSimilarMessages(
        ORDER BY embedding <=> $1::vector
        LIMIT $3`,
       [JSON.stringify(vector), conversationId, limit],
-    );
+    )
 
     return rows.map((row) => ({
       ...row,
       similarity: Number(row.similarity),
-    }));
+    }))
   }
 
   private getEmbeddings(): OpenAIEmbeddings {
     if (!this.embeddings) {
       if (!process.env.OPENAI_API_KEY) {
-        thrownew BadRequestException(
+        throw new BadRequestException(
           '语义检索需要配置 OPENAI_API_KEY（与 pgsql-test 相同）',
-        );
+        )
       }
       this.embeddings = new OpenAIEmbeddings({
         model: process.env.EMBEDDING_MODEL || 'text-embedding-v3',
@@ -926,13 +918,13 @@ async searchSimilarMessages(
         configuration: {
           baseURL: process.env.OPENAI_BASE_URL,
         },
-      });
+      })
     }
-    returnthis.embeddings;
+    return this.embeddings
   }
 
   private async embedQuery(text: string): Promise<number[]> {
-    returnthis.getEmbeddings().embedQuery(text);
+    return this.getEmbeddings().embedQuery(text)
   }
 }
 ```
@@ -961,39 +953,35 @@ import {
   ParseIntPipe,
   Post,
   Query,
-} from'@nestjs/common';
-import { ConversationsService } from'./conversations.service';
-import { SemanticSearchDto } from'./dto/semantic-search.dto';
+} from '@nestjs/common'
+import { ConversationsService } from './conversations.service'
+import { SemanticSearchDto } from './dto/semantic-search.dto'
 
 @Controller('conversations')
-exportclass ConversationsController {
-constructor(private readonly conversationsService: ConversationsService) {}
+export class ConversationsController {
+  constructor(private readonly conversationsService: ConversationsService) {}
 
-/** GET /conversations/users/:userId — 用户的会话列表 */
+  /** GET /conversations/users/:userId — 用户的会话列表 */
   @Get('users/:userId')
   findByUser(@Param('userId', ParseIntPipe) userId: number) {
-    returnthis.conversationsService.findConversationsByUserId(userId);
+    return this.conversationsService.findConversationsByUserId(userId)
   }
 
-/** GET /conversations/:id/messages — 会话的消息列表 */
+  /** GET /conversations/:id/messages — 会话的消息列表 */
   @Get(':id/messages')
   findMessages(@Param('id', ParseIntPipe) id: number) {
-    returnthis.conversationsService.findMessagesByConversationId(id);
+    return this.conversationsService.findMessagesByConversationId(id)
   }
 
-/** POST /conversations/:id/search — 会话内语义检索 */
+  /** POST /conversations/:id/search — 会话内语义检索 */
   @Post(':id/search')
   search(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: SemanticSearchDto,
     @Query('limit', new DefaultValuePipe(5), ParseIntPipe) queryLimit?: number,
   ) {
-    const limit = dto.limit ?? queryLimit ?? 5;
-    returnthis.conversationsService.searchSimilarMessages(
-      id,
-      dto.query,
-      limit,
-    );
+    const limit = dto.limit ?? queryLimit ?? 5
+    return this.conversationsService.searchSimilarMessages(id, dto.query, limit)
   }
 }
 ```
