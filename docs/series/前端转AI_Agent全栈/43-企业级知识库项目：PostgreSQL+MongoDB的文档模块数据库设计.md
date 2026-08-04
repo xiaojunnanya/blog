@@ -1,7 +1,7 @@
 ---
 id: aiagent43
 slug: /aiagent43
-title: 43-企业级知识库项目：PDF、XLSX、DOCX、PPTX文件解析为md文档
+title: 43-企业级知识库项目：PostgreSQL+MongoDB的文档模块数据库设计
 date: 2002-09-26
 authors: 鲸落
 tags: [AI]
