@@ -8,7 +8,7 @@ const config = {
   },
   title: '鲸落',
   titleDelimiter: '-',
-  url: 'http://xiaojunnan.cn',
+  url: 'https://www.xiaojunnan.cn',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
   organizationName: 'jl',
@@ -201,8 +201,8 @@ const config = {
       maxHeadingLevel: 4,
     },
     algolia: {
-      appId: 'RIMEHIIIP6',
-      apiKey: '0bb55046a96eb973a220fe57b2d2d3b5',
+      appId: 'ZF8TVRGS0J',
+      apiKey: '9abbde9e40e52c07bad13af881ad09d2',
       indexName: 'xiaojunnan'
     },
     zoom: {
