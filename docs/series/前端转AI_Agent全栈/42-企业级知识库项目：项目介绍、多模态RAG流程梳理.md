@@ -144,7 +144,7 @@ LangChain, LangGraph, DeepAgents, Vercel AI SDK, Nest, Redis.PostgreSQL, Redis, 
 
 #### 总结
 
-![image-20260804205314352](./../../../../../../Users/xiaojn/AppData/Roaming/Typora/typora-user-images/image-20260804205314352.png)
+![image-20260804205314352](https://img.xiaojunnan.cn/image-20260804205314352.png)
 
 
 
