@@ -1,7 +1,7 @@
 ---
-id: aiagent48
-slug: /aiagent48
-title: 48-
+id: aiagent46
+slug: /aiagent46
+title: 46-Agent面试题精讲：评测篇
 date: 2002-09-26
 authors: 鲸落
 tags: [AI]
