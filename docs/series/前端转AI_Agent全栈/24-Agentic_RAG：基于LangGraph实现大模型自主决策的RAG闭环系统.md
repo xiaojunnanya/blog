@@ -250,7 +250,7 @@ main();
 RAG 是一个线性的流程，之前用 LCEL 的链写过，这次用 langgraph 来写：
 
 ```mermaid
-%%{init: {'flowchart': {'curve': 'linear'}}}%%        
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
 graph TD;
         __start__([<p>__start__</p>]):::first
         retrieve(retrieve)
