@@ -549,6 +549,7 @@ const sidebars = {
         'series/前端转AI_Agent全栈/aiagent50',
         'series/前端转AI_Agent全栈/aiagent51',
         'series/前端转AI_Agent全栈/aiagent52',
+        'series/前端转AI_Agent全栈/aiagent53',
         'series/前端转AI_Agent全栈/aiagent99',
       ],
     },
