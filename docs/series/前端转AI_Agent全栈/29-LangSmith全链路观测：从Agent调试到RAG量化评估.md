@@ -82,7 +82,7 @@ const StateAnnotation = Annotation.Root({
 const stepOk = (state) => ({ text: `${state.text}[ok]` });
 
 const stepThrow = () => {
-  thrownewError("DemoError: 节点内故意抛错（trigger-error.mjs）");
+  throw new Error("DemoError: 节点内故意抛错（trigger-error.mjs）");
 };
 
 const graph = new StateGraph(StateAnnotation)
@@ -247,11 +247,11 @@ const client = new MilvusClient({ address: MILVUS_ADDRESS });
 
 async function loadChunks(dataDir = "./data") {
   if (!existsSync(dataDir)) {
-    thrownewError(`数据目录不存在: ${dataDir}`);
+    throw new Error(`数据目录不存在: ${dataDir}`);
   }
   const files = readdirSync(dataDir).filter((f) => /\.(txt|md)$/i.test(f));
   if (files.length === 0) {
-    thrownewError(`目录内无 .txt/.md 文件: ${dataDir}`);
+    throw new Error(`目录内无 .txt/.md 文件: ${dataDir}`);
   }
 
   const docs = files.map((f) => ({

@@ -16,7 +16,7 @@ keywords: [AI]
 
 我们学了ElasticSearch的倒排索引的检索架构，实现了中文分词和海量文档的全文检索。
 
-实际上，RAG的语义检索有时候不好用：
+问题是：
 
 - 专业术语、精确实体更适合关键词检索，纯语义检索容易匹配不准
 
@@ -131,7 +131,7 @@ run().catch((err) => {
 });
 ```
 
-用@elastic/elasticsearch这个包来做一下索引的创建，数据的批量插入
+用`@elastic/elasticsearch`这个包来做一下索引的创建，数据的批量插入
 
 安装依赖：`pnpm install @elastic/elasticsearch`
 
@@ -390,7 +390,7 @@ export class DashScopeRerank extends BaseDocumentCompressor {
 ```
 
 
-langchain 提供了 rerank 模型的基类BaseDocumentCompressor,但是没有qwen重排模型对应的封装，我们自己封装下
+langchain 提供了 rerank 模型的基类`BaseDocumentCompressor`，但是没有qwen重排模型对应的封装，我们自己封装下
 
 和之前curl一样，调用接口，传入query和documents，拿到重排序后的文档
 

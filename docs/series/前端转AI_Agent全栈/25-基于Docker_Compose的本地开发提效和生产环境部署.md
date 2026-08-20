@@ -212,7 +212,7 @@ RUN npm config set registry https://registry.npmmirror.com/
 RUN npm install --production
 COPY --from=builder /app/dist ./dist
 
-EXPOSE3000
+EXPOSE 3000
 CMD ["node", "dist/main.js"]
 ```
 
@@ -370,6 +370,8 @@ milvus 的部分复制之前那个 docker compose 配置文件的，我们加上
 "docker:up": "DOCKER_VOLUME_DIRECTORY=/Users/guang/ docker compose -f docker-compose.dev.yml up -d",
 "docker:down": "docker compose -f docker-compose.dev.yml down",
 ```
+
+> `up -d`：其中-d的意思是后台运行的意思，启动后直接把终端还给你
 
 指定数据卷目录的环境变量，然后跑 docker compose up
 
@@ -914,6 +916,10 @@ services:
 ```
 "docker:prod:up": "docker compose -f docker-compose.prod.yml up -d --build",
 ```
+
+> `--build` 的作用是：在启动容器之前，强制重新构建镜像。
+>
+> `--build` 是**重新构建**，并不代表一定从零开始构建。Docker 默认仍然会利用 **build cache** 来加快构建速度。
 
 这样，我们就用 docker compose 实现了生产环境的部署。
 
