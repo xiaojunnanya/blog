@@ -16,7 +16,7 @@ keywords: [AI]
 
 CLI版的单机Agent 很简单：所有对话历史、摘要都直接放在进程内存里，不需要任何外部存储。
 
-但后端服务不一样:
+但后端服务不一样：
 
 - 线上服务一般会部署多个服务实例做负载均衡，单实例内存无法共享会话数据
 - 同时对话属于高频读写的热数据，对响应延迟要求极高，还需要实现会话闲置自动失效。
@@ -396,7 +396,7 @@ redis的数据结构、应用场景，代码里怎么操作都会了。
 
 ![image-20260803164339807](https://img.xiaojunnan.cn/image-20260803164339807.png)
 
-安装langgraph和deepagents，创建src/agent-with-redis-memory.mjs
+安装 langgraph 和 deepagents，创建src/agent-with-redis-memory.mjs
 
 ```js
 /**

@@ -92,9 +92,9 @@ ON m.conversation_id = c.id
 WHERE
   c.user_id = '你的用户ID'-- 只查这个用户
 AND c.id = '你的会话ID'-- 只查这个会话
-ORDERBY
+ORDER BY
   m.embedding <=> '[1.2, 0.5, 0.8, ...]'-- 向量相似度检索
-LIMIT5;
+LIMIT 5;
 ```
 
 按用户过滤、按会话筛选、按时间排序、按语义检索。
