@@ -1,7 +1,7 @@
 ---
-id: aiagent42
-slug: /aiagent42
-title: 42-Agent面试题精讲：RAG篇
+id: aiagent93
+slug: /aiagent93
+title: 93-Agent面试题精讲：RAG篇
 date: 2002-09-26
 authors: 鲸落
 tags: [AI]

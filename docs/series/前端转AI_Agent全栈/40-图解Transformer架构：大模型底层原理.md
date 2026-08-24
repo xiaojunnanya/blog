@@ -67,7 +67,7 @@ Agent就是在这个基础上，通过一个又一个循环，不断给大模型
 
 ## Transformer 架构
 
-实现这个"“续写任务”的底层架构就是Transformer架构。
+实现这个"续写任务”的底层架构就是Transformer架构。
 
 Transformer 架构主要有三种形态:
 
